@@ -15,6 +15,8 @@ public class HarvesterAnt extends Ant {
 	 */
 	public HarvesterAnt () {
 		super(1);
+		this.foodCost = 1;
+
 	}
 
 	@Override
