@@ -4,7 +4,7 @@ import java.awt.event.*;
 import javax.swing.JFrame;
 
 import Graphics.*;
-import Graphics.Image;
+import Graphics.ImagePan;
 import Graphics.Window;
 
 public class Main  {
@@ -17,10 +17,10 @@ public class Main  {
 		game = new Window();
 		
 		
-		Image image = new Image("test.png");
+		ImagePan image = new ImagePan("test.png");
 		game.add(image);
 		
-		Image image2 = new Image("test2.png");
+		ImagePan image2 = new ImagePan("test2.png");
 		game.add(image2);
 		image2.setSize(100,100);
 		image2.setLocation(100,0);
