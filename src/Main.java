@@ -26,7 +26,10 @@ public class Main  {
 		image2.setLocation(100,0);
 		image2.zindex(0);
 		image.zindex(12);
+		image2.setAlpha(0.9f);
 	
+		
+		/*
 		image.addMouseListener(new MouseAdapter() {
 		        public void mouseClicked(MouseEvent e) {
 		           System.out.println("Test");
@@ -50,6 +53,7 @@ public class Main  {
 		}
 		
 		game.clear();
+		*/
 		
 	}
 	
