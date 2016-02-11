@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import ants.ThrowerAnt;
+import Graphics.*;
 
 /**
  * A class that controls the graphical game of Ants vs. Some-Bees. Game simulation system and GUI interaction are intermixed.
@@ -146,6 +147,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		frame.add(this);
 		frame.pack();
 		frame.setVisible(true);
+
 	}
 
 	@Override
@@ -154,6 +156,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.clearRect(0, 0, FRAME_SIZE.width, FRAME_SIZE.height); // clear to background color
 
+		
+		g2d.drawImage(ImageUtils.loadImage("assets/test.png"), 0, 0, null); // draw a bee at that position!
+
+		
 		drawAntSelector(g2d);
 
 		// text displays
@@ -168,6 +174,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		drawColony(g2d);
 		drawBees(g2d);
 		drawLeaves(g2d);
+		
+
 
 		if (!clock.isRunning()) { // start text
 			g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 32));
@@ -181,6 +189,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 * This handles both some game logic (turn order) and animation control
 	 */
 	private void nextFrame () {
+		
+
+		
 		if (frame == 0) // at the start of a turn
 		{
 			System.out.println("TURN: " + turn);
@@ -342,7 +353,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			Place place = entry.getValue(); // place to draw
 
 			g2d.setColor(Color.BLACK);
-			g2d.draw(rect); // border box (where to click)
+			//g2d.draw(rect); // border box (where to click)
 
 			if (place != tunnelEnd) {
 				g2d.drawImage(TUNNEL_IMAGE, rect.x, rect.y, null); // decorative image

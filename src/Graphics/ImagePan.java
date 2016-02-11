@@ -8,7 +8,7 @@ import java.io.File;
 import javax.imageio.*;
 import javax.swing.*;
 
-public class Image extends JLabel {
+public class ImagePan extends JLabel {
 		
 	private float alpha = 1;
     private BufferedImage image;
@@ -18,7 +18,7 @@ public class Image extends JLabel {
     private int mincol = 0;
     private int maxcol = 0;
 	
-	public Image(String path){
+	public ImagePan(String path){
 
 		try
         {
