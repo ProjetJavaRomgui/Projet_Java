@@ -17,6 +17,7 @@ public class Window {
 		 
 		 panel = new JPanel();
 		 panel.setBackground(Color.WHITE);
+		 panel.setLayout(null);
 		 fenetre.setContentPane(panel);
 		 
 		 fenetre.show();
@@ -26,7 +27,22 @@ public class Window {
 	public void add(Component comp){
 		
 		panel.add(comp);
+		panel.setOpaque(true);
 		fenetre.show();
+				
+	}
+	
+	public void clear(){
+		panel.removeAll();
+		panel.revalidate();
+		panel.repaint();
+		fenetre.show();
+	}
+	
+
+
+	
+	public void background(){
 		
 	}
 	
