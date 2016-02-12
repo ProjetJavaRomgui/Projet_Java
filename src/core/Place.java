@@ -124,8 +124,12 @@ public class Place {
 	 */
 	public void addInsect (Ant ant) {
 		if (this.ant == null) {
-			this.ant = ant;
-			ant.setPlace(this);
+			if(this instanceof Water && ant.getWaterSafe() == false){
+				System.out.println("Can't place this ant on Water"); // report error
+			} else {
+				this.ant = ant;
+				ant.setPlace(this);
+			}
 		}
 		else {
 			System.out.println("Already an ant in " + this); // report error
