@@ -68,6 +68,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	// other images (stored as member variables)
 	private final Image TUNNEL_IMAGE = ImageUtils.loadImage("img/tunnel.gif");
+	private final Image WATER_IMAGE = ImageUtils.loadImage("img/water.gif");
 	private final Image BEE_IMAGE = ImageUtils.loadImage("img/bee.gif");
 	private final Image BEEBAD_IMAGE = ImageUtils.loadImage("img/bee_bad.gif");
 	private final Image BEEATTACK_IMAGE = ImageUtils.loadImage("img/bee_attack.gif");
@@ -426,8 +427,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			g2d.setColor(Color.BLACK);
 			//g2d.draw(rect); // border box (where to click)
 
-			if (place != tunnelEnd) {
+			if (place != tunnelEnd && place.getType() == "Sol") {
 				g2d.drawImage(TUNNEL_IMAGE, rect.x, rect.y, null); // decorative image
+			} 
+			else if (place != tunnelEnd && place.getType() == "Water") {
+				g2d.drawImage(WATER_IMAGE, rect.x, rect.y, null); //water image
 			}
 
 			Ant ant = place.getAnt();
