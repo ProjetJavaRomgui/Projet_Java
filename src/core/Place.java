@@ -1,7 +1,7 @@
 package core;
 
 import java.util.ArrayList;
-
+import core.Containing;
 /**
  * Represents a location in the game
  *
@@ -15,6 +15,7 @@ public class Place {
 	private Place entrance; // where you enter this place from
 	private ArrayList<Bee> bees; // bees currently in the place
 	private Ant ant; // ant (singular) currently in the place
+	private Ant containingAnt; // ant (singular) with the containing tag in the place
 	/**
 	 * Creates a new place with the given name and exit
 	 *
@@ -50,6 +51,9 @@ public class Place {
 		return ant;
 	}
 
+	public Ant getContainingAnt() {
+		return containingAnt;
+	}
 	/**
 	 * Returns an array of the place's bees
 	 *
@@ -127,12 +131,22 @@ public class Place {
 			if(this instanceof Water && ant.getWaterSafe() == false){
 				System.out.println("Can't place this ant on Water"); // report error
 			} else {
-				this.ant = ant;
-				ant.setPlace(this);
+				if(!ant.isContener()){
+					this.ant = ant;
+					ant.setPlace(this);
+				} else {
+					this.containingAnt = ant;
+					ant.setPlace(this);
+				}
 			}
 		}
-		else {
-			System.out.println("Already an ant in " + this); // report error
+		else if(ant.isContener() && Containing.canAddContener(this)){
+			this.containingAnt = ant;
+			ant.setPlace(this);
+		}
+		else if(!ant.isContener() && Containing.canAddContenant(this)){
+			this.ant = ant;
+			ant.setPlace(this);
 		}
 	}
 
@@ -154,6 +168,10 @@ public class Place {
 	 *            The ant to remove from the place
 	 */
 	public void removeInsect (Ant ant) {
+		if (this.getContainingAnt() == ant){
+			this.containingAnt = null;
+			ant.setPlace(null);
+		}
 		if (this.ant == ant) {
 			this.ant = null;
 			ant.setPlace(null);

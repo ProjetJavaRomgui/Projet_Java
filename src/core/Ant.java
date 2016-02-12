@@ -9,6 +9,7 @@ public abstract class Ant extends Insect {
 
 	protected int foodCost; // the amount of food needed to make this ant
 	protected int foodMakePerTurn;
+	protected boolean contener = false ;
 	protected boolean blocking = true ;
 	/**
 	 * Creates a new Ant, with a food cost of 0.
@@ -39,11 +40,11 @@ public abstract class Ant extends Insect {
 		place.removeInsect(this);
 	}
 	
+	public boolean isContener() {
+		return contener;
+	}
+	
 	public boolean isBlocking() {
-		if (blocking) {
-			return true;
-		} else {
-			return false;
-		}
+		return blocking;
 	}
 }

@@ -61,6 +61,9 @@ public class Bee extends Insect {
 				return true;
 			}
 		}
+		if (place.getContainingAnt() != null){
+			return true;
+		}
 		return false;
 	}
 
@@ -71,7 +74,11 @@ public class Bee extends Insect {
 	@Override
 	public void action (AntColony colony) {
 		if (isBlocked()) {
-			sting(place.getAnt());
+			if (place.getContainingAnt() != null){
+				sting(place.getContainingAnt());
+			} else if (place.getAnt() != null){
+				sting(place.getAnt());
+			}
 		}
 		else if (armor > 0) {
 			moveTo(place.getExit());

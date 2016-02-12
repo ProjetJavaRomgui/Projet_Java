@@ -5,7 +5,7 @@ import core.AntColony;
 import core.Bee;
 
 /**
- * An Ant that eat bees (it must stings :/ ) 
+ * An invisible ant, will you be able to see it ? 
  *
  * @author YOUR NAME HERE
  */

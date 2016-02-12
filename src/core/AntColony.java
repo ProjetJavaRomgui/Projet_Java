@@ -172,6 +172,9 @@ public class AntColony {
 			if (p.getAnt() != null) {
 				ants.add(p.getAnt());
 			}
+			if (p.getContainingAnt() != null) {
+				ants.add(p.getContainingAnt());
+			}
 		}
 		return ants;
 	}
