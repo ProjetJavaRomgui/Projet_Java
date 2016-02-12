@@ -15,7 +15,7 @@ public class Place {
 	private Place entrance; // where you enter this place from
 	private ArrayList<Bee> bees; // bees currently in the place
 	private Ant ant; // ant (singular) currently in the place
-
+	private String Type = "Sol" ;
 	/**
 	 * Creates a new place with the given name and exit
 	 *
@@ -179,5 +179,9 @@ public class Place {
 	@Override
 	public String toString () {
 		return name;
+	}
+	
+	public String getType () {
+		return Type;
 	}
 }
