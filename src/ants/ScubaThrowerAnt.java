@@ -1,8 +1,5 @@
 package ants;
 
-import core.Ant;
-import core.AntColony;
-import core.Bee;
 
 /**
  * An aquatic ant who throws leaves at bees
