@@ -452,7 +452,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				image = BEEATTACK_IMAGE;
 			}
 			
-			if(bee.armor<=0 && entry.getKey().place.toString()!="AntQueen"){ //Change l'image
+			if(entry.getKey()!=null){
+				if(bee.armor<=0 && entry.getKey().place.toString()!="AntQueen"){ //Change l'image
+					image = BEEDEAD;
+				}
+			}else{
 				image = BEEDEAD;
 			}
 			
