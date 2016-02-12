@@ -12,7 +12,7 @@ public abstract class Insect {
 	protected Place place; // insect's current location
 	public int lastAttacked;
 	public int lastAttack;
-
+	public boolean waterSafe = false;
 	/**
 	 * Creates a new Insect with the given armor in the given location
 	 *
@@ -99,5 +99,9 @@ public abstract class Insect {
 	@Override
 	public String toString () {
 		return this.getClass().getName() + "[" + armor + ", " + place + "]"; // supports inheritance!
+	}
+	
+	public boolean getWaterSafe() {
+		return waterSafe;
 	}
 }

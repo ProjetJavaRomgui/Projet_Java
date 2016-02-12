@@ -20,6 +20,7 @@ public class Bee extends Insect {
 	public Bee (int armor) {
 		super(armor);
 		randomDecalage = (int)(10-Math.random()*20);
+		
 	}
 
 	/**
