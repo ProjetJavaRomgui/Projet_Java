@@ -443,16 +443,18 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			Bee bee = entry.getKey();
 			
 			Image image;
-			if(bee.lastAttacked<FPS/4){ //Change l'image pour un quart de seconde
-				image = BEEBAD_IMAGE;
-			}else{
-				image = BEE_IMAGE;
-			}
-			if(bee.lastAttack<FPS/4){ //Change l'image pour un quart de seconde
-				image = BEEATTACK_IMAGE;
-			}
-			
+
 			if(entry.getKey()!=null){
+	
+				if(bee.lastAttacked<FPS/4){ //Change l'image pour un quart de seconde
+					image = BEEBAD_IMAGE;
+				}else{
+					image = BEE_IMAGE;
+				}
+				if(bee.lastAttack<FPS/4){ //Change l'image pour un quart de seconde
+					image = BEEATTACK_IMAGE;
+				}
+			
 				if(bee.armor<=0 && entry.getKey().place.toString()!="AntQueen"){ //Change l'image
 					image = BEEDEAD;
 				}
