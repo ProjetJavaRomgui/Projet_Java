@@ -57,6 +57,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static final double LEAF_SPEED = .3; // in seconds
 	private int turn; // current game turn
 	private int frame; // time elapsed since last turn
+	private int counter;
 	private Timer clock;
 	private int STARTTIME = 10;
 	private int STARTED = FPS*STARTTIME;
@@ -119,6 +120,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 		// game clock tracking
 		frame = 0;
+		counter = 0;
 		turn = 0;
 		clock = new Timer(1000 / FPS, this);
 
@@ -221,6 +223,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		STARTED+=-1;
 		STARTED = Math.max(0, STARTED);
+		counter++;
 		
 		if(STARTED==0){
 	
@@ -260,8 +263,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	
 				// bees take action!
 				for (Bee bee : colony.getAllBees()) {
-					bee.action(colony);
-					startAnimation(bee); // start up animation for the bee if needed
+					if(bee.place!=null){
+						bee.action(colony);
+						startAnimation(bee); // start up animation for the bee if needed
+					}
 				}
 	
 				// new invaders attack!
@@ -482,8 +487,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			}
 			
 			g2d.drawImage(image,
-					(int) pos.x + (int)(Math.cos((pos.x+pos.y)/(20+bee.randomDecalage))*10),
-					(int) pos.y + (int)(Math.cos((pos.x+pos.y)/(20+bee.randomDecalage))*10),
+					(int) pos.x + (int)(Math.cos((float)counter/(20+bee.randomDecalage))*10),
+					(int) pos.y + (int)(Math.cos((float)counter/(20+bee.randomDecalage))*10),
 					null); // draw a bee at that position!
 		}
 	}

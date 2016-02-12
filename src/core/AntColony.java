@@ -185,6 +185,7 @@ public class AntColony {
 		}
 		return bees;
 	}
+	
 
 	@Override
 	public String toString () {
