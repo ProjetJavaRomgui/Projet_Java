@@ -172,7 +172,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		g2d.clearRect(0, 0, FRAME_SIZE.width, FRAME_SIZE.height); // clear to background color
 		
 		
-		int mov = (int) smooth(-2048,(FPS*STARTTIME-STARTED),FPS*STARTTIME);
+		int mov = (int) smooth(-(BACK.getWidth(getParent())-FRAME_SIZE.width),(FPS*STARTTIME-STARTED),FPS*STARTTIME);
 		
 		g2d.drawImage(BACK, mov, 0, null); // draw a bee at that position!
 		g2d.drawImage(MENU, 0, 0, null); // draw a bee at that position!
