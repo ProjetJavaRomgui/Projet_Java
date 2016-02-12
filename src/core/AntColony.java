@@ -13,7 +13,8 @@ public class AntColony {
 	public static final String QUEEN_NAME = "AntQueen"; // name of the Queen's place
 	public static final int MAX_TUNNEL_LENGTH = 8;
 	public int life = 10;
-
+	
+	private boolean WaterPresent = false ; //génère de l'eau ou non 
 	private int food; // amount of food available
 	Place queenPlace; // where the queen is
 	private ArrayList<Place> places; // the places in the colony
@@ -40,19 +41,33 @@ public class AntColony {
 		places = new ArrayList<Place>();
 		beeEntrances = new ArrayList<Place>();
 		queenPlace = new Place(QUEEN_NAME); // magic variable namexw
-
+		if (moatFrequency != 0){
+			WaterPresent = true ;
+		}
 		tunnelLength = Math.min(tunnelLength, MAX_TUNNEL_LENGTH); // don't go off the screen!
 		// set up tunnels, as a kind of linked-list
 		Place curr, prev; // reference to current exit of the tunnel
 		for (int tunnel = 0; tunnel < numTunnels; tunnel++) {
 			curr = queenPlace; // start the tunnel's at the queen
-			for (int step = 0; step < tunnelLength; step++) {
-				prev = curr; // keep track of the previous guy (who we will exit to)
+			if (moatFrequency == 0){
+				for (int step = 0; step < tunnelLength; step++) {
+					prev = curr; // keep track of the previous guy (who we will exit to)
+					curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev); // create new place with an exit that is the previous spot
 
-				curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev); // create new place with an exit that is the previous spot
-
-				prev.setEntrance(curr); // the previous person's entrance is the new spot
-				places.add(curr); // add new place to the list
+					prev.setEntrance(curr); // the previous person's entrance is the new spot
+					places.add(curr); // add new place to the list
+				}
+			} else {
+				for (int step = 0; step < tunnelLength; step++) {
+					prev = curr; // keep track of the previous guy (who we will exit to)
+					if (step%moatFrequency != 0){
+						curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev); // create new place with an exit that is the previous spot
+					} else {
+						curr = new Water("water[" + tunnel + "-" + step + "]", prev);
+					}
+					prev.setEntrance(curr); // the previous person's entrance is the new spot
+					places.add(curr); // add new place to the list
+				}
 			}
 			beeEntrances.add(curr); // current place is last item in the tunnel, so mark that it is a bee entrance
 		} // loop to next tunnel
