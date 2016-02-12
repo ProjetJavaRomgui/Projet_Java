@@ -10,6 +10,8 @@ public abstract class Insect {
 
 	protected int armor; // insect's current armor
 	protected Place place; // insect's current location
+	public int lastAttacked;
+	public int lastAttack;
 
 	/**
 	 * Creates a new Insect with the given armor in the given location
@@ -76,7 +78,9 @@ public abstract class Insect {
 		if (armor <= 0) {
 			System.out.println(this + " ran out of armor and expired");
 			leavePlace();
+			
 		}
+		lastAttacked = 0;
 	}
 
 	/**

@@ -67,6 +67,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	// other images (stored as member variables)
 	private final Image TUNNEL_IMAGE = ImageUtils.loadImage("img/tunnel.gif");
 	private final Image BEE_IMAGE = ImageUtils.loadImage("img/bee.gif");
+	private final Image BEEBAD_IMAGE = ImageUtils.loadImage("img/bee_bad.gif");
+	private final Image BEEATTACK_IMAGE = ImageUtils.loadImage("img/bee_attack.gif");
 	private final Image REMOVER_IMAGE = ImageUtils.loadImage("img/remover.gif");
 
 	// positioning constants
@@ -252,11 +254,18 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 
 		// every frame
-		for (AnimPosition pos : allBeePositions.values()) // apply animations to all the bees
+		for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // apply animations to all the bees
 		{
-			if (pos.framesLeft > 0) {
-				pos.step();
+			if (entry.getValue().framesLeft > 0) {
+				entry.getValue().step();
 			}
+			entry.getKey().lastAttacked++;
+			entry.getKey().lastAttack++;
+		}
+		for (Ant ant : colony.getAllAnts()) // apply time
+		{
+			ant.lastAttacked++;
+			ant.lastAttack++;
 		}
 		Iterator<AnimPosition> iter = leaves.iterator(); // apply animations ot all the leaves
 		while (iter.hasNext()) { // iterator so we can remove when finished
@@ -388,9 +397,25 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	// Draws all the Bees (included deceased) in their current locations
 	private void drawBees (Graphics2D g2d) {
-		for (AnimPosition pos : allBeePositions.values()) // go through all the Bee positions
+		for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // go through all the Bee positions
 		{
-			g2d.drawImage(BEE_IMAGE, (int) pos.x, (int) pos.y, null); // draw a bee at that position!
+			AnimPosition pos = entry.getValue();
+			Bee bee = entry.getKey();
+			
+			Image image;
+			if(bee.lastAttacked<FPS/4){ //Change l'image pour un quart de seconde
+				image = BEEBAD_IMAGE;
+			}else{
+				image = BEE_IMAGE;
+			}
+			if(bee.lastAttack<FPS/4){ //Change l'image pour un quart de seconde
+				image = BEEATTACK_IMAGE;
+			}
+			
+			g2d.drawImage(image,
+					(int) pos.x + (int)(Math.cos((pos.x+pos.y)/(20+bee.randomDecalage))*10),
+					(int) pos.y + (int)(Math.cos((pos.x+pos.y)/(20+bee.randomDecalage))*10),
+					null); // draw a bee at that position!
 		}
 	}
 

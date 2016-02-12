@@ -8,6 +8,7 @@ package core;
 public class Bee extends Insect {
 
 	private static final int DAMAGE = 1;
+	int randomDecalage = 0;
 
 	/**
 	 * Creates a new bee with the given armor
@@ -17,6 +18,7 @@ public class Bee extends Insect {
 	 */
 	public Bee (int armor) {
 		super(armor);
+		randomDecalage = (int)(10-Math.random()*20);
 	}
 
 	/**
@@ -27,6 +29,7 @@ public class Bee extends Insect {
 	 */
 	public void sting (Ant ant) {
 		ant.reduceArmor(DAMAGE);
+		lastAttack=0;
 	}
 
 	/**
