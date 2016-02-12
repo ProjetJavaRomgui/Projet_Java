@@ -58,7 +58,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int turn; // current game turn
 	private int frame; // time elapsed since last turn
 	private Timer clock;
-	private int STARTTIME = 1;
+	private int STARTTIME = 10;
 	private int STARTED = FPS*STARTTIME;
 
 	// ant properties (laoded from external files, stored as member variables)
@@ -174,32 +174,43 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		
 		int mov = (int) smooth(-(BACK.getWidth(getParent())-FRAME_SIZE.width),(FPS*STARTTIME-STARTED),FPS*STARTTIME);
+		int decalage = (BACK.getWidth(getParent())-FRAME_SIZE.width)+mov;
+
+		System.out.println(decalage);
 		
 		g2d.drawImage(BACK, mov, 0, null); // draw a bee at that position!
-		g2d.drawImage(MENU, 0, 0, null); // draw a bee at that position!
 		
-		drawAntSelector(g2d);
+		
+		g2d.drawImage(MENU, 0, -decalage/6, null); // draw a bee at that position!
+		
+		drawAntSelector(g2d,decalage/6);
 
-		// text displays
-		String antString = "none";
-		if (selectedAnt != null) {
-			antString = selectedAnt.getClass().getName();
-			antString = antString.substring(0, antString.length() - 3); // remove the word "ant"
+		if(STARTED==0){
+
+			// text displays
+			String antString = "none";
+			if (selectedAnt != null) {
+				antString = selectedAnt.getClass().getName();
+				antString = antString.substring(0, antString.length() - 3); // remove the word "ant"
+			}
+			
+		
+			g2d.drawString("Ant selected: " + antString, 20, 20); // hard-coded positions, make variable?
+			g2d.drawString("Life: "+ colony.life +", Food: " + colony.getFood() + ", Turn: " + turn, 20, 140);
+
 		}
-		g2d.drawString("Ant selected: " + antString, 20, 20); // hard-coded positions, make variable?
-		g2d.drawString("Life: "+ colony.life +", Food: " + colony.getFood() + ", Turn: " + turn, 20, 140);
-
-		drawColony(g2d);
+		
+		drawColony(g2d,decalage);
 		drawBees(g2d);
 		drawLeaves(g2d);
-		
-
-
+			
 		if (!clock.isRunning()) { // start text
 			g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 32));
 			g2d.setColor(Color.RED);
 			g2d.drawString("CLICK TO START", 350, 550);
 		}
+		
+		
 	}
 
 	/**
@@ -419,7 +430,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	// Draws all the places for the Colony on the given Graphics2D
 	// Includes drawing the Ants deployed to the Colony (but not the Bees moving through it)
-	private void drawColony (Graphics2D g2d) {
+	private void drawColony (Graphics2D g2d, int decalage) {
 		for (Map.Entry<Rectangle, Place> entry : colonyAreas.entrySet()) {
 			Rectangle rect = entry.getKey(); // rectangle area for this place
 			Place place = entry.getValue(); // place to draw
@@ -428,10 +439,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			//g2d.draw(rect); // border box (where to click)
 
 			if (place != tunnelEnd && place instanceof Water) {
-				g2d.drawImage(WATER_IMAGE, rect.x, rect.y, null); // decorative image
+				g2d.drawImage(WATER_IMAGE, rect.x+decalage, rect.y, null); // decorative image
 			} 
 			else if (place != tunnelEnd) {
-				g2d.drawImage(TUNNEL_IMAGE, rect.x, rect.y, null); //water image
+				g2d.drawImage(TUNNEL_IMAGE, rect.x+decalage, rect.y, null); //water image
 			}
 
 			Ant ant = place.getAnt();
@@ -517,12 +528,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	}
 
 	// Draws the ant selector area
-	private void drawAntSelector (Graphics2D g2d) {
+	private void drawAntSelector (Graphics2D g2d, int decalageY) {
 		// go through each selector area
 		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
 			Rectangle rect = entry.getKey(); // selected area
 			Ant ant = entry.getValue(); // ant to select
-
+			
 			// box status
 			g2d.setColor(Color.WHITE);
 			if (ant.getFoodCost() > colony.getFood()) {
@@ -531,28 +542,23 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			else if (ant == selectedAnt) {
 				g2d.setColor(Color.BLUE);
 			}
-			g2d.fill(rect);
+			g2d.fillRect(rect.x,rect.y-decalageY,rect.width,rect.height);
 
-			// box outline
-			g2d.setColor(Color.BLACK);
-			g2d.draw(rect);
 
 			// ant image
 			Image img = ANT_IMAGES.get(ant.getClass().getName());
-			g2d.drawImage(img, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height, null);
+			g2d.drawImage(img, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
 
 			// food cost
-			g2d.drawString("" + ant.getFoodCost(), rect.x + (rect.width / 2), rect.y + ANT_IMAGE_SIZE.height + 4 + PANEL_PADDING.height);
+			g2d.drawString("" + ant.getFoodCost(), rect.x + (rect.width / 2), rect.y + ANT_IMAGE_SIZE.height + 4 + PANEL_PADDING.height -decalageY);
 		}
 
 		// for removing an ant
 		if (selectedAnt == null) {
 			g2d.setColor(Color.BLUE);
-			g2d.fill(removerArea);
+			g2d.fillRect(removerArea.x,removerArea.y-decalageY,removerArea.width,removerArea.height);
 		}
-		g2d.setColor(Color.BLACK);
-		g2d.draw(removerArea);
-		g2d.drawImage(REMOVER_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height, null);
+		g2d.drawImage(REMOVER_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height -decalageY, null);
 	}
 
 	/**
