@@ -58,6 +58,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int turn; // current game turn
 	private int frame; // time elapsed since last turn
 	private Timer clock;
+	private int STARTED = FPS*3;
 
 	// ant properties (laoded from external files, stored as member variables)
 	private final ArrayList<String> ANT_TYPES;
@@ -71,6 +72,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image BEEATTACK_IMAGE = ImageUtils.loadImage("img/bee_attack.gif");
 	private final Image REMOVER_IMAGE = ImageUtils.loadImage("img/remover.gif");
 	private final Image BEEDEAD = ImageUtils.loadImage("img/bee_return.gif");
+	private final Image BACK = ImageUtils.loadImage("assets/preback.png");
+	private final Image MENU = ImageUtils.loadImage("assets/test.png");
 	// positioning constants
 	public static final Dimension FRAME_SIZE = new Dimension(1024, 768);
 	public static final Dimension ANT_IMAGE_SIZE = new Dimension(66, 71); // assumed size; may be greater than actual image size
@@ -151,15 +154,28 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		frame.setVisible(true);
 
 	}
+	
+	//Return smooth animation position a, position b, temps actuel, duree
+	public float smooth(int a,int t,int d){
+		if(t<d/2){
+			return (float) (a*Math.pow(((float)t/d)*2, 2)/2);
+		}else{
+			return (float) (a*(2-Math.pow(((float)t/d)*2-2, 2))/2);
+		}
+	}
 
 	@Override
 	public void paintComponent (Graphics g) {
 		super.paintComponent(g); // take care of anything else
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.clearRect(0, 0, FRAME_SIZE.width, FRAME_SIZE.height); // clear to background color
-
-		g2d.drawImage(ImageUtils.loadImage("assets/back.png"), 0, 0, null); // draw a bee at that position!
-		g2d.drawImage(ImageUtils.loadImage("assets/test.png"), 0, 0, null); // draw a bee at that position!
+		
+		
+		int mov = (int) smooth(-2048,(FPS*3-STARTED),FPS*3);
+		System.out.println(smooth(-2048,(FPS*3-STARTED),FPS*3));
+		
+		g2d.drawImage(BACK, mov, 0, null); // draw a bee at that position!
+		g2d.drawImage(MENU, 0, 0, null); // draw a bee at that position!
 		
 		drawAntSelector(g2d);
 
@@ -191,127 +207,139 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 */
 	private void nextFrame () {
 		
+		STARTED+=-1;
+		STARTED = Math.max(0, STARTED);
 		
-		//Calculate nb of food produced each turn
-		int nbFrameFood = 0;
-		for (Ant ant : colony.getAllAnts()) {
-			nbFrameFood += ant.foodMakePerTurn;
-		}
-		if(nbFrameFood>0){
-			nbFrameFood = (FPS*TURN_SECONDS)/nbFrameFood;
-			//Real time food increase
-			if(nbFrameFood>FPS*TURN_SECONDS){
-				colony.increaseFood(1);
-			}else{
-				if (frame%nbFrameFood == 0){
-					colony.increaseFood(1);
-				}
-			}
-
-		}
-		
-		if (frame == 0) // at the start of a turn
-		{
-			System.out.println("TURN: " + turn);
-
-			// ants take action!
+		if(STARTED==0){
+	
+			//Calculate nb of food produced each turn
+			int nbFrameFood = 0;
 			for (Ant ant : colony.getAllAnts()) {
-				if (ant instanceof ThrowerAnt) // if we're a thrower, might need to make a leaf!
-				{
-					Bee target = ((ThrowerAnt) ant).getTarget(); // who we'll throw at (really which square, but works out the same)
-					if (target != null) {
-						createLeaf(ant, target);
+				nbFrameFood += ant.foodMakePerTurn;
+			}
+			if(nbFrameFood>0){
+				nbFrameFood = (FPS*TURN_SECONDS)/nbFrameFood;
+				//Real time food increase
+				if(nbFrameFood>FPS*TURN_SECONDS){
+					colony.increaseFood(1);
+				}else{
+					if (frame%nbFrameFood == 0){
+						colony.increaseFood(1);
 					}
 				}
-				ant.action(colony); // take the action (actually completes the throw now)
+	
 			}
-
-			// bees take action!
-			for (Bee bee : colony.getAllBees()) {
-				bee.action(colony);
-				startAnimation(bee); // start up animation for the bee if needed
-			}
-
-			// new invaders attack!
-			Bee[] invaders = hive.invade(colony, turn); // this moves the bees into the colony
-			for (Bee bee : invaders) {
-				startAnimation(bee);
-			}
-
-			// if want to do this to ants as well, will need to start storing dead ones with AnimPositions
-		}
-		
-		
-		if (frame == (int) (LEAF_SPEED * FPS)) // after leaves animate
-		{
-			for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // remove dead bees
+			
+			if (frame == 0) // at the start of a turn
 			{
-				if (entry.getKey().getArmor() <= 0) { // if dead bee
-					AnimPosition pos = entry.getValue();
-					pos.animateTo((int) (FRAME_SIZE.getWidth()+200), (int) pos.y, FPS * TURN_SECONDS);
+				System.out.println("TURN: " + turn);
+	
+				// ants take action!
+				for (Ant ant : colony.getAllAnts()) {
+					if (ant instanceof ThrowerAnt) // if we're a thrower, might need to make a leaf!
+					{
+						Bee target = ((ThrowerAnt) ant).getTarget(); // who we'll throw at (really which square, but works out the same)
+						if (target != null) {
+							createLeaf(ant, target);
+						}
+					}
+					ant.action(colony); // take the action (actually completes the throw now)
+				}
+	
+				// bees take action!
+				for (Bee bee : colony.getAllBees()) {
+					bee.action(colony);
+					startAnimation(bee); // start up animation for the bee if needed
+				}
+	
+				// new invaders attack!
+				Bee[] invaders = hive.invade(colony, turn); // this moves the bees into the colony
+				for (Bee bee : invaders) {
+					startAnimation(bee);
+				}
+	
+				// if want to do this to ants as well, will need to start storing dead ones with AnimPositions
+			}
+			
+			
+			if (frame == (int) (LEAF_SPEED * FPS)) // after leaves animate
+			{
+				for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // remove dead bees
+				{
+					if (entry.getKey().getArmor() <= 0) { // if dead bee
+						AnimPosition pos = entry.getValue();
+						if(entry.getKey().place.toString()!="AntQueen"){
+							pos.animateTo((int) (FRAME_SIZE.getWidth()+200), (int) pos.y, FPS * TURN_SECONDS);
+						}else{
+							pos.animateTo((int) (-200), (int) pos.y, FPS * TURN_SECONDS);
+						}
+					}
 				}
 			}
-		}
-
-		// every frame
-		for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // apply animations to all the bees
-		{
-			if (entry.getValue().framesLeft > 0) {
-				entry.getValue().step();
+	
+			// every frame
+			for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // apply animations to all the bees
+			{
+				if (entry.getValue().framesLeft > 0) {
+					entry.getValue().step();
+				}
+				entry.getKey().lastAttacked++;
+				entry.getKey().lastAttack++;
 			}
-			entry.getKey().lastAttacked++;
-			entry.getKey().lastAttack++;
-		}
-		for (Ant ant : colony.getAllAnts()) // apply time
-		{
-			ant.lastAttacked++;
-			ant.lastAttack++;
-		}
-		Iterator<AnimPosition> iter = leaves.iterator(); // apply animations ot all the leaves
-		while (iter.hasNext()) { // iterator so we can remove when finished
-			AnimPosition leaf = iter.next();
-			if (leaf.framesLeft > 0) {
-				leaf.step();
+			for (Ant ant : colony.getAllAnts()) // apply time
+			{
+				ant.lastAttacked++;
+				ant.lastAttack++;
 			}
-			else {
-				iter.remove(); // remove the leaf if done animating
+			Iterator<AnimPosition> iter = leaves.iterator(); // apply animations ot all the leaves
+			while (iter.hasNext()) { // iterator so we can remove when finished
+				AnimPosition leaf = iter.next();
+				if (leaf.framesLeft > 0) {
+					leaf.step();
+				}
+				else {
+					iter.remove(); // remove the leaf if done animating
+				}
 			}
+		
+			// ADVANCE THE CLOCK COUNTERS
+			frame++; // count the frame
+			// System.out.println("frame: "+frame);
+			if (frame == FPS * TURN_SECONDS) { // if TURN seconds worth of frames
+				turn++; // next turn
+				frame = 0; // reset frame
+			}
+	
+			if (frame == TURN_SECONDS * FPS / 2) // wait half a turn (1.5 sec) before ending
+			{
+				// check for end condition before proceeding
+				
+				
+				if (colony.queenHasBees()) { // more than 1 life
+					for (Bee bee: colony.queenPlace.getBees())
+					{
+						if(bee.place.toString()=="AntQueen" && bee.armor>0){
+							bee.armor=-1;
+							colony.life += -bee.colonyDegat; // Big bees can destroy all the colony
+						}
+					}
+				}
+				
+				if(colony.life<0){
+					JOptionPane.showMessageDialog(this, "The ant queen has perished! Please try again.", "Bzzzzz!", JOptionPane.PLAIN_MESSAGE);
+					System.exit(0); // quit
+				}
+				if (hive.getBees().length + colony.getAllBees().size() == 0) { // no more bees--we won!
+					JOptionPane.showMessageDialog(this, "All bees are vanquished. You win!", "Yaaaay!", JOptionPane.PLAIN_MESSAGE);
+					System.exit(0); // quit
+				}
+			}
+		}else{
+			frame = 0;
 		}
-
 		this.repaint(); // request an update per frame!
 
-		// ADVANCE THE CLOCK COUNTERS
-		frame++; // count the frame
-		// System.out.println("frame: "+frame);
-		if (frame == FPS * TURN_SECONDS) { // if TURN seconds worth of frames
-			turn++; // next turn
-			frame = 0; // reset frame
-		}
-
-		if (frame == TURN_SECONDS * FPS / 2) // wait half a turn (1.5 sec) before ending
-		{
-			// check for end condition before proceeding
-			
-			
-			if (colony.queenHasBees()) { // more than 1 life
-				for (Bee bee: colony.queenPlace.getBees())
-				{
-					if(bee.place.toString()=="AntQueen" && bee.armor>0){
-						bee.armor=-1;
-						colony.life += -bee.colonyDegat; // Big bees can destroy all the colony
-					}
-				}
-			}
-			
-			if(colony.life<0){
-				JOptionPane.showMessageDialog(this, "The ant queen has perished! Please try again.", "Bzzzzz!", JOptionPane.PLAIN_MESSAGE);
-				System.exit(0); // quit
-			}
-			if (hive.getBees().length + colony.getAllBees().size() == 0) { // no more bees--we won!
-				JOptionPane.showMessageDialog(this, "All bees are vanquished. You win!", "Yaaaay!", JOptionPane.PLAIN_MESSAGE);
-				System.exit(0); // quit
-			}
-		}
+		
 	}
 
 	//
@@ -424,7 +452,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				image = BEEATTACK_IMAGE;
 			}
 			
-			if(bee.armor<=0){ //Change l'image
+			if(bee.armor<=0 && entry.getKey().place.toString()!="AntQueen"){ //Change l'image
 				image = BEEDEAD;
 			}
 			
