@@ -11,8 +11,10 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Path2D;
 import java.io.File;
 import java.io.IOException;
@@ -59,7 +61,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int frame; // time elapsed since last turn
 	private int counter;
 	private Timer clock;
-	private int STARTTIME = 10;
+	private int STARTTIME = 1;
 	private int STARTED = FPS*STARTTIME;
 
 	// ant properties (laoded from external files, stored as member variables)
@@ -70,13 +72,16 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	// other images (stored as member variables)
 	private final Image TUNNEL_IMAGE = ImageUtils.loadImage("img/tunnel.gif");
 	private final Image WATER_IMAGE = ImageUtils.loadImage("img/water.png");
+	private final Image TUNNEL_SELECT_IMAGE = ImageUtils.loadImage("img/tun_select.png");
+	private final Image TUNNEL_SELECTED_IMAGE = ImageUtils.loadImage("img/tun_selected.png");
+	private final Image TUNNEL_DISABLED_IMAGE = ImageUtils.loadImage("img/tun_disabled.png");
 	private final Image BEE_IMAGE = ImageUtils.loadImage("img/bee.gif");
 	private final Image BEEBAD_IMAGE = ImageUtils.loadImage("img/bee_bad.gif");
 	private final Image BEEATTACK_IMAGE = ImageUtils.loadImage("img/bee_attack.gif");
 	private final Image REMOVER_IMAGE = ImageUtils.loadImage("img/remover.gif");
 	private final Image BEEDEAD = ImageUtils.loadImage("img/bee_return.gif");
 	private final Image BACK = ImageUtils.loadImage("assets/preback.png");
-	private final Image MENU = ImageUtils.loadImage("assets/test.png");
+	private final Image MENU = ImageUtils.loadImage("assets/menutop.png");
 	// positioning constants
 	public static final Dimension FRAME_SIZE = new Dimension(1024, 768);
 	public static final Dimension ANT_IMAGE_SIZE = new Dimension(66, 71); // assumed size; may be greater than actual image size
@@ -105,6 +110,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private Map<Bee, AnimPosition> allBeePositions; // maps from Bee to an object storing animation status
 	private ArrayList<AnimPosition> leaves; // leaves we're animating
 
+	private int mouseX = 0;
+	private int mouseY = 0;
+	
+	
 	/**
 	 * Creates a new game of Ants vs. Some-Bees, with the given colony and hive setup
 	 *
@@ -114,6 +123,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 *            The hive (and attack plan) for the game
 	 */
 	public AntGame (AntColony colony, Hive hive) {
+		
+		addMouseMotionListener(new MouseAdapter() {
+		     public void mouseMoved(MouseEvent me) {
+		    	 mouseX = me.getX();
+		    	 mouseY = me.getY();
+		     }
+		});
 		// game init stuff
 		this.colony = colony;
 		this.hive = hive;
@@ -178,7 +194,6 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		int mov = (int) smooth(-(BACK.getWidth(getParent())-FRAME_SIZE.width),(FPS*STARTTIME-STARTED),FPS*STARTTIME);
 		int decalage = (BACK.getWidth(getParent())-FRAME_SIZE.width)+mov;
 
-		System.out.println(decalage);
 		
 		g2d.drawImage(BACK, mov, 0, null); // draw a bee at that position!
 		
@@ -197,8 +212,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			}
 			
 		
-			g2d.drawString("Ant selected: " + antString, 20, 20); // hard-coded positions, make variable?
-			g2d.drawString("Life: "+ colony.life +", Food: " + colony.getFood() + ", Turn: " + turn, 20, 140);
+			g2d.drawString("Life: "+ colony.life +" Food: " + colony.getFood(), 22, 140);
 
 		}
 		
@@ -403,18 +417,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			return; // stop searching
 		}
 	}
-
-	// Specifies and starts an animation for a Bee (moving to a particular place)
-	private void startAnimation (Bee b) {
-		AnimPosition anim = allBeePositions.get(b);
-		if (anim.framesLeft == 0) // if not already animating
-		{
-			Rectangle rect = colonyRects.get(b.getPlace()); // where we want to go to
-			if (rect != null && !rect.contains(anim.x, anim.y)) {
-				anim.animateTo(rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, FPS * TURN_SECONDS);
-			}
-		}
-	}
+	
+	
 
 	// Creates a new leaf (animated) from the Ant source to the Bee target.
 	// Note that really only cares about the target's Place (Ant can target other Bees in same Place)
@@ -449,6 +453,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			else if (place != tunnelEnd) {
 				g2d.drawImage(TUNNEL_IMAGE, rect.x+decalage, rect.y, null); //water image
 			}
+			
+			if (rect.contains(mouseX, mouseY)){
+				g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+			}
+			
 
 			Ant ant = place.getAnt();
 			if (ant != null) { // draw the ant if we have one
@@ -540,29 +549,34 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			Ant ant = entry.getValue(); // ant to select
 			
 			// box status
-			g2d.setColor(Color.WHITE);
-			if (ant.getFoodCost() > colony.getFood()) {
-				g2d.setColor(Color.GRAY);
+			if (rect.contains(mouseX, mouseY)){
+				g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
 			}
 			else if (ant == selectedAnt) {
-				g2d.setColor(Color.BLUE);
+				g2d.drawImage(TUNNEL_SELECTED_IMAGE, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
 			}
-			g2d.fillRect(rect.x,rect.y-decalageY,rect.width,rect.height);
 
 
 			// ant image
 			Image img = ANT_IMAGES.get(ant.getClass().getName());
+			if (ant.getFoodCost() > colony.getFood()) {
+				img = ANT_IMAGES.get(ant.getClass().getName()+"disabled");
+			}
 			g2d.drawImage(img, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
 
 			// food cost
 			g2d.drawString("" + ant.getFoodCost(), rect.x + (rect.width / 2), rect.y + ANT_IMAGE_SIZE.height + 4 + PANEL_PADDING.height -decalageY);
 		}
 
-		// for removing an ant
-		if (selectedAnt == null) {
-			g2d.setColor(Color.BLUE);
-			g2d.fillRect(removerArea.x,removerArea.y-decalageY,removerArea.width,removerArea.height);
+		// box status
+		if (removerArea.contains(mouseX, mouseY)){
+			g2d.drawImage(TUNNEL_SELECT_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height -decalageY, null);
 		}
+		else if (selectedAnt == null) {
+			g2d.drawImage(TUNNEL_SELECTED_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height -decalageY, null);
+		}
+		g2d.setColor(Color.WHITE);
+
 		g2d.drawImage(REMOVER_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height -decalageY, null);
 	}
 
@@ -583,12 +597,15 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						Class.forName(antType); // make sure the class is implemented and we can load it
 						ANT_TYPES.add(antType);
 						ANT_IMAGES.put(antType, ImageUtils.loadImage(parts[1].trim()));
+						
 						if (parts.length > 2) {
 							LEAF_COLORS.put(antType, new Color(Integer.parseInt(parts[2].trim())));
 						}
 					}
 					catch (ClassNotFoundException e) {
 					} // if class isn't found, will continue (reading next line)
+					ANT_IMAGES.put(antType, ImageUtils.loadImage(parts[1].trim()));
+
 				}
 			}
 			sc.close();
@@ -596,6 +613,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		catch (IOException e) { // for IOException, NumberFormatException, ArrayIndex exception... basically if anything goes wrong, don't crash
 			System.out.println("Error loading insect gui properties: " + e);
 		}
+		
 
 	}
 
@@ -713,8 +731,18 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public void mouseReleased (MouseEvent e) {
 	}
 
-	@Override
-	public void mouseEntered (MouseEvent e) {
+
+
+	// Specifies and starts an animation for a Bee (moving to a particular place)
+	private void startAnimation (Bee b) {
+		AnimPosition anim = allBeePositions.get(b);
+		if (anim.framesLeft == 0) // if not already animating
+		{
+			Rectangle rect = colonyRects.get(b.getPlace()); // where we want to go to
+			if (rect != null && !rect.contains(anim.x, anim.y)) {
+				anim.animateTo(rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, FPS * TURN_SECONDS);
+			}
+		}
 	}
 
 	@Override
@@ -797,5 +825,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			return img; // return the image
 		}
 	}
+
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

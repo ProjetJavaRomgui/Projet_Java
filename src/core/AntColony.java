@@ -31,8 +31,10 @@ public class AntColony {
 	 * @param startingFood
 	 *            The starting food for this colony.
 	 */
-	public AntColony (int numTunnels, int tunnelLength, int moatFrequency, int startingFood, int life) {
+	public AntColony (int numTunnels, int tunnelLength, int moatFrequency, int startingFood, int life, int difficulty) {
 		// simulation values
+		
+		int lineWater = 0;
 		food = startingFood;
 
 		this.life = life;
@@ -54,12 +56,15 @@ public class AntColony {
 					places.add(curr); // add new place to the list
 				}
 			} else {
+				lineWater = 0;
 				for (int step = 0; step < tunnelLength; step++) {
+					
 					prev = curr; // keep track of the previous guy (who we will exit to)
-					if (step%moatFrequency != 0){
+					if (Math.random()<1-(float)difficulty/10 && lineWater<=tunnelLength*(float)difficulty/10+1){
 						curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev); // create new place with an exit that is the previous spot
 					} else {
 						curr = new Water("water[" + tunnel + "-" + step + "]", prev);
+						lineWater++;
 					}
 					prev.setEntrance(curr); // the previous person's entrance is the new spot
 					places.add(curr); // add new place to the list
