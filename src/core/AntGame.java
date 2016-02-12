@@ -53,7 +53,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	// game clock & speed
 	public static final int FPS = 30; // target frames per second
-	public static final int TURN_SECONDS = 2; // seconds per turn
+	public static final int TURN_SECONDS = 1; // seconds per turn
 	public static final double LEAF_SPEED = .3; // in seconds
 	private int turn; // current game turn
 	private int frame; // time elapsed since last turn
@@ -70,7 +70,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image BEEBAD_IMAGE = ImageUtils.loadImage("img/bee_bad.gif");
 	private final Image BEEATTACK_IMAGE = ImageUtils.loadImage("img/bee_attack.gif");
 	private final Image REMOVER_IMAGE = ImageUtils.loadImage("img/remover.gif");
-
+	private final Image BEEDEAD = ImageUtils.loadImage("img/bee_return.gif");
 	// positioning constants
 	public static final Dimension FRAME_SIZE = new Dimension(1024, 768);
 	public static final Dimension ANT_IMAGE_SIZE = new Dimension(66, 71); // assumed size; may be greater than actual image size
@@ -248,7 +248,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			{
 				if (entry.getKey().getArmor() <= 0) { // if dead bee
 					AnimPosition pos = entry.getValue();
-					pos.animateTo((int) pos.x, CRYPT_HEIGHT, FPS * TURN_SECONDS);
+					pos.animateTo((int) (FRAME_SIZE.getWidth()+200), (int) pos.y, FPS * TURN_SECONDS);
 				}
 			}
 		}
@@ -412,6 +412,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				image = BEEATTACK_IMAGE;
 			}
 			
+			if(bee.armor<=0){ //Change l'image
+				image = BEEDEAD;
+			}
+			
 			g2d.drawImage(image,
 					(int) pos.x + (int)(Math.cos((pos.x+pos.y)/(20+bee.randomDecalage))*10),
 					(int) pos.y + (int)(Math.cos((pos.x+pos.y)/(20+bee.randomDecalage))*10),
@@ -536,7 +540,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private void initializeBees () {
 		Bee[] bees = hive.getBees();
 		for (int i = 0; i < bees.length; i++) {
-			allBeePositions.put(bees[i], new AnimPosition((int) (HIVE_POS.x + (20 * Math.random() - 10)), (int) (HIVE_POS.y + (100 * Math.random() - 50))));
+			allBeePositions.put(bees[i], new AnimPosition((int) FRAME_SIZE.getWidth()+200, (int) (HIVE_POS.y + (100 * Math.random() - 50))));
 		}
 	}
 
