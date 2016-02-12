@@ -13,8 +13,7 @@ public class AntColony {
 	public static final String QUEEN_NAME = "AntQueen"; // name of the Queen's place
 	public static final int MAX_TUNNEL_LENGTH = 8;
 	public int life = 10;
-	
-	private boolean WaterPresent = false ; //génère de l'eau ou non 
+ 
 	private int food; // amount of food available
 	Place queenPlace; // where the queen is
 	private ArrayList<Place> places; // the places in the colony
@@ -41,9 +40,6 @@ public class AntColony {
 		places = new ArrayList<Place>();
 		beeEntrances = new ArrayList<Place>();
 		queenPlace = new Place(QUEEN_NAME); // magic variable namexw
-		if (moatFrequency != 0){
-			WaterPresent = true ;
-		}
 		tunnelLength = Math.min(tunnelLength, MAX_TUNNEL_LENGTH); // don't go off the screen!
 		// set up tunnels, as a kind of linked-list
 		Place curr, prev; // reference to current exit of the tunnel
