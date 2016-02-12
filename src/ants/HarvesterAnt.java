@@ -16,11 +16,11 @@ public class HarvesterAnt extends Ant {
 	public HarvesterAnt () {
 		super(1);
 		this.foodCost = 2;
-
+		this.foodMakePerTurn = 1;
 	}
 
 	@Override
 	public void action (AntColony colony) {
-		colony.increaseFood(1);
+		
 	}
 }

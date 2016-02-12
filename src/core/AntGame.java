@@ -189,7 +189,24 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 */
 	private void nextFrame () {
 		
+		
+		//Calculate nb of food produced each turn
+		int nbFrameFood = 0;
+		for (Ant ant : colony.getAllAnts()) {
+			nbFrameFood += ant.foodMakePerTurn;
+		}
+		if(nbFrameFood>0){
+			nbFrameFood = (FPS*TURN_SECONDS)/nbFrameFood;
+			//Real time food increase
+			if(nbFrameFood>FPS*TURN_SECONDS){
+				colony.increaseFood(1);
+			}else{
+				if (frame%nbFrameFood == 0){
+					colony.increaseFood(1);
+				}
+			}
 
+		}
 		
 		if (frame == 0) // at the start of a turn
 		{
@@ -221,6 +238,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 			// if want to do this to ants as well, will need to start storing dead ones with AnimPositions
 		}
+		
+		
 		if (frame == (int) (LEAF_SPEED * FPS)) // after leaves animate
 		{
 			for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // remove dead bees
