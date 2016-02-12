@@ -12,9 +12,10 @@ public class AntColony {
 
 	public static final String QUEEN_NAME = "AntQueen"; // name of the Queen's place
 	public static final int MAX_TUNNEL_LENGTH = 8;
+	public int life = 10;
 
 	private int food; // amount of food available
-	private Place queenPlace; // where the queen is
+	Place queenPlace; // where the queen is
 	private ArrayList<Place> places; // the places in the colony
 	private ArrayList<Place> beeEntrances; // places which bees can enter (the starts of the tunnels)
 
@@ -30,10 +31,11 @@ public class AntColony {
 	 * @param startingFood
 	 *            The starting food for this colony.
 	 */
-	public AntColony (int numTunnels, int tunnelLength, int moatFrequency, int startingFood) {
+	public AntColony (int numTunnels, int tunnelLength, int moatFrequency, int startingFood, int life) {
 		// simulation values
 		food = startingFood;
 
+		this.life = life;
 		// init variables
 		places = new ArrayList<Place>();
 		beeEntrances = new ArrayList<Place>();

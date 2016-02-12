@@ -97,8 +97,7 @@ public class Hive extends Place {
 	 */
 	public static Hive makeTestHive () {
 		Hive hive = new Hive(3);
-		hive.addWave(2, 10);
-		hive.addWave(3, 10);
+		hive.addWave(2, 1);
 		return hive;
 	}
 

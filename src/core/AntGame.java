@@ -170,7 +170,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			antString = antString.substring(0, antString.length() - 3); // remove the word "ant"
 		}
 		g2d.drawString("Ant selected: " + antString, 20, 20); // hard-coded positions, make variable?
-		g2d.drawString("Food: " + colony.getFood() + ", Turn: " + turn, 20, 140);
+		g2d.drawString("Life: "+ colony.life +", Food: " + colony.getFood() + ", Turn: " + turn, 20, 140);
 
 		drawColony(g2d);
 		drawBees(g2d);
@@ -291,7 +291,19 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		if (frame == TURN_SECONDS * FPS / 2) // wait half a turn (1.5 sec) before ending
 		{
 			// check for end condition before proceeding
-			if (colony.queenHasBees()) { // we lost!
+			
+			
+			if (colony.queenHasBees()) { // more than 1 life
+				for (Bee bee: colony.queenPlace.getBees())
+				{
+					if(bee.place.toString()=="AntQueen" && bee.armor>0){
+						bee.armor=-1;
+						colony.life += -1;
+					}
+				}
+			}
+			
+			if(colony.life<0){
 				JOptionPane.showMessageDialog(this, "The ant queen has perished! Please try again.", "Bzzzzz!", JOptionPane.PLAIN_MESSAGE);
 				System.exit(0); // quit
 			}
