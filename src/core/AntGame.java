@@ -58,7 +58,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int turn; // current game turn
 	private int frame; // time elapsed since last turn
 	private Timer clock;
-	private int STARTED = FPS*3;
+	private int STARTTIME = 10;
+	private int STARTED = FPS*STARTTIME;
 
 	// ant properties (laoded from external files, stored as member variables)
 	private final ArrayList<String> ANT_TYPES;
@@ -171,8 +172,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		g2d.clearRect(0, 0, FRAME_SIZE.width, FRAME_SIZE.height); // clear to background color
 		
 		
-		int mov = (int) smooth(-2048,(FPS*3-STARTED),FPS*3);
-		System.out.println(smooth(-2048,(FPS*3-STARTED),FPS*3));
+		int mov = (int) smooth(-2048,(FPS*STARTTIME-STARTED),FPS*STARTTIME);
 		
 		g2d.drawImage(BACK, mov, 0, null); // draw a bee at that position!
 		g2d.drawImage(MENU, 0, 0, null); // draw a bee at that position!
