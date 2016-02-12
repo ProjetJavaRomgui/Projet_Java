@@ -9,6 +9,7 @@ public class Bee extends Insect {
 
 	private static final int DAMAGE = 1;
 	int randomDecalage = 0;
+	int colonyDegat = 1;
 
 	/**
 	 * Creates a new bee with the given armor
