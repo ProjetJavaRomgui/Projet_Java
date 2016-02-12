@@ -427,11 +427,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			g2d.setColor(Color.BLACK);
 			//g2d.draw(rect); // border box (where to click)
 
-			if (place != tunnelEnd && place.getType() == "Sol") {
-				g2d.drawImage(TUNNEL_IMAGE, rect.x, rect.y, null); // decorative image
+			if (place != tunnelEnd && place instanceof Water) {
+				g2d.drawImage(WATER_IMAGE, rect.x, rect.y, null); // decorative image
 			} 
-			else if (place != tunnelEnd && place.getType() == "Water") {
-				g2d.drawImage(WATER_IMAGE, rect.x, rect.y, null); //water image
+			else if (place != tunnelEnd) {
+				g2d.drawImage(TUNNEL_IMAGE, rect.x, rect.y, null); //water image
 			}
 
 			Ant ant = place.getAnt();
