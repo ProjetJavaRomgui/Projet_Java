@@ -58,7 +58,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int turn; // current game turn
 	private int frame; // time elapsed since last turn
 	private Timer clock;
-	private int STARTTIME = 10;
+	private int STARTTIME = 1;
 	private int STARTED = FPS*STARTTIME;
 
 	// ant properties (laoded from external files, stored as member variables)
@@ -266,13 +266,17 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			{
 				for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // remove dead bees
 				{
-					if (entry.getKey().getArmor() <= 0) { // if dead bee
-						AnimPosition pos = entry.getValue();
+					AnimPosition pos = entry.getValue();
+
+					if (entry.getKey().getArmor() <= 0 && entry.getKey().place!=null) { // if dead bee
 						if(entry.getKey().place.toString()!="AntQueen"){
 							pos.animateTo((int) (FRAME_SIZE.getWidth()+200), (int) pos.y, FPS * TURN_SECONDS);
 						}else{
 							pos.animateTo((int) (-200), (int) pos.y, FPS * TURN_SECONDS);
 						}
+					}
+					if (entry.getKey().place==null){
+						pos.animateTo((int) (FRAME_SIZE.getWidth()+200), (int) pos.y, FPS * TURN_SECONDS);
 					}
 				}
 			}
@@ -444,7 +448,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			Image image;
 
-			if(entry.getKey()!=null){
+			if(entry.getKey().place!=null){
 	
 				if(bee.lastAttacked<FPS/4){ //Change l'image pour un quart de seconde
 					image = BEEBAD_IMAGE;
