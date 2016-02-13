@@ -10,6 +10,7 @@ public class Bee extends Insect {
 	private static final int DAMAGE = 1;
 	int randomDecalage = 0;
 	int colonyDegat = 1;
+	int turns = 0;
 	
 	/**
 	 * Creates a new bee with the given armor
@@ -73,6 +74,7 @@ public class Bee extends Insect {
 	 */
 	@Override
 	public void action (AntColony colony) {
+		turns++;
 		if (isBlocked()) {
 			if (place.getContainingAnt() != null){
 				sting(place.getContainingAnt());
@@ -80,7 +82,7 @@ public class Bee extends Insect {
 				sting(place.getAnt());
 			}
 		}
-		else if (armor > 0) {
+		else if (armor > 0 && turns>1) {
 			moveTo(place.getExit());
 		}
 	}

@@ -61,7 +61,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int frame; // time elapsed since last turn
 	private int counter;
 	private Timer clock;
-	private int STARTTIME = 1;
+	private int STARTTIME = 10;
 	private int STARTED = FPS*STARTTIME;
 	private boolean DEAD = false;
 
@@ -308,7 +308,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				System.out.println("TURN: " + turn);
 				
 				//Generer les prochaines vagues
-				if(turn%10==9){
+				if(turn%4==0){
 					System.out.println("new Bee");
 					
 					addBee(5,15);
