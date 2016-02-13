@@ -84,6 +84,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image REMOVER_IMAGE = ImageUtils.loadImage("img/remover.gif");
 	private final Image BEEDEAD = ImageUtils.loadImage("img/bee_return.gif");
 	private final Image BACK = ImageUtils.loadImage("assets/preback.png");
+	private final Image START = ImageUtils.loadImage("assets/start.png");
+	private final Image STARTCLICK = ImageUtils.loadImage("assets/start_button.png");
 	private final Image MENU = ImageUtils.loadImage("assets/menutop.png");
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
 	// positioning constants
@@ -253,6 +255,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 			g2d.drawString("Life: "+ Math.max(colony.life,0) +" Food: " + colony.getFood(), 18, 140);
 
+		}else{
+			
+			g2d.drawImage(START, FRAME_SIZE.width/2-300 +mov/3, 100, null);
+			
 		}
 		
 		drawColony(g2d,decalage);
@@ -279,10 +285,21 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			}
 		}
 			
+		
 		if (!clock.isRunning()) { // start text
-			g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 32));
-			g2d.setColor(Color.RED);
-			g2d.drawString("CLICK TO START", 350, 550);
+			
+			if(counter%2==0){
+				g2d.drawImage(STARTCLICK, FRAME_SIZE.width/2-150, FRAME_SIZE.height-200, null);
+			}
+			
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			this.nextFrame();
 		}
 		
 		
@@ -294,149 +311,154 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 */
 	private void nextFrame () {
 		
-		STARTED+=-1;
-		STARTED = Math.max(0, STARTED);
 		counter++;
 		
-		if(STARTED==0){
+		if(clock.isRunning()){
+			
+			STARTED+=-1;
+			STARTED = Math.max(0, STARTED);
 	
-
 			
-			
-			if (frame == 0) // at the start of a turn
-			{
-				System.out.println("TURN: " + turn);
+			if(STARTED==0){
+		
+	
 				
-				//Generer les prochaines vagues
-				if(turn%4==0){
-					System.out.println("new Bee");
+				
+				if (frame == 0) // at the start of a turn
+				{
+					System.out.println("TURN: " + turn);
 					
-					addBee(5,15);
+					//Generer les prochaines vagues
+					if(turn%4==0){
+						System.out.println("new Bee");
+						
+						addBee(5,15);
+						
+						
+					}
+		
+					// ants take action!
+					for (Ant ant : colony.getAllAnts()) {
+						if (ant instanceof ThrowerAnt) // if we're a thrower, might need to make a leaf!
+						{
+							Bee target = ((ThrowerAnt) ant).getTarget(); // who we'll throw at (really which square, but works out the same)
+							if (target != null) {
+								createLeaf(ant, target);
+							}
+						}
+						ant.action(colony); // take the action (actually completes the throw now)
+					}
 					
-					
-				}
+					int pos = 0;
+					for(Map.Entry<Place, Rectangle> entry: colonyRects.entrySet()){
+						
+						pos = 0;
+						while(pos<Food.length-1 && Food[pos]!=null){
+							pos++;
+						}
 	
-				// ants take action!
-				for (Ant ant : colony.getAllAnts()) {
-					if (ant instanceof ThrowerAnt) // if we're a thrower, might need to make a leaf!
+						if(entry.getKey().getAnt()!= null && entry.getKey().getAnt().foodMakePerTurn>0 && Math.random()>0.5){
+							Food[pos] = new Point(entry.getValue().x + entry.getValue().width/2,entry.getValue().y + entry.getValue().height/2);
+						}
+						
+					}
+			
+		
+					// bees take action!
+					for (Bee bee : colony.getAllBees()) {
+						if(bee.place!=null){
+							bee.action(colony);
+							startAnimation(bee); // start up animation for the bee if needed
+						}
+					}
+		
+					// new invaders attack!
+					Bee[] invaders = hive.invade(colony, turn); // this moves the bees into the colony
+					for (Bee bee : invaders) {
+						startAnimation(bee);
+					}
+		
+					// if want to do this to ants as well, will need to start storing dead ones with AnimPositions
+				}
+				
+				
+				if (frame == (int) (LEAF_SPEED * FPS)) // after leaves animate
+				{
+					for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // remove dead bees
 					{
-						Bee target = ((ThrowerAnt) ant).getTarget(); // who we'll throw at (really which square, but works out the same)
-						if (target != null) {
-							createLeaf(ant, target);
+						AnimPosition pos = entry.getValue();
+	
+						if (entry.getKey().getArmor() <= 0 && entry.getKey().place!=null) { // if dead bee
+							if(entry.getKey().place.toString()!="AntQueen"){
+								pos.animateTo((int) (FRAME_SIZE.getWidth()+200), (int) pos.y, FPS * TURN_SECONDS);
+							}else{
+								pos.animateTo((int) (-200), (int) pos.y, FPS * TURN_SECONDS);
+							}
 						}
-					}
-					ant.action(colony); // take the action (actually completes the throw now)
-				}
-				
-				int pos = 0;
-				for(Map.Entry<Place, Rectangle> entry: colonyRects.entrySet()){
-					
-					pos = 0;
-					while(pos<Food.length-1 && Food[pos]!=null){
-						pos++;
-					}
-
-					if(entry.getKey().getAnt()!= null && entry.getKey().getAnt().foodMakePerTurn>0 && Math.random()>0.5){
-						Food[pos] = new Point(entry.getValue().x + entry.getValue().width/2,entry.getValue().y + entry.getValue().height/2);
-					}
-					
-				}
-		
-	
-				// bees take action!
-				for (Bee bee : colony.getAllBees()) {
-					if(bee.place!=null){
-						bee.action(colony);
-						startAnimation(bee); // start up animation for the bee if needed
-					}
-				}
-	
-				// new invaders attack!
-				Bee[] invaders = hive.invade(colony, turn); // this moves the bees into the colony
-				for (Bee bee : invaders) {
-					startAnimation(bee);
-				}
-	
-				// if want to do this to ants as well, will need to start storing dead ones with AnimPositions
-			}
-			
-			
-			if (frame == (int) (LEAF_SPEED * FPS)) // after leaves animate
-			{
-				for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // remove dead bees
-				{
-					AnimPosition pos = entry.getValue();
-
-					if (entry.getKey().getArmor() <= 0 && entry.getKey().place!=null) { // if dead bee
-						if(entry.getKey().place.toString()!="AntQueen"){
+						if (entry.getKey().place==null){
 							pos.animateTo((int) (FRAME_SIZE.getWidth()+200), (int) pos.y, FPS * TURN_SECONDS);
-						}else{
-							pos.animateTo((int) (-200), (int) pos.y, FPS * TURN_SECONDS);
 						}
 					}
-					if (entry.getKey().place==null){
-						pos.animateTo((int) (FRAME_SIZE.getWidth()+200), (int) pos.y, FPS * TURN_SECONDS);
-					}
 				}
-			}
-	
-			// every frame
-			for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // apply animations to all the bees
-			{
-				if (entry.getValue().framesLeft > 0) {
-					entry.getValue().step();
-				}
-				entry.getKey().lastAttacked++;
-				entry.getKey().lastAttack++;
-			}
-			if (colony.queenHasBees()) { // more than 1 life
-				for (Bee bee: colony.queenPlace.getBees())
+		
+				// every frame
+				for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // apply animations to all the bees
 				{
-					if(bee.place.toString()=="AntQueen" && bee.armor>0){
-						bee.armor=-1;
-						colony.life += -bee.colonyDegat; // Big bees can destroy all the colony
+					if (entry.getValue().framesLeft > 0) {
+						entry.getValue().step();
+					}
+					entry.getKey().lastAttacked++;
+					entry.getKey().lastAttack++;
+				}
+				if (colony.queenHasBees()) { // more than 1 life
+					for (Bee bee: colony.queenPlace.getBees())
+					{
+						if(bee.place.toString()=="AntQueen" && bee.armor>0){
+							bee.armor=-1;
+							colony.life += -bee.colonyDegat; // Big bees can destroy all the colony
+						}
 					}
 				}
-			}
-			for (Ant ant : colony.getAllAnts()) // apply time
-			{
-				ant.lastAttacked++;
-				ant.lastAttack++;
-			}
-			Iterator<AnimPosition> iter = leaves.iterator(); // apply animations ot all the leaves
-			while (iter.hasNext()) { // iterator so we can remove when finished
-				AnimPosition leaf = iter.next();
-				if (leaf.framesLeft > 0) {
-					leaf.step();
+				for (Ant ant : colony.getAllAnts()) // apply time
+				{
+					ant.lastAttacked++;
+					ant.lastAttack++;
 				}
-				else {
-					iter.remove(); // remove the leaf if done animating
+				Iterator<AnimPosition> iter = leaves.iterator(); // apply animations ot all the leaves
+				while (iter.hasNext()) { // iterator so we can remove when finished
+					AnimPosition leaf = iter.next();
+					if (leaf.framesLeft > 0) {
+						leaf.step();
+					}
+					else {
+						iter.remove(); // remove the leaf if done animating
+					}
 				}
-			}
+			
+				// ADVANCE THE CLOCK COUNTERS
+				frame++; // count the frame
+				// System.out.println("frame: "+frame);
+				if (frame == FPS * TURN_SECONDS) { // if TURN seconds worth of frames
+					turn++; // next turn
+					frame = 0; // reset frame
+				}
 		
-			// ADVANCE THE CLOCK COUNTERS
-			frame++; // count the frame
-			// System.out.println("frame: "+frame);
-			if (frame == FPS * TURN_SECONDS) { // if TURN seconds worth of frames
-				turn++; // next turn
-				frame = 0; // reset frame
-			}
-	
-			if (frame == TURN_SECONDS * FPS / 2) // wait half a turn (1.5 sec) before ending
-			{
-				// check for end condition before proceeding
-				
-				if(colony.life<0){
-					DEAD = true;
+				if (frame == TURN_SECONDS * FPS / 2) // wait half a turn (1.5 sec) before ending
+				{
+					// check for end condition before proceeding
+					
+					if(colony.life<0){
+						DEAD = true;
+					}
 				}
+			}else{
+				frame = 0;
 			}
-		}else{
-			frame = 0;
-		}
-		
-		if(DEAD == true && frame==0){
-			JOptionPane.showMessageDialog(this, "The ant queen has perished! Please try again.", "Bzzzzz!", JOptionPane.PLAIN_MESSAGE);
-			System.exit(0); // quit
+			
+			if(DEAD == true && frame==0){
+				JOptionPane.showMessageDialog(this, "The ant queen has perished! Please try again.", "Bzzzzz!", JOptionPane.PLAIN_MESSAGE);
+				System.exit(0); // quit
+			}
 		}
 		
 		this.repaint(); // request an update per frame!
