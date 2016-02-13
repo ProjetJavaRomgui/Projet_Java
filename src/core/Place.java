@@ -126,27 +126,36 @@ public class Place {
 	 * @param ant
 	 *            The ant to add to the place.
 	 */
-	public void addInsect (Ant ant) {
+	public boolean addInsect (Ant ant) {
 		if (this.ant == null) {
 			if(this instanceof Water && ant.getWaterSafe() == false){
 				System.out.println("Can't place this ant on Water"); // report error
+				return false;
 			} else {
 				if(!ant.isContener()){
 					this.ant = ant;
 					ant.setPlace(this);
+					return true;
 				} else {
 					this.containingAnt = ant;
 					ant.setPlace(this);
+					return true;
 				}
 			}
 		}
 		else if(ant.isContener() && Containing.canAddContener(this)){
 			this.containingAnt = ant;
 			ant.setPlace(this);
+			return true;
 		}
 		else if(!ant.isContener() && Containing.canAddContenant(this)){
 			this.ant = ant;
 			ant.setPlace(this);
+			return true;
+		}
+		else {
+			System.out.println("Can't place 2 ant with the same attribute at the same place");
+			return false;
 		}
 	}
 

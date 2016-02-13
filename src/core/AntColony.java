@@ -141,8 +141,8 @@ public class AntColony {
 	 */
 	public void deployAnt (Place place, Ant ant) {
 		if (food >= ant.getFoodCost()) {
-			food -= ant.getFoodCost();
-			place.addInsect(ant);
+			
+			if(place.addInsect(ant)) food -= ant.getFoodCost();
 		}
 		else {
 			System.out.println("Not enough food remains to place " + ant);
