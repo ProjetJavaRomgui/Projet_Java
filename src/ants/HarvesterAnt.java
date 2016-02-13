@@ -1,5 +1,7 @@
 package ants;
 
+import java.awt.Point;
+
 import core.Ant;
 import core.AntColony;
 
