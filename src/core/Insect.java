@@ -26,8 +26,8 @@ public abstract class Insect {
 		if (armor <= 0) {
 			throw new IllegalArgumentException("Cannot create an insect with armor of 0");
 		}
-		this.initArmor = armor;
-		this.armor = armor;
+		this.initArmor = armor*2;
+		this.armor = armor*2;
 		this.place = place;
 	}
 
