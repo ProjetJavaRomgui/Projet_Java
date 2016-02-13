@@ -32,7 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import ants.ThrowerAnt;
-import Graphics.*;
+import music.Audio;
 
 /**
  * A class that controls the graphical game of Ants vs. Some-Bees. Game simulation system and GUI interaction are intermixed.
@@ -100,6 +100,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static final Dimension LEAF_END_OFFSET = new Dimension(50, 30);
 	public static final int LEAF_SIZE = 40;
 	
+	//Sounds
+	public static Audio food_earn = new Audio("food_earn.wav");
+	public static Audio[] add = new Audio[4];
+
 	public static Point[] Food = new Point[100];
 
 	// areas that can be clicked
@@ -128,6 +132,22 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 */
 	public AntGame (AntColony colony, Hive hive) {
 
+		
+		//Mise en place de la musique
+		Audio music = new Audio("music.wav");
+		music.play();
+		music.loop(true);
+		//Sons
+		add[0] = new Audio("add1.wav");
+		add[1] = new Audio("add2.wav");
+		add[2] = new Audio("add3.wav");
+		add[3] = new Audio("add4.wav");
+		add[0].megain = -15f;
+		add[1].megain = -15f;
+		add[2].megain = -15f;
+		add[3].megain = -15f;
+		
+		food_earn.megain = -15f;
 		
 		addMouseMotionListener(new MouseAdapter() {
 		     public void mouseMoved(MouseEvent me) {
@@ -237,9 +257,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				Food[i].x = Food[i].x + (int)(3*Math.cos(angle));
 				Food[i].y = Food[i].y + (int)(3*Math.sin(angle));
 
-				if(Food[i].y<120){
+				if(Food[i].y<120-Math.random()*20){
 					Food[i]=null;
 					colony.increaseFood(1);
+					food_earn.play();
 				}else{
 					g2d.drawImage(FOOD, Food[i].x, Food[i].y, null); // draw a bee at that position!
 				}
@@ -304,7 +325,6 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 				
 				int pos = 0;
-				
 				for(Map.Entry<Place, Rectangle> entry: colonyRects.entrySet()){
 					
 					pos = 0;
@@ -317,6 +337,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					}
 					
 				}
+		
 	
 				// bees take action!
 				for (Bee bee : colony.getAllBees()) {
@@ -444,6 +465,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				else {
 					Ant deployable = buildAnt(selectedAnt.getClass().getName()); // make a new ant of the appropriate type
 					colony.deployAnt(colonyAreas.get(rect), deployable);
+					add[(int)(Math.random()*4)].play();
 					return; // stop searching
 				}
 			}
