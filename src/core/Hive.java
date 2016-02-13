@@ -23,9 +23,9 @@ public class Hive extends Place {
 	 * @param beeArmor
 	 *            The armor of the bees
 	 */
-	public Hive (int beeArmor) {
+	public Hive () {
 		super(NAME, null);
-		this.beeArmor = beeArmor;
+		this.beeArmor = 1;
 		waves = new HashMap<Integer, Bee[]>();
 	}
 
@@ -62,7 +62,8 @@ public class Hive extends Place {
 	 * @param numBees
 	 *            The number of bees to attack
 	 */
-	public void addWave (int attackTime, int numBees) {
+	public void addWave (int attackTime, int numBees, int beeArmor) {
+		this.beeArmor = beeArmor;
 		Bee[] bees = new Bee[numBees];
 		for (int i = 0; i < bees.length; i++) {
 			bees[i] = new Bee(beeArmor);
@@ -77,57 +78,12 @@ public class Hive extends Place {
 	 * @return An array of Bees
 	 */
 	public Bee[] getAllBees () {
-		ArrayList<Bee> bees = new ArrayList<Bee>(); // easy temp work
-		for (Bee[] wave : waves.values()) {
-			for (int i = 0; i < wave.length; i++) {
-				bees.add(wave[i]);
-			}
+		ArrayList<Bee> beesRet = new ArrayList<Bee>(); // easy temp work
+		for (Bee bee : bees) {
+			beesRet.add(bee);
 		}
-		return bees.toArray(new Bee[0]);
+		return beesRet.toArray(new Bee[0]);
 	}
 
-	/////////////////////////////////
-	// Convenience factory methods //
-	/////////////////////////////////
-
-	/**
-	 * Makes a hive with two attacking bees
-	 *
-	 * @return A filled hive
-	 */
-	public static Hive makeTestHive () {
-		Hive hive = new Hive(3);
-		hive.addWave(2, 1);
-		return hive;
-	}
-
-	/**
-	 * Makes a hive filled with attacking bees
-	 *
-	 * @return A filled hive
-	 */
-	public static Hive makeFullHive () {
-		Hive hive = new Hive(3);
-		hive.addWave(2, 1);
-		for (int i = 3; i < 15; i += 2) {
-			hive.addWave(i, 1);
-		}
-		hive.addWave(15, 8);
-		return hive;
-	}
-
-	/**
-	 * Makes a hive filled with a huge number of powerful attacking bees
-	 *
-	 * @return A filled, angry hive
-	 */
-	public static Hive makeInsaneHive () {
-		Hive hive = new Hive(4);
-		hive.addWave(1, 2);
-		for (int i = 3; i < 15; i++) {
-			hive.addWave(i, 1);
-		}
-		hive.addWave(15, 20);
-		return hive;
-	}
+	
 }
