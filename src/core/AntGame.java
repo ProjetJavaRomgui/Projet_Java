@@ -330,7 +330,6 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					
 					//Generer les prochaines vagues
 					if(turn%4==0){
-						System.out.println("new Bee");
 						
 						addBee(5,15);
 						
