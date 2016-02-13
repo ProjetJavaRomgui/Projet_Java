@@ -204,7 +204,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		setBackground(Color.WHITE);
 
 		// make and show the frame!
-		JFrame frame = new JFrame("Ants vs. Some-Bees");
+		JFrame frame = new JFrame("Ants vs SomeBees");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(false);
 		frame.add(this);
