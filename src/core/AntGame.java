@@ -61,7 +61,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int frame; // time elapsed since last turn
 	private int counter;
 	private Timer clock;
-	private int STARTTIME = 10;
+	private int STARTTIME = 10; //Set to 10
 	private int STARTED = FPS*STARTTIME;
 	private boolean DEAD = false;
 
@@ -76,18 +76,19 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image TUNNEL_SELECT_IMAGE = ImageUtils.loadImage("img/tun_select.png");
 	private final Image TUNNEL_SELECTED_IMAGE = ImageUtils.loadImage("img/tun_selected.png");
 	private final Image FOOD = ImageUtils.loadImage("img/food.png");
-	private final Image BEE_IMAGE = ImageUtils.loadImage("img/bee.gif");
-	private final Image BEE_IMAGE2 = ImageUtils.loadImage("img/bee2.gif");
-	private final Image BEEBAD_IMAGE = ImageUtils.loadImage("img/bee_bad.gif");
-	private final Image BEEBAD_IMAGE2 = ImageUtils.loadImage("img/bee_bad2.gif");
-	private final Image BEEATTACK_IMAGE = ImageUtils.loadImage("img/bee_attack.gif");
+	private final Image BEE_IMAGE[] = new Image[10];
+	private final Image BEE_IMAGE2[] = new Image[10];
+	private final Image BEEBAD_IMAGE[] = new Image[10];
+	private final Image BEEATTACK_IMAGE[] = new Image[10];
 	private final Image REMOVER_IMAGE = ImageUtils.loadImage("img/remover.gif");
-	private final Image BEEDEAD = ImageUtils.loadImage("img/bee_return.gif");
 	private final Image BACK = ImageUtils.loadImage("assets/preback.png");
 	private final Image START = ImageUtils.loadImage("assets/start.png");
 	private final Image STARTCLICK = ImageUtils.loadImage("assets/start_button.png");
 	private final Image MENU = ImageUtils.loadImage("assets/menutop.png");
+	
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
+	private final Font LITLE = new Font("Helvetica", Font.ITALIC, 15);
+	public String[] randomText = "Hey !|Hello ?|I don't want to die !|Help me !|Who are you ?".split("\\|");
 	// positioning constants
 	public static final Dimension FRAME_SIZE = new Dimension(1024, 700);
 	public static final Dimension ANT_IMAGE_SIZE = new Dimension(66, 71); // assumed size; may be greater than actual image size
@@ -152,6 +153,19 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		add[3].megain = -15f;
 		
 		food_earn.megain = -15f;
+		
+		
+		
+		
+		//Get Bees
+		for(int i=0; i<BEE_IMAGE.length;i++){
+			
+			BEE_IMAGE[i] = ImageUtils.loadImage("img/bees/"+i+"/bee_image.gif");
+			BEE_IMAGE2[i] = ImageUtils.loadImage("img/bees/"+i+"/bee_image2.gif");
+			BEEBAD_IMAGE[i] = ImageUtils.loadImage("img/bees/"+i+"/beebad_image.gif");
+			BEEATTACK_IMAGE[i] = ImageUtils.loadImage("img/bees/"+i+"/beeattack_image.gif");
+
+		}
 		
 		addMouseMotionListener(new MouseAdapter() {
 		     public void mouseMoved(MouseEvent me) {
@@ -284,7 +298,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 			}
 		}
-			
+		
+		drawHoverText(g2d);
 		
 		if (!clock.isRunning()) { // start text
 			
@@ -329,10 +344,20 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					System.out.println("TURN: " + turn);
 					
 					//Generer les prochaines vagues
-					if(turn%4==0){
+					if(Math.random()>0.6 && turn>10){
 						
-						addBee(5,15);
+						int nb = turn/70+1;
 						
+						if(Math.random()>0.96){
+							nb = nb*3;
+						}
+						
+						for(int i=0;i<nb;i++){
+						
+							int life = Math.max(3, Math.min(100,(int)(Math.random()*(turn/30+1))));
+							addBee(life,life/10);
+						
+						}
 						
 					}
 		
@@ -543,6 +568,79 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 		leaves.add(leaf);
 	}
+	
+	private void drawLongText(String str, int x, int y, Graphics2D g2d){
+		
+		int espace = 0;
+		
+		for(String s: str.split("\n")){
+
+			espace += g2d.getFont().getSize();
+			
+			g2d.setColor(Color.BLACK);
+			g2d.drawString(s, x-2, y-2+ espace);
+			g2d.setColor(Color.WHITE);
+			g2d.drawString(s, x, y + espace);
+			
+		}
+		
+	}
+	
+	private void drawHoverText(Graphics2D g2d){
+		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
+			
+			if (entry.getKey().contains(mouseX, mouseY)){
+				
+				g2d.setFont(FONT);
+				drawLongText(entry.getValue().name,mouseX + 3, mouseY+3, g2d);
+				g2d.setFont(LITLE);
+				drawLongText(entry.getValue().description,mouseX + 3, mouseY+3+20, g2d);
+			}
+			
+		}
+		
+		boolean found = false;
+		
+		for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) {
+			
+			
+			Rectangle rect = new Rectangle();
+			rect.setBounds((int)entry.getValue().x,(int)entry.getValue().y,60,60);
+			
+			if (rect.contains(mouseX, mouseY)){
+				
+				g2d.setFont(FONT);
+				drawLongText(entry.getKey().name,mouseX + 3, mouseY+3, g2d);
+				g2d.setFont(LITLE);
+				drawLongText(entry.getKey().description,mouseX + 3, mouseY+3+20, g2d);
+				found = true;
+			}
+			
+		}
+		
+		if(!found){
+		
+			for (Map.Entry<Rectangle, Place> entry : colonyAreas.entrySet()) {
+				
+				if (entry.getKey().contains(mouseX, mouseY)){
+					if(entry.getValue().getAnt() == null){
+						g2d.setFont(FONT);
+						drawLongText(entry.getValue().name,mouseX + 3, mouseY+3, g2d);
+						g2d.setFont(LITLE);
+						drawLongText(entry.getValue().description,mouseX + 3, mouseY+3+20, g2d);
+					}else{
+						g2d.setFont(FONT);
+						drawLongText("\""+randomText[(int) ((Math.pow((int)(turn/4),2))%randomText.length)]+"\"",mouseX + 3, mouseY+3, g2d);
+						g2d.setFont(LITLE);
+						drawLongText("This ant have "+(entry.getValue().getAnt().armor*100/entry.getValue().getAnt().initArmor)+"% left",mouseX + 3, mouseY+3+20, g2d);
+					}
+				}
+				
+			}
+		}
+		
+		
+	}
 
 	// Draws all the places for the Colony on the given Graphics2D
 	// Includes drawing the Ants deployed to the Colony (but not the Bees moving through it)
@@ -614,40 +712,55 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			Image image;
 
+			//Lors du retour !
+			Boolean flip = false;
+			int level = Math.min(9, Math.max(0,bee.level));
+			
+			image = BEE_IMAGE[level];
+			if((counter/3)%2==0){
+				image = BEE_IMAGE2[level];
+			}
+			
 			if(entry.getKey().place!=null){
 	
 				if(bee.lastAttacked<FPS/4){ //Change l'image pour un quart de seconde
-					image = BEEBAD_IMAGE;
-					if((counter/3)%2==0){
-						image = BEEBAD_IMAGE2;
-					}
+					image = BEEBAD_IMAGE[level];
 				}else{
-					image = BEE_IMAGE;
+					image = BEE_IMAGE[level];
 					if((counter/3)%2==0){
-						image = BEE_IMAGE2;
+						image = BEE_IMAGE2[level];
 					}
 				}
 				if(bee.lastAttack<FPS/4){ //Change l'image pour un quart de seconde
-					image = BEEATTACK_IMAGE;
+					image = BEEATTACK_IMAGE[level];
 				}
 			
 				if(bee.armor<=0 && entry.getKey().place.toString()!="AntQueen"){ //Change l'image
-					image = BEEDEAD;
+					flip = true;
 				}
 			}else{
-				image = BEEDEAD;
+				flip = true;
 			}
 			
 			int mx = (int)(Math.cos((float)counter/(20+bee.randomDecalage))*5);
 			int my = (int)(Math.cos((float)counter/(20+bee.randomDecalage))*10)+5;
 			
-			g2d.drawImage(image,
-					(int) pos.x + mx,
+			if(flip){
+				g2d.drawImage(image,
+					(int) pos.x + mx+image.getWidth(getParent()),
 					(int) pos.y + my,
+					-image.getWidth(getParent()),
+					image.getHeight(getParent()),
 					null); // draw a bee at that position!
+			}else{
+				g2d.drawImage(image,
+						(int) pos.x + mx,
+						(int) pos.y + my,
+						null); // draw a bee at that position!
+			}
 			
 			
-			int barsize = bee.initArmor*5;
+			int barsize = Math.min(100,bee.initArmor*3);
 			
 			if(bee.armor>0){
 				g2d.setColor(Color.GRAY);
@@ -716,6 +829,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			else if (ant == selectedAnt) {
 				g2d.drawImage(TUNNEL_SELECTED_IMAGE, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
 			}
+			
+
 
 
 			// ant image
@@ -728,6 +843,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			// food cost
 			g2d.setColor(Color.WHITE);
 			g2d.drawString("" + ant.getFoodCost(), rect.x + (rect.width / 2), rect.y + ANT_IMAGE_SIZE.height + 4 + PANEL_PADDING.height -decalageY);
+
+		
 		}
 
 		// box status
@@ -884,6 +1001,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		this.repaint(); // request a repaint
 		if (!clock.isRunning()) {
 			clock.start();
+		}else if(STARTED!=0){
+			STARTED = 0;
 		}
 	}
 

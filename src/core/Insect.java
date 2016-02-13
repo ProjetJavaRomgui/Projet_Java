@@ -14,6 +14,8 @@ public abstract class Insect {
 	public int lastAttacked;
 	public int lastAttack;
 	public boolean waterSafe = false;
+	public String name = "Thing";
+	public String description = "This is an insect, obvious.";
 	/**
 	 * Creates a new Insect with the given armor in the given location
 	 *

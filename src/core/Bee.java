@@ -11,6 +11,7 @@ public class Bee extends Insect {
 	int randomDecalage = 0;
 	int colonyDegat = 1;
 	int turns = 0;
+	int level = 0;
 	
 	/**
 	 * Creates a new bee with the given armor
@@ -22,6 +23,8 @@ public class Bee extends Insect {
 		super(armor);
 		randomDecalage = (int)(10-Math.random()*20);
 		waterSafe = true ;
+		
+		this.level = armor/5;
 	}
 
 	/**

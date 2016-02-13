@@ -10,12 +10,14 @@ import core.Containing;
  */
 public class Place {
 
-	private String name; // a name we can use for debugging
+	private String debugName; // a name we can use for debugging
 	private Place exit; // where you leave this place to
 	private Place entrance; // where you enter this place from
 	protected ArrayList<Bee> bees; // bees currently in the place
 	private Ant ant; // ant (singular) currently in the place
 	private Ant containingAnt; // ant (singular) with the containing tag in the place
+	public String name = "Place";
+	public String description = "This is the ground.";
 	/**
 	 * Creates a new place with the given name and exit
 	 *
@@ -25,7 +27,7 @@ public class Place {
 	 *            The place's exit
 	 */
 	public Place (String name, Place exit) {
-		this.name = name;
+		this.debugName = name;
 		this.exit = exit;
 		entrance = null;
 		bees = new ArrayList<Bee>();
@@ -89,7 +91,7 @@ public class Place {
 	 * @return the name of the place
 	 */
 	public String getName () {
-		return name;
+		return debugName;
 	}
 
 	/**
@@ -208,7 +210,7 @@ public class Place {
 
 	@Override
 	public String toString () {
-		return name;
+		return debugName;
 	}
 	
 }
