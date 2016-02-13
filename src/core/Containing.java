@@ -5,7 +5,7 @@ package core;
 *
 */
 
-public interface Containing {
+public class Containing {
 	public static boolean canAddContener(Place place) {
 		if(place.getContainingAnt() != null){
 			System.out.println("erreur : on ne peut mettre deux fourmis contenantes sur la même case");
