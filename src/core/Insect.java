@@ -9,6 +9,7 @@ package core;
 public abstract class Insect {
 
 	protected int armor; // insect's current armor
+	protected int initArmor;
 	protected Place place; // insect's current location
 	public int lastAttacked;
 	public int lastAttack;
@@ -25,6 +26,7 @@ public abstract class Insect {
 		if (armor <= 0) {
 			throw new IllegalArgumentException("Cannot create an insect with armor of 0");
 		}
+		this.initArmor = armor;
 		this.armor = armor;
 		this.place = place;
 	}

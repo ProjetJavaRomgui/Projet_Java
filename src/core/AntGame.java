@@ -527,17 +527,33 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
 			}
 			
-
+			int total_life = 0;
+			int total_life_start = 0;
+			
 			Ant ant = place.getAnt();
 			if (ant != null) { // draw the ant if we have one
 				Image img = ANT_IMAGES.get(ant.getClass().getName());
 				g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+				total_life+=ant.armor;
+				total_life_start+=ant.initArmor;
 			}
 			ant = place.getContainingAnt();
 			if (ant != null) { // draw the containing ant if we have one
 				Image img = ANT_IMAGES.get(ant.getClass().getName());
 				g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+				total_life+=ant.armor;
+				total_life_start+=ant.initArmor;
 			}
+			
+			if(total_life>0){
+				g2d.setColor(Color.GRAY);
+				g2d.fillRect(rect.x + PLACE_PADDING.width+15, rect.y + PLACE_PADDING.height + 10, 30,5);
+				
+				g2d.setColor(Color.RED);
+				g2d.fillRect(rect.x + PLACE_PADDING.width+15+1, rect.y + PLACE_PADDING.height + 11, (int)(28*((float)total_life/total_life_start)),3);
+
+			}
+
 
 		}
 	}
