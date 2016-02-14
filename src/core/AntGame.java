@@ -125,7 +125,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	private int mouseX = 0;
 	private int mouseY = 0;
-	
+	private boolean mousePressed = false;
+	private Point dragStart = new Point(0,0);
+	private Point scrollPos = new Point(0,0);
+
 	
 	/**
 	 * Creates a new game of Ants vs. Some-Bees, with the given colony and hive setup
@@ -177,6 +180,15 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		    		 mouseY = -1;
 		    	 }
 		     }
+	        public void mouseDragged(MouseEvent me) {
+	        	if(STARTED==0){
+			    	 mouseX = me.getX();
+			    	 mouseY = me.getY();
+		    	 }else{
+		    		 mouseX = -1;
+		    		 mouseY = -1;
+		    	 }
+	        }
 		});
 		// game init stuff
 		this.colony = colony;
@@ -355,7 +367,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						for(int i=0;i<nb;i++){
 						
 							int life = Math.max(3, Math.min(100,(int)(Math.random()*(turn/30+1))));
-							addBee(life,life/10);
+							addBee(life,Math.max(life/10,1));
 						
 						}
 						
@@ -536,9 +548,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 
 		// check if selecting an ant
-		for (Rectangle rect : antSelectorAreas.keySet()) {
-			if (rect.contains(pt)) {
-				selectedAnt = antSelectorAreas.get(rect);
+		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
+			if (entry.getKey().contains(pt)) {
+				selectedAnt = entry.getValue();
 				return; // stop searching
 			}
 		}
@@ -638,6 +650,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				
 			}
 		}
+		
+		
 		
 		
 	}
@@ -817,8 +831,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	// Draws the ant selector area
 	private void drawAntSelector (Graphics2D g2d, int decalageY) {
+		
+		scrollSelector(g2d);
+		
 		// go through each selector area
 		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
+			
 			Rectangle rect = entry.getKey(); // selected area
 			Ant ant = entry.getValue(); // ant to select
 			
@@ -829,9 +847,6 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			else if (ant == selectedAnt) {
 				g2d.drawImage(TUNNEL_SELECTED_IMAGE, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
 			}
-			
-
-
 
 			// ant image
 			Image img = ANT_IMAGES.get(ant.getClass().getName());
@@ -857,6 +872,47 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		g2d.setColor(Color.WHITE);
 
 		g2d.drawImage(REMOVER_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height -decalageY, null);
+	}
+	
+	private void scrollSelector(Graphics2D g2d){
+		
+		if(dragStart.y < 100 && mousePressed){
+			
+			for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
+				entry.getKey().x += mouseX-scrollPos.x;
+			}
+						
+			//Block scroll
+			int mini = 1000;
+			int max = 0;
+			for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
+				if(entry.getKey().x<mini){
+					mini = entry.getKey().x;
+				}
+				if(entry.getKey().x>max){
+					max = entry.getKey().x;
+				}
+			}
+			
+			if(mini>=80){
+				
+				for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
+					entry.getKey().x += 80 - mini;
+				}
+				
+			}else if(max<=620){
+				
+				for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
+					entry.getKey().x += 620 - max;
+				}
+				
+			}
+			//End
+			
+			
+			scrollPos.x = mouseX;
+		}
+		
 	}
 
 	/**
@@ -1004,6 +1060,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}else if(STARTED!=0){
 			STARTED = 0;
 		}
+		
+		if(mousePressed == false){
+			dragStart.setLocation(mouseX, mouseY);
+			scrollPos.setLocation(mouseX,mouseY);
+			mousePressed = true;
+		}
 	}
 
 	@Override
@@ -1012,6 +1074,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	@Override
 	public void mouseReleased (MouseEvent e) {
+		mousePressed = false;
+		dragStart.setLocation(-1, -1);
 	}
 
 
