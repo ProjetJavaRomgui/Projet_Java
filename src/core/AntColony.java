@@ -60,7 +60,7 @@ public class AntColony {
 				for (int step = 0; step < tunnelLength; step++) {
 					
 					prev = curr; // keep track of the previous guy (who we will exit to)
-					if (Math.random()<1-(float)difficulty/10 && lineWater<=tunnelLength*(float)difficulty/10+1){
+					if (Math.random()<1-(float)difficulty/10 || lineWater>=tunnelLength*(float)difficulty/10+1){
 						curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev); // create new place with an exit that is the previous spot
 					} else {
 						curr = new Water("water[" + tunnel + "-" + step + "]", prev);

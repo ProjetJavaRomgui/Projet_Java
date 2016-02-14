@@ -9,11 +9,11 @@ import core.Bee;
 *
 */
 
-public class BodyguardAnt extends Ant {
+public class BodyguardAntBetter extends Ant {
 
-	public BodyguardAnt() {
-		super(3);
-		this.foodCost = 10;
+	public BodyguardAntBetter() {
+		super(10);
+		this.foodCost = 30;
 		this.contener = true ;
 	}
 

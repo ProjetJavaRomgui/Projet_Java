@@ -85,7 +85,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image START = ImageUtils.loadImage("assets/start.png");
 	private final Image STARTCLICK = ImageUtils.loadImage("assets/start_button.png");
 	private final Image MENU = ImageUtils.loadImage("assets/menutop.png");
-	
+	private final Image MENUFRONT = ImageUtils.loadImage("assets/menutop_front.png");
+
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
 	private final Font LITLE = new Font("Helvetica", Font.ITALIC, 15);
 	public String[] randomText = "Hey !|Hello ?|I don't want to die !|Help me !|Who are you ?".split("\\|");
@@ -688,13 +689,6 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				total_life+=ant.armor;
 				total_life_start+=ant.initArmor;
 			}
-			ant = place.getContainingAnt();
-			if (ant != null) { // draw the containing ant if we have one
-				Image img = ANT_IMAGES.get(ant.getClass().getName());
-				g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
-				total_life+=ant.armor;
-				total_life_start+=ant.initArmor;
-			}
 			
 			
 			int barsize = Math.min(60,Math.max(total_life_start*5,15));
@@ -710,6 +704,28 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					g2d.setColor(Color.RED);
 				}
 				g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2+1, rect.y + PLACE_PADDING.height + 11, (int)((barsize-2)*((float)total_life/total_life_start)),3);
+
+			}
+			
+			total_life = 0;
+			total_life_start = 0;
+			ant = place.getContainingAnt();
+			if (ant != null) { // draw the containing ant if we have one
+				Image img = ANT_IMAGES.get(ant.getClass().getName());
+				g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+				total_life+=ant.armor;
+				total_life_start+=ant.initArmor;
+			}
+			
+			
+			barsize = Math.min(60,Math.max(total_life_start*5,15));
+
+			if(total_life>0){
+				g2d.setColor(Color.GRAY);
+				g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2, rect.y + PLACE_PADDING.height + 10 - 10, barsize,5);
+				
+				g2d.setColor(Color.WHITE);
+				g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2+1, rect.y + PLACE_PADDING.height + 11 - 10, (int)((barsize-2)*((float)total_life/total_life_start)),3);
 
 			}
 
@@ -860,7 +876,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			g2d.drawString("" + ant.getFoodCost(), rect.x + (rect.width / 2), rect.y + ANT_IMAGE_SIZE.height + 4 + PANEL_PADDING.height -decalageY);
 
 		
-		}
+		} 
+		
+		g2d.drawImage(MENUFRONT, 0, -decalageY, null); // draw a bee at that position!
 
 		// box status
 		if (removerArea.contains(mouseX, mouseY)){
