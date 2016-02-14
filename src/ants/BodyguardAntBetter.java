@@ -13,7 +13,7 @@ public class BodyguardAntBetter extends Ant {
 
 	public BodyguardAntBetter() {
 		super(10);
-		this.foodCost = 30;
+		this.foodCost = 75;
 		this.contener = true ;
 		
 		this.name = "Big guard";

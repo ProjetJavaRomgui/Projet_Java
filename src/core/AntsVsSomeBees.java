@@ -6,9 +6,8 @@ package core;
 public class AntsVsSomeBees {
 
 	public static void main (String[] args) {
-		System.out.println(0xFFFF0000);
 		
-		AntColony colony = new AntColony(5, 10, 2, 20, 1000, 1); // specify the colony ]tunnels, length, moats, food, life, difficulty (1-10)]
+		AntColony colony = new AntColony(5, 1000, 2, 20, 10, 1); // specify the colony ]tunnels, length, moats, food, life, difficulty (1-10)]
 		new AntGame(colony); // launch the game 
 	}
 }

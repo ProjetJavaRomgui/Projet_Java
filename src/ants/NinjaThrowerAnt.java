@@ -19,7 +19,7 @@ public class NinjaThrowerAnt extends Ant {
 	 */
 	public NinjaThrowerAnt () {
 		super(1);
-		this.foodCost = 50;
+		this.foodCost = 150;
 		damage = 1;
 		this.name = "Ninja Thrower Ant";
 	}

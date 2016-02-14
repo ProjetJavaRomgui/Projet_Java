@@ -17,6 +17,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Path2D;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -130,6 +132,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private boolean mousePressed = false;
 	private Point dragStart = new Point(0,0);
 	private Point scrollPos = new Point(0,0);
+	
+	public static int XP = 0;
+	private int XP_RECORD = 0;
 
 	
 	/**
@@ -159,7 +164,29 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		food_earn.megain = -15f;
 		
-		
+		//Get record
+		try {
+			Scanner sc = new Scanner(new File("stats.propert"));
+			while (sc.hasNextLine()) {
+				String line = sc.nextLine();
+				XP_RECORD = (int) Float.parseFloat(line);
+			}
+			sc.close();
+		}
+		catch (IOException e) { 
+			System.out.println("No stat file, creating it...");
+			try {
+	    		 
+			      File file = new File("stats.propert");
+			      
+			      if (file.createNewFile()){
+			        System.out.println("File was created!");
+			      }
+			      
+		    	} catch (IOException e1) {
+					System.out.println(" /!\\ File not created !");
+			}
+		}
 		
 		
 		//Get Bees
@@ -282,6 +309,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 		
 			g2d.drawString("Life: "+ Math.max(colony.life,0) +" Food: " + colony.getFood(), 18, 140);
+			
+			g2d.drawString("XP: "+ String.format("%,d",XP), FRAME_SIZE.width-160, 40);
+			g2d.drawString("Best: "+ String.format("%,d", Math.max(XP,XP_RECORD)), FRAME_SIZE.width-150, 69);
+
 
 		}else{
 			
@@ -306,6 +337,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				if(Food[i].y<160-Math.random()*20){
 					Food[i]=null;
 					colony.increaseFood(1);
+					addXP(1);
 					food_earn.play();
 				}else{
 					g2d.drawImage(FOOD, Food[i].x, Food[i].y, null); // draw a bee at that position!
@@ -333,6 +365,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		
 	}
+	
+	public static void addXP(int howmany){
+		XP+=Math.max(0, howmany);
+	}
 
 	/**
 	 * Runs the actual game, processing what occurs on every frame of the game (including individual turns).
@@ -356,6 +392,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				if (frame == 0) // at the start of a turn
 				{
 					System.out.println("TURN: " + turn);
+					
+					addXP(10);
 					
 					//Generer les prochaines vagues
 					if(Math.random()>0.6 && turn>10){
@@ -382,12 +420,15 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 							Bee target = ((ThrowerAnt) ant).getTarget(); // who we'll throw at (really which square, but works out the same)
 							if (target != null) {
 								createLeaf(ant, target);
+								addXP(1);
 							}
 						}
 						if(ant instanceof NinjaThrowerAnt){
 							createNinjaLeaf(ant);
+							addXP(2);
 						}
 						ant.action(colony); // take the action (actually completes the throw now)
+						addXP(1);
 					}
 					
 					int pos = 0;
@@ -488,7 +529,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				{
 					// check for end condition before proceeding
 					
-					if(colony.life<0){
+					if(colony.life<1){
 						DEAD = true;
 					}
 				}
@@ -497,6 +538,22 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			}
 			
 			if(DEAD == true && frame==0){
+				
+				//Ecrire le nouveau record si il y en a !
+				if(XP>XP_RECORD){
+					File record = new File("stats.propert");
+					FileOutputStream fooStream;
+					try {
+						fooStream = new FileOutputStream(record, false);
+						byte[] myBytes = (""+XP).getBytes();
+						fooStream.write(myBytes);
+						fooStream.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
 				JOptionPane.showMessageDialog(this, "The ant queen has perished! Please try again.", "Bzzzzz!", JOptionPane.PLAIN_MESSAGE);
 				System.exit(0); // quit
 			}
@@ -551,6 +608,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 			}
 		}
+		
+		// check if remover
+		if (removerArea.contains(pt)) {
+			selectedAnt = null; // mark as such
+			return; // stop searching
+		}
 
 		// check if selecting an ant
 		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
@@ -560,11 +623,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			}
 		}
 
-		// check if remover
-		if (removerArea.contains(pt)) {
-			selectedAnt = null; // mark as such
-			return; // stop searching
-		}
+
 	}
 	
 	
@@ -773,6 +832,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			}
 			
 			if(entry.getKey().place!=null){
+				
+				if(bee.lastAttacked==1){
+					addXP(bee.initArmor-bee.armor);
+				}
 	
 				if(bee.lastAttacked<FPS/4){ //Change l'image pour un quart de seconde
 					image = BEEBAD_IMAGE[level];
@@ -919,7 +982,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	
 	private void scrollSelector(Graphics2D g2d){
 		
-		if(dragStart.y < 100 && mousePressed){
+		if(dragStart.y < 140 && mousePressed){
 			
 			for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
 				entry.getKey().x += mouseX-scrollPos.x;
