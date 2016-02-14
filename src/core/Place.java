@@ -18,6 +18,8 @@ public class Place {
 	private Ant containingAnt; // ant (singular) with the containing tag in the place
 	public String name = "Place";
 	public String description = "This is the ground.";
+	public int tunnel;
+	public int left;
 	/**
 	 * Creates a new place with the given name and exit
 	 *
@@ -26,7 +28,9 @@ public class Place {
 	 * @param exit
 	 *            The place's exit
 	 */
-	public Place (String name, Place exit) {
+	public Place (String name, Place exit, int tunnel,int left) {
+		this.tunnel = tunnel;
+		this.left = left;
 		this.debugName = name;
 		this.exit = exit;
 		entrance = null;
@@ -41,7 +45,7 @@ public class Place {
 	 *            The place's name
 	 */
 	public Place (String name) {
-		this(name, null);
+		this(name, null, -1, -1);
 	}
 
 	/**

@@ -13,8 +13,11 @@ public class FireAnt extends Ant {
 	public int damage = 3;
 	public FireAnt(){
 		super(1);
-		this.foodCost = 4;
-		this.damage = 3;
+		this.foodCost = 6;
+		this.damage = 6;
+		
+		this.name = "Fire Ant";
+		this.description = "Once dead, it explode.\n -6 to insects on the same place.";
 	}
 	@Override
 	public void action(AntColony colony) {

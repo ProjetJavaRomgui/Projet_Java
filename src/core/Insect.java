@@ -16,6 +16,7 @@ public abstract class Insect {
 	public boolean waterSafe = false;
 	public String name = "Thing";
 	public String description = "This is an insect, obvious.";
+	public boolean invisible = false;
 	/**
 	 * Creates a new Insect with the given armor in the given location
 	 *

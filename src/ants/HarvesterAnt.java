@@ -19,6 +19,10 @@ public class HarvesterAnt extends Ant {
 		super(1);
 		this.foodCost = 2;
 		this.foodMakePerTurn = 1;
+		
+		this.name = "Harvester Ant";
+		this.description = "This ant make 3 food each 5 seconds.";
+		
 	}
 
 	@Override

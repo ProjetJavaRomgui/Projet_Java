@@ -50,7 +50,7 @@ public class AntColony {
 			if (moatFrequency == 0){
 				for (int step = 0; step < tunnelLength; step++) {
 					prev = curr; // keep track of the previous guy (who we will exit to)
-					curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev); // create new place with an exit that is the previous spot
+					curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev, tunnel, step); // create new place with an exit that is the previous spot
 
 					prev.setEntrance(curr); // the previous person's entrance is the new spot
 					places.add(curr); // add new place to the list
@@ -61,9 +61,9 @@ public class AntColony {
 					
 					prev = curr; // keep track of the previous guy (who we will exit to)
 					if (Math.random()<1-(float)difficulty/10 || lineWater>=tunnelLength*(float)difficulty/10+1){
-						curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev); // create new place with an exit that is the previous spot
+						curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev, tunnel, step); // create new place with an exit that is the previous spot
 					} else {
-						curr = new Water("water[" + tunnel + "-" + step + "]", prev);
+						curr = new Water("water[" + tunnel + "-" + step + "]", prev, tunnel, step);
 						lineWater++;
 					}
 					prev.setEntrance(curr); // the previous person's entrance is the new spot

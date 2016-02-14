@@ -16,6 +16,9 @@ public class NinjaAnt extends Ant {
 		super(1);
 		this.foodCost = 5;
 		this.blocking=false;
+		
+		this.name = "Ninja Ant";
+		this.description = "Bees don't see Ninja ants !";
 	}
 	
 	public Bee[] getBees(){

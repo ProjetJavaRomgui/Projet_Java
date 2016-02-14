@@ -9,7 +9,7 @@ import core.Bee;
  *
  * @author YOUR NAME HERE
  */
-public class LongThrowerAnt extends ThrowerAnt {
+public class NinjaThrowerAnt extends Ant {
 
 	protected int damage;
 
@@ -17,15 +17,14 @@ public class LongThrowerAnt extends ThrowerAnt {
 	 * Creates a new Thrower Ant.
 	 * Armor: 1, Food: 4, Damage: 1
 	 */
-	public LongThrowerAnt () {
+	public NinjaThrowerAnt () {
 		super(1);
-		this.foodCost = 10;
+		this.foodCost = 50;
 		damage = 1;
-		this.name = "Long Thrower Ant";
-		this.description = "Like the Thrower Ant this ant can cover 5 places !";
+		this.name = "Ninja Thrower Ant";
 	}
 	
-	public LongThrowerAnt (int foodcost) {
+	public NinjaThrowerAnt (int foodcost) {
 		super(1);
 		this.foodCost = foodcost;
 		damage = 1;
@@ -35,15 +34,13 @@ public class LongThrowerAnt extends ThrowerAnt {
 	 *
 	 * @return A bee to target
 	 */
-	public Bee getTarget () {
-		return place.getClosestBee(0, 5);
-	}
 
 	@Override
 	public void action (AntColony colony) {
-		Bee target = getTarget();
-		if (target != null) {
-			target.reduceArmor(damage);
+		for(Bee target: colony.getAllBees()){
+			if (target.getPlace().left>=place.left && target.getPlace().tunnel==place.tunnel &&  target != null) {
+				target.reduceArmor(damage);
+			}
 		}
 	}
 }

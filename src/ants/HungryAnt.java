@@ -14,7 +14,10 @@ public class HungryAnt extends Ant {
 	public int Cooldown = 0; //nombre de tours entre deux festins
 	public HungryAnt() {
 		super(1);
-		this.foodCost = 4;
+		this.foodCost = 12;
+		
+		this.name = "Hungry Ant";
+		this.description = "This ant eat Bees !";
 	}
 	
 	public Bee getTarget(){
@@ -26,6 +29,7 @@ public class HungryAnt extends Ant {
 		if(Cooldown!=0) Cooldown -= 1 ;
 		else if (target != null){
 			target.reduceArmor(target.getArmor());
+			target.invisible = true;
 			Cooldown = 3;
 		}
 		

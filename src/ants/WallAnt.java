@@ -17,6 +17,9 @@ public class WallAnt extends Ant {
 		super(4);
 		this.foodCost = 4;
 
+		this.name = "Wall Ant";
+		this.description = "Bees cannot pass through this ant until it die !";
+		
 	}
 
 	@Override

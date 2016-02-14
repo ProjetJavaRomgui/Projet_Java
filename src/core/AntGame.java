@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import ants.NinjaThrowerAnt;
 import ants.ThrowerAnt;
 import system.Audio;
 
@@ -144,8 +145,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		//Mise en place de la musique
 		Audio music = new Audio("music.wav");
-		music.play();
-		music.loop(true);
+		//music.play();
+		//music.loop(true);
 		//Sons
 		add[0] = new Audio("add1.wav");
 		add[1] = new Audio("add2.wav");
@@ -383,6 +384,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 								createLeaf(ant, target);
 							}
 						}
+						if(ant instanceof NinjaThrowerAnt){
+							createNinjaLeaf(ant);
+						}
 						ant.action(colony); // take the action (actually completes the throw now)
 					}
 					
@@ -582,6 +586,23 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		leaves.add(leaf);
 	}
 	
+	// Creates a new leaf (animated) from the Ant source to the Bee target.
+	// Note that really only cares about the target's Place (Ant can target other Bees in same Place)
+	private void createNinjaLeaf (Ant source) {
+		Rectangle antRect = colonyRects.get(source.getPlace());
+		int startX = antRect.x + LEAF_START_OFFSET.width;
+		int startY = antRect.y + LEAF_START_OFFSET.height;
+		int endX = FRAME_SIZE.width+200;
+		int endY = startY;
+
+		AnimPosition leaf = new AnimPosition(startX, startY);
+		leaf.animateTo(endX, endY, (int) (LEAF_SPEED * FPS));
+		leaf.color = LEAF_COLORS.get(source.getClass().getName());
+
+		leaves.add(leaf);
+	}
+	
+	
 	private void drawLongText(String str, int x, int y, Graphics2D g2d){
 		
 		int espace = 0;
@@ -775,18 +796,22 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			int mx = (int)(Math.cos((float)counter/(20+bee.randomDecalage))*5);
 			int my = (int)(Math.cos((float)counter/(20+bee.randomDecalage))*10)+5;
 			
-			if(flip){
-				g2d.drawImage(image,
-					(int) pos.x + mx+image.getWidth(getParent()),
-					(int) pos.y + my,
-					-image.getWidth(getParent()),
-					image.getHeight(getParent()),
-					null); // draw a bee at that position!
-			}else{
-				g2d.drawImage(image,
-						(int) pos.x + mx,
+			if(!bee.invisible){
+				
+				if(flip){
+					g2d.drawImage(image,
+						(int) pos.x + mx+image.getWidth(getParent()),
 						(int) pos.y + my,
+						-image.getWidth(getParent()),
+						image.getHeight(getParent()),
 						null); // draw a bee at that position!
+				}else{
+					g2d.drawImage(image,
+							(int) pos.x + mx,
+							(int) pos.y + my,
+							null); // draw a bee at that position!
+				}
+			
 			}
 			
 			

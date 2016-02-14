@@ -15,6 +15,9 @@ public class BodyguardAntBetter extends Ant {
 		super(10);
 		this.foodCost = 30;
 		this.contener = true ;
+		
+		this.name = "Big guard";
+		this.description = "Add an armor of 10.";
 	}
 
 	@Override

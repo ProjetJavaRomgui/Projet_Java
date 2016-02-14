@@ -21,6 +21,8 @@ public class ThrowerAnt extends Ant {
 		super(1);
 		this.foodCost = 4;
 		damage = 1;
+		this.name = "Thrower Ant";
+		this.description = "Can throw leafs up to 3 place of distance !";
 	}
 	
 	public ThrowerAnt (int foodcost) {
