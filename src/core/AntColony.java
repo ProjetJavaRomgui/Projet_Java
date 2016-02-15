@@ -90,7 +90,17 @@ public class AntColony {
 	 * @return Places the bees can enter
 	 */
 	public Place[] getBeeEntrances () {
-		return beeEntrances.toArray(new Place[0]);
+		ArrayList<Place> beeE = new ArrayList<Place>(); // the places in the colony
+		
+		int i =0;
+		for(Place pl: beeEntrances){
+			if(i>=core.AntGame.minTunnel && i<=core.AntGame.maxTunnel){
+				beeE.add(pl);
+			}
+			i++;
+		}
+		
+		return beeE.toArray(new Place[0]);
 	}
 
 	/**

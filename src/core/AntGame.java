@@ -77,6 +77,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	// other images (stored as member variables)
 	private final Image TUNNEL_IMAGE = ImageUtils.loadImage("img/tunnel.gif");
+	private final Image TUNNEL_CLOSED_IMAGE = ImageUtils.loadImage("img/tunnelclosed.gif");
 	private final Image WATER_IMAGE = ImageUtils.loadImage("img/water.png");
 	private final Image TUNNEL_SELECT_IMAGE = ImageUtils.loadImage("img/tun_select.png");
 	private final Image TUNNEL_SELECTED_IMAGE = ImageUtils.loadImage("img/tun_selected.png");
@@ -126,6 +127,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private Rectangle removerArea; // click to remove an ant
 	private Place tunnelEnd; // a Place representing the end of the tunnels (for drawing)
 	private Ant selectedAnt; // which ant is currently selected
+	
+	//Start with only one tunel, center one
+	public static int minTunnel = 2;
+	public static int maxTunnel = 2;
 
 	// variables tracking animations
 	private Map<Bee, AnimPosition> allBeePositions; // maps from Bee to an object storing animation status
@@ -407,23 +412,14 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					
 					addXP(10);
 					
-					//Generer les prochaines vagues
-					if(Math.random()>0.6 && turn>10){
-						
-						int nb = turn/70+1;
-						
-						if(Math.random()>0.96){
-							nb = nb*3;
-						}
-						
-						for(int i=0;i<nb;i++){
-						
-							int life = Math.max(3, Math.min(100,(int)(Math.random()*(turn/30+1))));
-							addBee(life,Math.max(life/10,1));
-						
-						}
-						
-					}
+					
+					///////////////////
+					//Generation du jeu
+					///////////////////
+					gestionJeu();
+					///////////////////
+					///////////////////
+					///////////////////
 		
 					// ants take action!
 					for (Ant ant : colony.getAllAnts()) {
@@ -588,6 +584,64 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 	}
 	
+	private void gestionJeu(){
+		
+		//Ajout des abeilles
+		if(Math.random()>0.6 && turn>20){
+			
+			if(turn<100){
+				
+				int nb = 1;
+				
+				if(Math.random()>0.96){
+					nb = nb*2;
+				}
+				
+				for(int i=0;i<nb;i++){
+					addBee(3,1);
+				
+				}
+				
+			}
+			
+			
+			
+			
+			
+			
+			if(turn>400){
+				int nb = turn/70+1;
+				
+				if(Math.random()>0.96){
+					nb = nb*3;
+				}
+				
+				for(int i=0;i<nb;i++){
+				
+					int life = Math.max(3, Math.min(100,(int)(Math.random()*(turn/30+1))));
+					addBee(life,Math.max(life/10,1));
+				
+				}
+			}
+			
+		}
+		
+		
+		//Ajout des tunnels
+		if(turn==100){
+			minTunnel = 1;
+		}
+		if(turn==150){
+			maxTunnel = 3;
+		}
+		if(turn==250){
+			minTunnel = 0;
+		}
+		if(turn==300){
+			maxTunnel = 4;
+		}
+	}
+	
 	private void addBee(int armor, int degatColony){
 		
 		Bee bee = new Bee(armor);
@@ -625,6 +679,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					return; // stop searching
 				}
 				else {
+					if(colonyAreas.get(rect).tunnel<minTunnel || colonyAreas.get(rect).tunnel>maxTunnel){
+						return;
+					}
 					Ant deployable = buildAnt(selectedAnt.getClass().getName()); // make a new ant of the appropriate type
 					colony.deployAnt(colonyAreas.get(rect), deployable);
 					add[(int)(Math.random()*4)].play();
@@ -732,11 +789,14 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private void createLeaf (Ant source, Bee target) {
 		Rectangle antRect = colonyRects.get(source.getPlace());
 		Rectangle beeRect = colonyRects.get(target.getPlace());
+		if(beeRect==null || antRect==null){ //Éviter les problèmes
+			return;
+		}
 		int startX = antRect.x + LEAF_START_OFFSET.width;
 		int startY = antRect.y + LEAF_START_OFFSET.height;
 		int endX = beeRect.x + LEAF_END_OFFSET.height;
 		int endY = beeRect.y + LEAF_END_OFFSET.height;
-
+		
 		AnimPosition leaf = new AnimPosition(startX, startY);
 		leaf.animateTo(endX, endY, (int) (LEAF_SPEED * FPS));
 		leaf.color = LEAF_COLORS.get(source.getClass().getName());
@@ -814,7 +874,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 			for (Map.Entry<Rectangle, Place> entry : colonyAreas.entrySet()) {
 				
-				if (entry.getKey().contains(mouseX, mouseY)){
+				if (entry.getKey().contains(mouseX, mouseY) && entry.getValue().tunnel>=minTunnel && entry.getValue().tunnel<=maxTunnel){
 					if(entry.getValue().getAnt() == null){
 						g2d.setFont(FONT);
 						drawLongText(entry.getValue().name,mouseX + 3, mouseY+3, g2d);
@@ -854,7 +914,29 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				g2d.drawImage(TUNNEL_IMAGE, rect.x+decalage, rect.y, null); //water image
 			}
 			
-			if (rect.contains(mouseX, mouseY)){
+			
+			boolean transparent=false;
+			
+			if(turn%2==0){
+				if(turn>95 && place.tunnel==1){
+					transparent = true;
+				}
+				if(turn>145 && place.tunnel==3){
+					transparent = true;
+				}
+				if(turn>245 && place.tunnel==0){
+					transparent = true;
+				}
+				if(turn>295 && place.tunnel==4){
+					transparent = true;
+				}
+			}
+			
+			if (!transparent && place != tunnelEnd && (place.tunnel<minTunnel || place.tunnel>maxTunnel) ) {
+				g2d.drawImage(TUNNEL_CLOSED_IMAGE, rect.x+decalage, rect.y, null); // decorative image
+			} 
+			
+			if (rect.contains(mouseX, mouseY) && entry.getValue().tunnel>=minTunnel && entry.getValue().tunnel<=maxTunnel){
 				g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
 			}
 			
