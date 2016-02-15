@@ -11,6 +11,7 @@ public abstract class Ant extends Insect {
 	protected int foodMakePerTurn;
 	protected boolean contener = false ;
 	protected boolean blocking = true ;
+	public int level = 0;
 	/**
 	 * Creates a new Ant, with a food cost of 0.
 	 *

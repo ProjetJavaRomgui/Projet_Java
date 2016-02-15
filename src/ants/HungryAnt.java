@@ -15,7 +15,8 @@ public class HungryAnt extends Ant {
 	public HungryAnt() {
 		super(1);
 		this.foodCost = 12;
-		
+		level = 6; // Disponible au bout de 300 tours
+
 		this.name = "Hungry Ant";
 		this.description = "This ant eat Bees !";
 	}

@@ -15,7 +15,8 @@ public class FireAnt extends Ant {
 		super(1);
 		this.foodCost = 6;
 		this.damage = 6;
-		
+		level = 5; // Disponible au bout de 250 tours
+
 		this.name = "Fire Ant";
 		this.description = "Once dead, it explode.\n -6 to insects on the same place.";
 	}

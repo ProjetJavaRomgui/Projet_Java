@@ -20,6 +20,8 @@ public class LongThrowerAnt extends ThrowerAnt {
 	public LongThrowerAnt () {
 		super(1);
 		this.foodCost = 10;
+		level = 4; // Disponible au bout de 200 tours
+
 		damage = 1;
 		this.name = "Long Thrower Ant";
 		this.description = "Like the Thrower Ant this ant can cover 5 places !";

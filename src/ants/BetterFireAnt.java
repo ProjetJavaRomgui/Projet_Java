@@ -15,7 +15,8 @@ public class BetterFireAnt extends Ant {
 	public BetterFireAnt(){
 		super(1);
 		this.foodCost = 60;
-		
+		level = 8; // Disponible au bout de 400 tours
+
 		this.name = "Booom Ant";
 		this.description = "Once dead, it explode.\n Incects in the same place die,\n and incects just near loose 50% of their life !\n/!\\ CAUTION !";
 	}

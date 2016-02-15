@@ -21,6 +21,7 @@ public class NinjaThrowerAnt extends Ant {
 		super(1);
 		this.foodCost = 150;
 		damage = 1;
+		level = 8; // Disponible au bout de 400 tours
 		this.name = "Ninja Thrower Ant";
 	}
 	

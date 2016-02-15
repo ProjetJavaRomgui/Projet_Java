@@ -16,6 +16,7 @@ public class WallAnt extends Ant {
 	public WallAnt () {
 		super(4);
 		this.foodCost = 4;
+		level = 1; // Disponible au bout de 50 tours
 
 		this.name = "Wall Ant";
 		this.description = "Bees cannot pass through this ant until it die !";

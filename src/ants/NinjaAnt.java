@@ -16,7 +16,8 @@ public class NinjaAnt extends Ant {
 		super(1);
 		this.foodCost = 5;
 		this.blocking=false;
-		
+		level = 4; // Disponible au bout de 200 tours
+
 		this.name = "Ninja Ant";
 		this.description = "Bees don't see Ninja ants !";
 	}

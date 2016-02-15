@@ -119,6 +119,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static Audio[] add = new Audio[4];
 
 	public static Point[] Food = new Point[100];
+	public static int LEVEL = 0;
 
 	// areas that can be clicked
 	private Map<Rectangle, Place> colonyAreas; // maps from a clickable area to a Place
@@ -420,6 +421,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					///////////////////
 					///////////////////
 					///////////////////
+					
+					//Changer le niveau de jeu (et les ants disponibles)
+					if(turn%50==0){
+						LEVEL = turn/50;
+						//1 level = 50 tours
+						initializeAntSelector();
+					}
 		
 					// ants take action!
 					for (Ant ant : colony.getAllAnts()) {
@@ -629,9 +637,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				
 			}
 			
-			//20 turn pause
+			//40 turn pause
 			
-			if(turn<300 && turn>220){
+			if(turn<380 && turn>240){
 				
 				int nb = 2;
 				int max = 0;
@@ -651,8 +659,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				
 			}
 			
+			//Then die !
 			
-			if(turn>300){
+			if(turn>400){
 				int nb = turn/70+1;
 				
 				if(Math.random()>0.96){
@@ -1206,7 +1215,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	
 	private void scrollSelector(Graphics2D g2d){
 		
-		if(dragStart.y < 140 && mousePressed){
+		if(dragStart.y < 140 && mousePressed && antSelectorAreas.size()>9){
 			
 			for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
 				entry.getKey().x += mouseX-scrollPos.x;
@@ -1332,6 +1341,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 * Assumes that the Ants have already been initialized (and have established image resources)
 	 */
 	private void initializeAntSelector () {
+		
+		//In case we change it all
+		antSelectorAreas = new HashMap<Rectangle, Ant>();
+		
 		Point pos = new Point(PANEL_POS); // starting point of the panel
 		int width = ANT_IMAGE_SIZE.width + 2 * PANEL_PADDING.width;
 		int height = ANT_IMAGE_SIZE.height + 2 * PANEL_PADDING.height;
@@ -1343,9 +1356,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		{
 			Rectangle clickable = new Rectangle(pos.x, pos.y, width, height); // where to put the selector
 			Ant ant = buildAnt(antType); // the ant that gets deployed from that selector
-			antSelectorAreas.put(clickable, ant); // register the deployable ant so we can select it
+				
+			if(ant.level <= LEVEL){ //Only our level of ants
 
-			pos.translate(width + 2, 0); // shift rectangle position for next run
+				antSelectorAreas.put(clickable, ant); // register the deployable ant so we can select it
+	
+				pos.translate(width + 2, 0); // shift rectangle position for next run
+			}
 		}
 	}
 

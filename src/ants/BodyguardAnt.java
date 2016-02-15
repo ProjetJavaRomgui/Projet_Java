@@ -15,7 +15,8 @@ public class BodyguardAnt extends Ant {
 		super(3);
 		this.foodCost = 10;
 		this.contener = true ;
-		
+		level = 2; // Disponible au bout de 100 tours
+
 		this.name = "Little guard";
 		this.description = "Add an armor of 3.";
 	}
