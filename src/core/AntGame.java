@@ -597,19 +597,62 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					nb = nb*2;
 				}
 				
+				if(turn>85){
+					nb = nb*2;
+				}
+				
 				for(int i=0;i<nb;i++){
 					addBee(3,1);
 				
 				}
 				
 			}
+			//20 turn pause
+			
+			if(turn<200 && turn>120){
+				
+				int nb = 1;
+				int max = 0;
+				
+				if(Math.random()>0.96){
+					nb = nb*2;
+				}
+				
+				if(turn>185){
+					nb = nb*2;
+					max = 5;
+				}
+				
+				for(int i=0;i<nb;i++){
+					addBee(Math.max(3, (int)((9+max)*Math.random())),1);
+				}
+				
+			}
+			
+			//20 turn pause
+			
+			if(turn<300 && turn>220){
+				
+				int nb = 2;
+				int max = 0;
+				
+				if(Math.random()>0.96){
+					nb = nb*2;
+				}
+				
+				if(turn>285){
+					nb = nb*2;
+					max = 5;
+				}
+				
+				for(int i=0;i<nb;i++){
+					addBee(Math.max(5, (int)((14+max)*Math.random())),1);
+				}
+				
+			}
 			
 			
-			
-			
-			
-			
-			if(turn>400){
+			if(turn>300){
 				int nb = turn/70+1;
 				
 				if(Math.random()>0.96){
@@ -917,7 +960,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			boolean transparent=false;
 			
-			if(turn%2==0){
+			if((counter/4)%2==0){
 				if(turn>95 && place.tunnel==1){
 					transparent = true;
 				}

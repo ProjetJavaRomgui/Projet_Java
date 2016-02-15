@@ -56,7 +56,13 @@ public class AntColony {
 					places.add(curr); // add new place to the list
 				}
 			} else {
+				
 				lineWater = 0;
+
+				if(tunnel==2 && difficulty<5){
+					lineWater = 1000;
+				}
+				
 				for (int step = 0; step < tunnelLength; step++) {
 					
 					prev = curr; // keep track of the previous guy (who we will exit to)
