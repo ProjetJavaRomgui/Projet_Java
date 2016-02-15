@@ -8,8 +8,8 @@ package core;
  */
 public abstract class Insect {
 
-	protected int armor; // insect's current armor
-	protected int initArmor;
+	public int armor; // insect's current armor
+	public int initArmor;
 	protected Place place; // insect's current location
 	public int lastAttacked;
 	public int lastAttack;

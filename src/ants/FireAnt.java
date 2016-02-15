@@ -32,6 +32,9 @@ public class FireAnt extends Ant {
 	public void reduceArmor (int amount){
 		armor -= amount;
 		if (armor <= 0) {
+			
+			core.AntGame.addExplosion(this.place);
+			
 			Bee[] beelist = getBees();
 			for(int i=0; i<beelist.length ; i++){
 				if(beelist[i].getPlace() == this.getPlace()){
@@ -40,6 +43,7 @@ public class FireAnt extends Ant {
 			}
 			System.out.println(this + " ran out of armor and expired");
 			leavePlace();
+
 		}
 	}
 	

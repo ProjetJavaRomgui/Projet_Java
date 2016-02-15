@@ -24,7 +24,7 @@ public class Hive extends Place {
 	 *            The armor of the bees
 	 */
 	public Hive () {
-		super(NAME, null,-1,-1);
+		super(NAME, null,-1,-1,null);
 		this.beeArmor = 1;
 		waves = new HashMap<Integer, Bee[]>();
 	}

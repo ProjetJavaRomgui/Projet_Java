@@ -20,6 +20,7 @@ public class Place {
 	public String description = "This is the ground.";
 	public int tunnel;
 	public int left;
+	public AntColony parent;
 	/**
 	 * Creates a new place with the given name and exit
 	 *
@@ -28,7 +29,8 @@ public class Place {
 	 * @param exit
 	 *            The place's exit
 	 */
-	public Place (String name, Place exit, int tunnel,int left) {
+	public Place (String name, Place exit, int tunnel,int left, AntColony parent) {
+		this.parent = parent;
 		this.tunnel = tunnel;
 		this.left = left;
 		this.debugName = name;
@@ -44,8 +46,8 @@ public class Place {
 	 * @param name
 	 *            The place's name
 	 */
-	public Place (String name) {
-		this(name, null, -1, -1);
+	public Place (String name, AntColony parent) {
+		this(name, null, -1, -1, parent);
 	}
 
 	/**

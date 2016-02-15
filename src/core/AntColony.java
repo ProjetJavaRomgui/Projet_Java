@@ -41,8 +41,8 @@ public class AntColony {
 		// init variables
 		places = new ArrayList<Place>();
 		beeEntrances = new ArrayList<Place>();
-		queenPlace = new Place(QUEEN_NAME); // magic variable namexw
-		tunnelLength = Math.min(tunnelLength, MAX_TUNNEL_LENGTH); // don't go off the screen!
+		queenPlace = new Place(QUEEN_NAME, this); // magic variable namexw
+		tunnelLength = Math.min(tunnelLength, MAX_TUNNEL_LENGTH)+1; // don't go off the screen!
 		// set up tunnels, as a kind of linked-list
 		Place curr, prev; // reference to current exit of the tunnel
 		for (int tunnel = 0; tunnel < numTunnels; tunnel++) {
@@ -50,7 +50,7 @@ public class AntColony {
 			if (moatFrequency == 0){
 				for (int step = 0; step < tunnelLength; step++) {
 					prev = curr; // keep track of the previous guy (who we will exit to)
-					curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev, tunnel, step); // create new place with an exit that is the previous spot
+					curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev, tunnel, step, this); // create new place with an exit that is the previous spot
 
 					prev.setEntrance(curr); // the previous person's entrance is the new spot
 					places.add(curr); // add new place to the list
@@ -60,10 +60,10 @@ public class AntColony {
 				for (int step = 0; step < tunnelLength; step++) {
 					
 					prev = curr; // keep track of the previous guy (who we will exit to)
-					if (Math.random()<1-(float)difficulty/10 || lineWater>=tunnelLength*(float)difficulty/10+1){
-						curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev, tunnel, step); // create new place with an exit that is the previous spot
+					if (Math.random()<1-(float)difficulty/10 || lineWater>=tunnelLength*(float)difficulty/10+1 || step>=numTunnels-1){
+						curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev, tunnel, step, this); // create new place with an exit that is the previous spot
 					} else {
-						curr = new Water("water[" + tunnel + "-" + step + "]", prev, tunnel, step);
+						curr = new Water("water[" + tunnel + "-" + step + "]", prev, tunnel, step, this);
 						lineWater++;
 					}
 					prev.setEntrance(curr); // the previous person's entrance is the new spot

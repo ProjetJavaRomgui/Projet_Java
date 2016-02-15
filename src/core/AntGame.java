@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
+import system.PointValue;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -83,12 +85,14 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image BEE_IMAGE2[] = new Image[10];
 	private final Image BEEBAD_IMAGE[] = new Image[10];
 	private final Image BEEATTACK_IMAGE[] = new Image[10];
+	private final Image EXPLOSION[] = new Image[7];
 	private final Image REMOVER_IMAGE = ImageUtils.loadImage("img/remover.gif");
 	private final Image BACK = ImageUtils.loadImage("assets/preback.png");
 	private final Image START = ImageUtils.loadImage("assets/start.png");
 	private final Image STARTCLICK = ImageUtils.loadImage("assets/start_button.png");
 	private final Image MENU = ImageUtils.loadImage("assets/menutop.png");
 	private final Image MENUFRONT = ImageUtils.loadImage("assets/menutop_front.png");
+	
 
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
 	private final Font LITLE = new Font("Helvetica", Font.ITALIC, 15);
@@ -117,7 +121,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	// areas that can be clicked
 	private Map<Rectangle, Place> colonyAreas; // maps from a clickable area to a Place
-	private Map<Place, Rectangle> colonyRects; // maps from a Place to its clickable rectangle (reverse lookup!)
+	private static Map<Place, Rectangle> colonyRects; // maps from a Place to its clickable rectangle (reverse lookup!)
 	private Map<Rectangle, Ant> antSelectorAreas; // maps from a clickable area to an Ant that can be deployed
 	private Rectangle removerArea; // click to remove an ant
 	private Place tunnelEnd; // a Place representing the end of the tunnels (for drawing)
@@ -126,7 +130,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	// variables tracking animations
 	private Map<Bee, AnimPosition> allBeePositions; // maps from Bee to an object storing animation status
 	private ArrayList<AnimPosition> leaves; // leaves we're animating
-
+	public static PointValue[] explosions = new PointValue[100];
+	
 	private int mouseX = 0;
 	private int mouseY = 0;
 	private boolean mousePressed = false;
@@ -197,6 +202,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			BEEBAD_IMAGE[i] = ImageUtils.loadImage("img/bees/"+i+"/beebad_image.gif");
 			BEEATTACK_IMAGE[i] = ImageUtils.loadImage("img/bees/"+i+"/beeattack_image.gif");
 
+		}
+		
+		
+		for(int i=0; i<EXPLOSION.length;i++){
+			EXPLOSION[i] = ImageUtils.loadImage("img/explosion/"+i+".png");
 		}
 		
 		addMouseMotionListener(new MouseAdapter() {
@@ -336,7 +346,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 				if(Food[i].y<160-Math.random()*20){
 					Food[i]=null;
-					colony.increaseFood(1);
+					colony.increaseFood(1);					
 					addXP(1);
 					food_earn.play();
 				}else{
@@ -344,6 +354,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 			}
 		}
+		
+		doExplosion(g2d);
 		
 		drawHoverText(g2d);
 		
@@ -461,6 +473,18 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					}
 		
 					// if want to do this to ants as well, will need to start storing dead ones with AnimPositions
+				}
+				
+				//Finish ants (special for exploding ants :p)
+				if(frame%(FPS/5)==0){
+					for (Ant ant : colony.getAllAnts()) 
+					{
+						if(ant.armor<=0){
+							ant.reduceArmor(1);
+						}
+						ant.lastAttacked++;
+						ant.lastAttack++;
+					}
 				}
 				
 				
@@ -626,7 +650,82 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	}
 	
+	private void doExplosion(Graphics2D g2d){
+		
+		for(int i=0; i<explosions.length; i++){
+			if(explosions[i]!=null){
+				
+				if(explosions[i].value>=0){
+					g2d.drawImage(EXPLOSION[explosions[i].value],explosions[i].x,explosions[i].y,null);
+				}
+				
+				explosions[i].value++;
+				
+				if(explosions[i].value>6){
+					explosions[i] = null;
+				}
+			}
+		}
+		
+	}
 	
+	public static void addBigExplosion(int x, int y, int radius, int nb){
+		
+		for(int i=0; i<nb; i++){
+			addExplosion((int)(x + (0.5-Math.random())*radius*2),
+					(int)(y + (0.5-Math.random())*radius*2),
+					(int)(FPS*(float)nb/40*Math.random())
+					);
+		}
+		
+	}
+	
+	public static void addBigExplosion(Place pl, int radius, int nb){
+		
+		for(Entry<Place, Rectangle> entry: colonyRects.entrySet()){
+			
+			if(entry.getKey()!=null && pl!=null){
+				if(entry.getKey().left==pl.left && entry.getKey().tunnel==pl.tunnel){
+					addBigExplosion(entry.getValue().x+entry.getValue().width/2, entry.getValue().y+entry.getValue().height/2, radius, nb);
+					return;
+				}
+			}
+			
+		}
+		
+		
+	}
+	
+	public static void addExplosion(int x, int y, int delay){
+		
+		int i = 0;
+		while(i<explosions.length && explosions[i]!=null){
+			i++;
+		}
+		if(i==explosions.length){
+			i = 0;
+		}
+		
+		explosions[i] = new PointValue(x-96,y-96);
+		explosions[i].value = 0-delay;
+		
+	}
+	
+	public static void addExplosion(Place pl){
+		
+		for(Entry<Place, Rectangle> entry: colonyRects.entrySet()){
+			
+			if(entry.getKey()!=null && pl!=null){
+				if(entry.getKey().left==pl.left && entry.getKey().tunnel==pl.tunnel){
+					addExplosion(entry.getValue().x+entry.getValue().width/2, entry.getValue().y+entry.getValue().height/2, 0);
+					return;
+				}
+			}
+			
+		}
+		
+		
+	}
 
 	// Creates a new leaf (animated) from the Ant source to the Bee target.
 	// Note that really only cares about the target's Place (Ant can target other Bees in same Place)
@@ -1087,8 +1186,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			}
 
 			Rectangle clickable = new Rectangle(pos.x, pos.y, width, height);
-			colonyAreas.put(clickable, place);
-			colonyRects.put(place, clickable);
+			if(place.getEntrance()!=null){
+				colonyAreas.put(clickable, place);
+				colonyRects.put(place, clickable);
+			}
 
 			pos.translate(width + PLACE_MARGIN, 0); // shift rectangle position for next run
 		}
