@@ -97,6 +97,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
 	private final Font LITLE = new Font("Helvetica", Font.ITALIC, 15);
+	private final Font LITLEMAP = new Font("Helvetica", Font.ITALIC, 10);
+
 	public String[] randomText = "Hey !|Hello ?|I don't want to die !|Help me !|Who are you ?".split("\\|");
 	// positioning constants
 	public static final Dimension FRAME_SIZE = new Dimension(1024, 700);
@@ -135,6 +137,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	// variables tracking animations
 	private Map<Bee, AnimPosition> allBeePositions; // maps from Bee to an object storing animation status
+	private Map<Bee, PointValue> futureBees; // maps from Bee to an object storing animation status
 	private ArrayList<AnimPosition> leaves; // leaves we're animating
 	public static PointValue[] explosions = new PointValue[100];
 	
@@ -255,6 +258,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 		// tracking bee animations
 		allBeePositions = new HashMap<Bee, AnimPosition>();
+		futureBees = new HashMap<Bee, PointValue>();
 		initializeBees();
 		leaves = new ArrayList<AnimPosition>();
 		
@@ -418,6 +422,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					//Generation du jeu
 					///////////////////
 					gestionJeu();
+					showBees();
 					///////////////////
 					///////////////////
 					///////////////////
@@ -595,9 +600,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private void gestionJeu(){
 		
 		//Ajout des abeilles
-		if(Math.random()>0.6 && turn>20){
+		if(Math.random()>0.6){
 			
-			if(turn<100){
+			if(turn<80){
 				
 				int nb = 1;
 				
@@ -605,7 +610,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					nb = nb*2;
 				}
 				
-				if(turn>85){
+				if(turn>65){
 					nb = nb*2;
 				}
 				
@@ -617,7 +622,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			}
 			//20 turn pause
 			
-			if(turn<200 && turn>120){
+			if(turn<180 && turn>100){
 				
 				int nb = 1;
 				int max = 0;
@@ -626,7 +631,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					nb = nb*2;
 				}
 				
-				if(turn>185){
+				if(turn>165){
 					nb = nb*2;
 					max = 5;
 				}
@@ -639,7 +644,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			//40 turn pause
 			
-			if(turn<380 && turn>240){
+			if(turn<360 && turn>220){
 				
 				int nb = 2;
 				int max = 0;
@@ -648,7 +653,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					nb = nb*2;
 				}
 				
-				if(turn>285){
+				if(turn>265){
 					nb = nb*2;
 					max = 5;
 				}
@@ -661,7 +666,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			//Then die !
 			
-			if(turn>400){
+			if(turn>380){
 				int nb = turn/70+1;
 				
 				if(Math.random()>0.96){
@@ -698,16 +703,56 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		Bee bee = new Bee(armor);
 		bee.colonyDegat = degatColony;
-		hive.addInsect(bee); // put the bee in Place
-		Place[] exits = colony.getBeeEntrances();
 		
-		for(Bee b: hive.getAllBees()){
-			if(b!=null){
-				int randExit = (int) (Math.random() * exits.length);
+		PointValue pt = new PointValue(20-(int)(40*Math.random()),(int)(20*Math.random()));
+		pt.value = counter+20*FPS;
+		
+		futureBees.put(bee, pt);
+		
+	}
+	
+	private void showBees(){
+		
+		ArrayList<Bee> listKey = new ArrayList<Bee>();
+		
+		for(Entry<Bee, PointValue> entry: futureBees.entrySet()){
+			
+			if(entry.getValue().value<=counter && entry.getValue().value2==0){
 				
-				allBeePositions.put(b, new AnimPosition((int) FRAME_SIZE.getWidth()+200, (int) (HIVE_POS.y + (100 * Math.random() - 50))));
-				b.moveTo(exits[randExit]);
+				entry.getValue().value2 = 1; // Empecher de mettre plusieurs fois la même abeille
+				
+				Bee bee = new Bee(entry.getKey().armor/2); ///2 because armore is alway multiplies by 2
+				bee.colonyDegat = entry.getKey().colonyDegat;
+				
+				hive.addInsect(bee); // put the bee in Place
+				Place[] exits = colony.getBeeEntrances();
+				
+				for(Bee b: hive.getAllBees()){
+					if(b!=null){
+						int randExit = (int) (Math.random() * exits.length);
+						
+						allBeePositions.put(b, new AnimPosition((int) FRAME_SIZE.getWidth()+200, (int) (HIVE_POS.y + (100 * Math.random() - 50))));
+						b.moveTo(exits[randExit]);
+					}
+				}
+				
 			}
+			
+		}
+		
+		for(Entry<Bee, PointValue> entry: futureBees.entrySet()){
+			
+			if(entry.getValue().value<=counter-FPS){
+				
+				listKey.add(entry.getKey());	
+			}
+			
+		}
+		
+		
+		//Removing added bees
+		for(Bee b: listKey){
+			futureBees.remove(b);
 		}
 		
 	}
@@ -1165,6 +1210,34 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 		return curve;
 	}
+	
+	//Afficher les vagues d'ennemis en cours d'arrivee
+	private void drawIncomingWaves (Graphics2D g2d, int decalageY) {
+		
+		int x = 0;
+		int y = 0;
+		int level = 0;
+		Image img;
+		
+		for(Entry<Bee, PointValue> entry: futureBees.entrySet()){
+			
+			x = 230-(counter-entry.getValue().value)*30/FPS + entry.getValue().x;
+			y = 125 + entry.getValue().y;
+			level = Math.min(9, Math.max(0,entry.getKey().level));
+			
+			img = BEE_IMAGE[level];
+			if((counter/3)%2==0){
+				img = BEE_IMAGE2[level];
+			}
+			
+			g2d.drawImage(img,x-10,y-10 + (int)(5*Math.cos((float)(3*counter)/FPS)),20,20,this);
+			g2d.setFont(LITLEMAP);
+			drawLongText("lv."+(level+1),x-10,y + 10+ (int)(5*Math.cos((float)(3*counter)/FPS)),g2d);
+			g2d.setFont(FONT);
+
+		}
+	
+	}
 
 	// Draws the ant selector area
 	private void drawAntSelector (Graphics2D g2d, int decalageY) {
@@ -1199,6 +1272,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		} 
 		
+		drawIncomingWaves(g2d,decalageY);
 		g2d.drawImage(MENUFRONT, 0, -decalageY, null); // draw a bee at that position!
 
 		// box status
