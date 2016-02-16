@@ -97,7 +97,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
 	private final Font LITLE = new Font("Helvetica", Font.ITALIC, 15);
-	private final Font LITLEMAP = new Font("Helvetica", Font.ITALIC, 10);
+	private final Font LITTLEMAP = new Font("Helvetica", Font.ITALIC, 10);
 
 	public String[] randomText = "Hey !|Hello ?|I don't want to die !|Help me !|Who are you ?".split("\\|");
 	// positioning constants
@@ -1231,7 +1231,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			}
 			
 			g2d.drawImage(img,x-10,y-10 + (int)(5*Math.cos((float)(3*counter)/FPS)),20,20,this);
-			g2d.setFont(LITLEMAP);
+			g2d.setFont(LITTLEMAP);
 			drawLongText("lv."+(level+1),x-10,y + 10+ (int)(5*Math.cos((float)(3*counter)/FPS)),g2d);
 			g2d.setFont(FONT);
 
