@@ -1430,12 +1430,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		{
 			Rectangle clickable = new Rectangle(pos.x, pos.y, width, height); // where to put the selector
 			Ant ant = buildAnt(antType); // the ant that gets deployed from that selector
-				
-			if(ant.level <= LEVEL){ //Only our level of ants
+			if(ant!= null){
+				if(ant.level <= LEVEL){ //Only our level of ants
 
-				antSelectorAreas.put(clickable, ant); // register the deployable ant so we can select it
+					antSelectorAreas.put(clickable, ant); // register the deployable ant so we can select it
 	
-				pos.translate(width + 2, 0); // shift rectangle position for next run
+					pos.translate(width + 2, 0); // shift rectangle position for next run
+				}
 			}
 		}
 	}
