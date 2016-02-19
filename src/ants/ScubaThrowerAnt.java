@@ -16,4 +16,8 @@ public class ScubaThrowerAnt extends ThrowerAnt {
 		this.name = "Scuba Thrower Ant";
 		this.description = "The first amphibious thrower ant !";
 	}
+	public ScubaThrowerAnt (int foodcost) {
+		super(foodcost);
+		waterSafe = true ;
+	}
 }
