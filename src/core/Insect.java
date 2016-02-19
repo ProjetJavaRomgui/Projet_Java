@@ -109,4 +109,8 @@ public abstract class Insect {
 	public boolean getWaterSafe() {
 		return waterSafe;
 	}
+	
+	public String getName() {
+		return name;
+	}
 }

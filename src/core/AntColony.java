@@ -157,8 +157,16 @@ public class AntColony {
 	 */
 	public void deployAnt (Place place, Ant ant) {
 		if (food >= ant.getFoodCost()) {
-			
-			if(place.addInsect(ant)) food -= ant.getFoodCost();
+			if(ant.name == "Queen Bee"){
+				if(getQueenPlace().tunnel == -1){
+					if(place.addInsect(ant)) {
+						food -= ant.getFoodCost();
+						queenPlace = place ; 
+					}
+				}
+				else System.out.println("There can t be more than one queen !");
+			}
+			else if(place.addInsect(ant)) food -= ant.getFoodCost();
 		}
 		else {
 			System.out.println("Not enough food remains to place " + ant);
@@ -172,7 +180,7 @@ public class AntColony {
 	 *            Where to remove the ant from
 	 */
 	public void removeAnt (Place place) {
-		if (place.getAnt() != null) {
+		if (place.getAnt() != null && place != queenPlace) {
 			place.removeInsect(place.getAnt());
 		}
 	}

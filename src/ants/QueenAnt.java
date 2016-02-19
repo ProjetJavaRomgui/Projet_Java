@@ -1,20 +1,13 @@
 package ants;
 
 public class QueenAnt extends ScubaThrowerAnt {
-	private static volatile QueenAnt instance = null;
+	private static boolean alreadyExists = false ;
 	
-	private QueenAnt() {
+	public QueenAnt() {
 		super(6);
-	}
-	
-	public final static QueenAnt getInstance() {
-		if(QueenAnt.instance == null){
-			synchronized(QueenAnt.class) {
-				if(QueenAnt.instance == null) {
-					QueenAnt.instance = new QueenAnt() ;
-				}
-			}
+		this.name = "Queen Bee";
+		if (!alreadyExists){
+			alreadyExists = true;
 		}
-		return QueenAnt.instance;
 	}
 }
