@@ -15,7 +15,7 @@ public class AntColony {
 	public int life = 10;
  
 	private int food; // amount of food available
-	Place queenPlace; // where the queen is
+	QueenPlace queenPlace; // where the queen is
 	private ArrayList<Place> places; // the places in the colony
 	private ArrayList<Place> beeEntrances; // places which bees can enter (the starts of the tunnels)
 
@@ -41,7 +41,7 @@ public class AntColony {
 		// init variables
 		places = new ArrayList<Place>();
 		beeEntrances = new ArrayList<Place>();
-		queenPlace = new Place(QUEEN_NAME, this); // magic variable namexw
+		queenPlace = new QueenPlace(QUEEN_NAME, this); // magic variable namexw
 		tunnelLength = Math.min(tunnelLength, MAX_TUNNEL_LENGTH)+1; // don't go off the screen!
 		// set up tunnels, as a kind of linked-list
 		Place curr, prev; // reference to current exit of the tunnel
@@ -115,7 +115,7 @@ public class AntColony {
 	 * @return The queen's location
 	 */
 	public Place getQueenPlace () {
-		return queenPlace;
+		return queenPlace.getQueenPlace();
 	}
 
 	/**
@@ -158,10 +158,10 @@ public class AntColony {
 	public void deployAnt (Place place, Ant ant) {
 		if (food >= ant.getFoodCost()) {
 			if(ant.name == "Queen Bee"){
-				if(getQueenPlace().tunnel == -1){
+				if(!queenPlace.hasQueen()){
 					if(place.addInsect(ant)) {
 						food -= ant.getFoodCost();
-						queenPlace = place ; 
+						queenPlace.setQueenPlace(place); 
 					}
 				}
 				else System.out.println("There can t be more than one queen !");
@@ -180,7 +180,7 @@ public class AntColony {
 	 *            Where to remove the ant from
 	 */
 	public void removeAnt (Place place) {
-		if (place.getAnt() != null && place != queenPlace) {
+		if (place.getAnt() != null && place != queenPlace.getQueenPlace()) {
 			place.removeInsect(place.getAnt());
 		}
 	}
