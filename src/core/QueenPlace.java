@@ -18,8 +18,16 @@ public class QueenPlace extends Place {
 		if(queenPosition != null){
 			Bee[] OnQueen = queenPosition.bees.toArray(new Bee[0]); // Bees on the current queen
 			Bee[] AtTheEnd = this.bees.toArray(new Bee[0]); // Bees at the end of the road
-			Bee[] both = Stream.concat(Arrays.stream(OnQueen), Arrays.stream(AtTheEnd)).toArray(Bee[]::new);
-			return both;
+			if(OnQueen == null) return AtTheEnd;
+			else if(AtTheEnd == null) return OnQueen;
+			else {
+				int OnQueenLen=OnQueen.length;
+				int AtTheEndLen = AtTheEnd.length;
+				Bee[] both = new Bee[OnQueenLen + AtTheEndLen];
+				System.arraycopy(OnQueen, 0, both, 0, OnQueenLen);
+				System.arraycopy(AtTheEnd, 0, both, 0, AtTheEndLen);
+				return both;
+			}
 		}
 		return this.bees.toArray(new Bee[0]);
 	}
