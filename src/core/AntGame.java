@@ -531,7 +531,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					{
 						System.out.println("OUUUUCH");
 						if(bee.armor>0){
-							bee.reduceArmor(1);
+							bee.reduceArmor(bee.getArmor());
 							colony.life += -bee.colonyDegat; // Big bees can destroy all the colony
 						}
 					}
