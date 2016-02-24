@@ -11,7 +11,7 @@ import core.Insect;
  * @author YOUR NAME HERE
  */
 public class BetterFireAnt extends Ant {
-	public int damage = 3;
+	public int damage = 10;
 	public BetterFireAnt(){
 		super(1);
 		this.foodCost = 60;

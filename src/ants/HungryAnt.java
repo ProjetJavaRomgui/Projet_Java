@@ -14,6 +14,7 @@ public class HungryAnt extends Ant {
 	public int Cooldown = 0; //nombre de tours entre deux festins
 	public HungryAnt() {
 		super(1);
+		this.damage = 15;
 		this.foodCost = 12;
 		level = 6; // Disponible au bout de 300 tours
 
@@ -29,7 +30,7 @@ public class HungryAnt extends Ant {
 		Bee target = getTarget();
 		if(Cooldown!=0) Cooldown -= 1 ;
 		else if (target != null){
-			target.reduceArmor(Math.max(15,target.getArmor()));
+			target.reduceArmor(damage);
 			if(target.getArmor()<=0){
 				target.invisible = true;
 			}

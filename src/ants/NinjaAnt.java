@@ -11,7 +11,6 @@ import core.Bee;
  */
 
 public class NinjaAnt extends Ant {
-	public int damage = 1;
 	public NinjaAnt() {
 		super(1);
 		this.foodCost = 5;

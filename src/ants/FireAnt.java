@@ -10,7 +10,7 @@ import core.Bee;
  * @author YOUR NAME HERE
  */
 public class FireAnt extends Ant {
-	public int damage = 3;
+	public int damage = 5;
 	public FireAnt(){
 		super(1);
 		this.foodCost = 6;

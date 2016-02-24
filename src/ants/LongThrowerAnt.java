@@ -11,8 +11,6 @@ import core.Bee;
  */
 public class LongThrowerAnt extends ThrowerAnt {
 
-	protected int damage;
-
 	/**
 	 * Creates a new Thrower Ant.
 	 * Armor: 1, Food: 4, Damage: 1
@@ -22,7 +20,6 @@ public class LongThrowerAnt extends ThrowerAnt {
 		this.foodCost = 10;
 		level = 4; // Disponible au bout de 200 tours
 
-		damage = 1;
 		this.name = "Long Thrower Ant";
 		this.description = "Like the Thrower Ant this ant can cover 5 places !";
 	}

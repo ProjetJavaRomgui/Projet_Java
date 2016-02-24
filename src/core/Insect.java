@@ -17,6 +17,7 @@ public abstract class Insect {
 	public String name = "Thing";
 	public String description = "This is an insect, obvious.";
 	public boolean invisible = false;
+	public int damage = 1;
 	/**
 	 * Creates a new Insect with the given armor in the given location
 	 *

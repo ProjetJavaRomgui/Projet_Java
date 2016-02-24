@@ -11,7 +11,6 @@ import core.Bee;
  */
 public class NinjaThrowerAnt extends Ant {
 
-	protected int damage;
 
 	/**
 	 * Creates a new Thrower Ant.
@@ -20,7 +19,6 @@ public class NinjaThrowerAnt extends Ant {
 	public NinjaThrowerAnt () {
 		super(1);
 		this.foodCost = 150;
-		damage = 1;
 		level = 8; // Disponible au bout de 400 tours
 		this.name = "Ninja Thrower Ant";
 	}
@@ -28,7 +26,6 @@ public class NinjaThrowerAnt extends Ant {
 	public NinjaThrowerAnt (int foodcost) {
 		super(1);
 		this.foodCost = foodcost;
-		damage = 1;
 	}
 	/**
 	 * Returns a target for this ant
