@@ -157,11 +157,11 @@ public class AntColony {
 	 */
 	public void deployAnt (Place place, Ant ant) {
 		if (food >= ant.getFoodCost()) {
-			if(ant.name == "Queen Bee"){
+			if(ant.name == "Queen Ant"){
 				if(!queenPlace.hasQueen()){
 					if(place.addInsect(ant)) {
 						food -= ant.getFoodCost();
-						queenPlace.setQueenPlace(place,this); 
+						queenPlace.setQueenPlace(place, this); 
 					}
 				}
 				else System.out.println("There can t be more than one queen !");
