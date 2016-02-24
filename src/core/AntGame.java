@@ -35,7 +35,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import core.Ant;
 import ants.NinjaThrowerAnt;
+import ants.QueenAnt;
 import ants.ThrowerAnt;
 import system.Audio;
 
@@ -469,6 +471,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 					// ants take action!
 					for (Ant ant : colony.getAllAnts()) {
+						if (ant instanceof QueenAnt) //if we're a queen , let's buff
+						{
+							System.out.print(colony.queenPlace.getQueenPlace());
+							if (colony.queenPlace.getQueenPlace().getExit().getAnt()!=null){
+								colony.queenPlace.getQueenPlace().getExit().getAnt().buff = true;
+							}
+						}
 						if (ant instanceof ThrowerAnt) // if we're a thrower, might need to make a leaf!
 						{
 							Bee target = ((ThrowerAnt) ant).getTarget(); // who we'll throw at (really which square, but works out the same)

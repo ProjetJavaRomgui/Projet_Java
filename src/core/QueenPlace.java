@@ -31,8 +31,13 @@ public class QueenPlace extends Place {
 		return this.bees.toArray(new Bee[0]);
 	}
 	
-	public void setQueenPlace(Place place){
+	public void setQueenPlace(Place place,AntColony colony){
 		queenPosition = place;
+		for(Place places:colony.getPlaces()){
+			if (places.getExit() == place){
+				queenPosition.setEntrance(places);
+			}
+		}
 	}
 	
 	public Place getQueenPlace (){

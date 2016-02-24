@@ -161,7 +161,7 @@ public class AntColony {
 				if(!queenPlace.hasQueen()){
 					if(place.addInsect(ant)) {
 						food -= ant.getFoodCost();
-						queenPlace.setQueenPlace(place); 
+						queenPlace.setQueenPlace(place,this); 
 					}
 				}
 				else System.out.println("There can t be more than one queen !");

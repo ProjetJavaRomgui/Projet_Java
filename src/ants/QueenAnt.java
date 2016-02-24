@@ -6,6 +6,6 @@ public class QueenAnt extends ScubaThrowerAnt {
 		super(6);
 		this.armor = 10;
 		this.initArmor = 10;
-		this.name = "Queen Bee";
+		this.name = "Queen Ant";
 	}
 }
