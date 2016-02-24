@@ -98,8 +98,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image PLAY_IMG = ImageUtils.loadImage("assets/play.png");
 	private final Image HOVERBLACK = ImageUtils.loadImage("assets/hoverblack.png");
 	
+	private final Font TITLE = new Font("Helvetica", Font.BOLD, 20);
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
-	private final Font LITLE = new Font("Helvetica", Font.ITALIC, 15);
+	private final Font LITTLE = new Font("Helvetica", Font.ITALIC, 15);
 	private final Font LITTLEMAP = new Font("Helvetica", Font.ITALIC, 10);
 
 	public String[] randomText = "Hey !|Hello ?|I don't want to die !|Help me !|Who are you ?".split("\\|");
@@ -126,6 +127,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static Point[] Food = new Point[100];
 	public static int LEVEL = 0;
 	public static boolean PAUSE = false;
+	public static boolean FIN = false;
 
 	// areas that can be clicked
 	private Map<Rectangle, Place> colonyAreas; // maps from a clickable area to a Place
@@ -389,14 +391,24 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			this.nextFrame();
 		}
 		
+
+		if(PAUSE || FIN){
+			g2d.drawImage(HOVERBLACK,0, 0, FRAME_SIZE.width, FRAME_SIZE.height, getParent());
+		}
 		
+		if(FIN){
+			if((int)(counterExt/FPS)%2==0){
+				g2d.setFont(TITLE);
+				drawLongText("Game over !",FRAME_SIZE.width/2-100,FRAME_SIZE.height/2-20,g2d);
+			}
+		}
 		
 		if(PAUSE){
-			g2d.drawImage(HOVERBLACK,0, 0, FRAME_SIZE.width, FRAME_SIZE.height, getParent());
 			g2d.drawImage(PLAY_IMG,25, FRAME_SIZE.height-75, 50, 50, getParent());
 			
 			if((int)(counterExt/FPS)%2==0){
-				drawLongText("Pause",FRAME_SIZE.width/2-20,FRAME_SIZE.height/2-20,g2d);
+				g2d.setFont(TITLE);
+				drawLongText("Pause",FRAME_SIZE.width/2-30,FRAME_SIZE.height/2-20,g2d);
 			}
 			
 		}else{
@@ -610,7 +622,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					}
 				}
 				
-				PAUSE = true;
+				FIN = true;
 			}
 		}
 		
@@ -971,7 +983,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				
 				g2d.setFont(FONT);
 				drawLongText(entry.getValue().name,mouseX + 3, mouseY+3, g2d);
-				g2d.setFont(LITLE);
+				g2d.setFont(LITTLE);
 				drawLongText(entry.getValue().description,mouseX + 3, mouseY+3+20, g2d);
 			}
 			
@@ -989,7 +1001,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				
 				g2d.setFont(FONT);
 				drawLongText(entry.getKey().name,mouseX + 3, mouseY+3, g2d);
-				g2d.setFont(LITLE);
+				g2d.setFont(LITTLE);
 				drawLongText(entry.getKey().description,mouseX + 3, mouseY+3+20, g2d);
 				found = true;
 			}
@@ -1004,12 +1016,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					if(entry.getValue().getAnt() == null){
 						g2d.setFont(FONT);
 						drawLongText(entry.getValue().name,mouseX + 3, mouseY+3, g2d);
-						g2d.setFont(LITLE);
+						g2d.setFont(LITTLE);
 						drawLongText(entry.getValue().description,mouseX + 3, mouseY+3+20, g2d);
 					}else{
 						g2d.setFont(FONT);
 						drawLongText("\""+randomText[(int) ((Math.pow((int)(turn/4),2))%randomText.length)]+"\"",mouseX + 3, mouseY+3, g2d);
-						g2d.setFont(LITLE);
+						g2d.setFont(LITTLE);
 						drawLongText("This ant have "+(entry.getValue().getAnt().armor*100/entry.getValue().getAnt().initArmor)+"% left",mouseX + 3, mouseY+3+20, g2d);
 					}
 				}
