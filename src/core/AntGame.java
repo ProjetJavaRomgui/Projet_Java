@@ -65,6 +65,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int turn; // current game turn
 	private int frame; // time elapsed since last turn
 	private int counter;
+	private int counterExt;
 	private Timer clock;
 	private int STARTTIME = 10; //Set to 10
 	private int STARTED = FPS*STARTTIME;
@@ -93,8 +94,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image STARTCLICK = ImageUtils.loadImage("assets/start_button.png");
 	private final Image MENU = ImageUtils.loadImage("assets/menutop.png");
 	private final Image MENUFRONT = ImageUtils.loadImage("assets/menutop_front.png");
+	private final Image PAUSE_IMG = ImageUtils.loadImage("assets/pause.png");
+	private final Image PLAY_IMG = ImageUtils.loadImage("assets/play.png");
+	private final Image HOVERBLACK = ImageUtils.loadImage("assets/hoverblack.png");
 	
-
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
 	private final Font LITLE = new Font("Helvetica", Font.ITALIC, 15);
 	private final Font LITTLEMAP = new Font("Helvetica", Font.ITALIC, 10);
@@ -387,6 +390,20 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 		
 		
+		
+		if(PAUSE){
+			g2d.drawImage(HOVERBLACK,0, 0, FRAME_SIZE.width, FRAME_SIZE.height, getParent());
+			g2d.drawImage(PLAY_IMG,25, FRAME_SIZE.height-75, 50, 50, getParent());
+			
+			if((int)(counterExt/FPS)%2==0){
+				drawLongText("Pause",FRAME_SIZE.width/2-20,FRAME_SIZE.height/2-20,g2d);
+			}
+			
+		}else{
+			g2d.drawImage(PAUSE_IMG,25, FRAME_SIZE.height-75, 50, 50, getParent());
+		}
+		
+		
 	}
 	
 	public static void addXP(int howmany){
@@ -402,6 +419,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		if(!PAUSE){
 			counter++;
 		}
+		counterExt++;
 		
 		if(clock.isRunning()){
 			
@@ -1299,9 +1317,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 		g2d.drawImage(REMOVER_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height -decalageY, null);
 	
-	
-		g2d.fillRect(0, FRAME_SIZE.height-100, 100, 100);
-		
+
 		
 	}
 	
