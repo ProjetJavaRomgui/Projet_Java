@@ -35,37 +35,38 @@ public class Audio {
 	//Ci dessous gestion de play pause...
 	public void play(){
 		
-		if(me==null){
+		if(me==null || true){
 
 		
-		try{		
-			
-	        clip = AudioSystem.getClip();
-	        // getAudioInputStream() also accepts a File or InputStream
-	        me = AudioSystem.getAudioInputStream( new File("assets/sounds/"+this.path) );
-			clip.open(me);
-			clip.setMicrosecondPosition(position);
-			playing = true;
-			this.gain(this.megain);
-			clip.start();
-
-
-
-		}catch(Exception exc){
-		    System.out.println("Failed to play the file."+exc+this.path);
-		    this.correct = false;
-		    playing = false;
-		}
+			try{		
+				
+		        clip = AudioSystem.getClip();
+		        // getAudioInputStream() also accepts a File or InputStream
+		        me = AudioSystem.getAudioInputStream( new File("assets/sounds/"+this.path) );
+				clip.open(me);
+				clip.setMicrosecondPosition(position);
+				playing = true;
+				this.gain(this.megain);
+				clip.start();
+	
+	
+	
+			}catch(Exception exc){
+			    System.out.println("Failed to play the file."+exc+this.path);
+			    this.correct = false;
+			    playing = false;
+			}
 		
 		}else{
 			
 	        try {
 				clip = AudioSystem.getClip();
 				clip.open(me);
-				clip.setMicrosecondPosition(position);
+				clip.setMicrosecondPosition(0);
 				playing = true;
 				this.gain(this.megain);
 				clip.start();
+				
 	        } catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

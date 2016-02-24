@@ -53,6 +53,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	/**
 	 *
 	 */
+	private static final boolean DEBUG = true;
+	
 	private static final long serialVersionUID = 1L;
 	// game models
 	private AntColony colony;
@@ -124,6 +126,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	
 	//Sounds
 	public static Audio food_earn = new Audio("food_earn.wav");
+	public static Audio Sou_select = new Audio("select.wav");
+	public static Audio Sou_place = new Audio("place.wav");
+	public static Audio Sou_delete = new Audio("delete.wav");
+	public static Audio Sou_explosion = new Audio("explosion.wav");
+	public static Audio Sou_leaf = new Audio("throw.wav");
+
 	public static Audio[] add = new Audio[4];
 
 	public static Point[] Food = new Point[100];
@@ -172,8 +180,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		//Mise en place de la musique
 		Audio music = new Audio("music.wav");
-		//music.play();
-		//music.loop(true);
+		music.play();
+		music.gain(-10);
+		music.loop(true);
 		//Sons
 		add[0] = new Audio("add1.wav");
 		add[1] = new Audio("add2.wav");
@@ -473,15 +482,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					for (Ant ant : colony.getAllAnts()) {
 						if (ant instanceof QueenAnt) //if we're a queen , let's buff
 						{
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
 							System.out.print(colony.queenPlace.getQueenPlace());
-							if (colony.queenPlace.getQueenPlace().getExit()!=null){
-=======
->>>>>>> Stashed changes
 							if (colony.queenPlace.getQueenPlace().getExit().getAnt()!=null){
->>>>>>> origin/master
 								colony.queenPlace.getQueenPlace().getExit().getAnt().buff = true;
 							}
 							if (colony.queenPlace.getQueenPlace().getEntrance().getAnt()!=null){
@@ -822,6 +824,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		Point pt = e.getPoint();
 		
 		if(pt.getX()<100 && pt.getY()>FRAME_SIZE.getHeight()-100){
+			Sou_select.play();
 			PAUSE = !PAUSE;
 			return;
 		}
@@ -832,6 +835,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		for (Rectangle rect : colonyAreas.keySet()) {
 			if (rect.contains(pt)) {
 				if (selectedAnt == null) {
+					if(colonyAreas.get(rect).getAnt()!=null && !(colonyAreas.get(rect).getAnt() instanceof QueenAnt)){
+						Sou_delete.play();
+					}
 					colony.removeAnt(colonyAreas.get(rect));
 					return; // stop searching
 				}
@@ -839,9 +845,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					if(colonyAreas.get(rect).tunnel<minTunnel || colonyAreas.get(rect).tunnel>maxTunnel){
 						return;
 					}
+					if(colonyAreas.get(rect).getAnt()==null){
+						Sou_place.play();
+						add[(int)(Math.random()*4)].play();
+					}
 					Ant deployable = buildAnt(selectedAnt.getClass().getName()); // make a new ant of the appropriate type
 					colony.deployAnt(colonyAreas.get(rect), deployable);
-					add[(int)(Math.random()*4)].play();
+					
 					return; // stop searching
 				}
 			}
@@ -849,6 +859,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		// check if remover
 		if (removerArea.contains(pt)) {
+			Sou_select.play();
 			selectedAnt = null; // mark as such
 			return; // stop searching
 		}
@@ -856,6 +867,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		// check if selecting an ant
 		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
 			if (entry.getKey().contains(pt)) {
+				Sou_select.play();
 				selectedAnt = entry.getValue();
 				return; // stop searching
 			}
@@ -873,6 +885,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					g2d.drawImage(EXPLOSION[explosions[i].value],explosions[i].x,explosions[i].y,null);
 				}
 				
+				if(explosions[i].value==0){
+					Sou_explosion.play();
+				}
+				
 				explosions[i].value++;
 				
 				if(explosions[i].value>6){
@@ -884,7 +900,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	}
 	
 	public static void addBigExplosion(int x, int y, int radius, int nb){
-		
+
 		for(int i=0; i<nb; i++){
 			addExplosion((int)(x + (0.5-Math.random())*radius*2),
 					(int)(y + (0.5-Math.random())*radius*2),
@@ -944,6 +960,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	// Creates a new leaf (animated) from the Ant source to the Bee target.
 	// Note that really only cares about the target's Place (Ant can target other Bees in same Place)
 	private void createLeaf (Ant source, Bee target) {
+		
+		Sou_leaf.play();
+		
 		Rectangle antRect = colonyRects.get(source.getPlace());
 		Rectangle beeRect = colonyRects.get(target.getPlace());
 		if(beeRect==null || antRect==null){ //��viter les probl��mes
@@ -964,6 +983,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	// Creates a new leaf (animated) from the Ant source to the Bee target.
 	// Note that really only cares about the target's Place (Ant can target other Bees in same Place)
 	private void createNinjaLeaf (Ant source) {
+		Sou_leaf.play();
+
 		Rectangle antRect = colonyRects.get(source.getPlace());
 		int startX = antRect.x + LEAF_START_OFFSET.width;
 		int startY = antRect.y + LEAF_START_OFFSET.height;
@@ -1496,7 +1517,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			Rectangle clickable = new Rectangle(pos.x, pos.y, width, height); // where to put the selector
 			Ant ant = buildAnt(antType); // the ant that gets deployed from that selector
 			if(ant!= null){
-				if(ant.level <= LEVEL){ //Only our level of ants
+				if(ant.level <= LEVEL || DEBUG){ //Only our level of ants
 
 					antSelectorAreas.put(clickable, ant); // register the deployable ant so we can select it
 	
