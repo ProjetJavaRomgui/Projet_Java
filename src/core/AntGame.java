@@ -122,6 +122,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	public static Point[] Food = new Point[100];
 	public static int LEVEL = 0;
+	public static boolean PAUSE = false;
 
 	// areas that can be clicked
 	private Map<Rectangle, Place> colonyAreas; // maps from a clickable area to a Place
@@ -398,7 +399,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 */
 	private void nextFrame () {
 		
-		counter++;
+		if(!PAUSE){
+			counter++;
+		}
 		
 		if(clock.isRunning()){
 			
@@ -411,7 +414,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	
 				
 				
-				if (frame == 0) // at the start of a turn
+				if (frame == 0 && !PAUSE) // at the start of a turn
 				{
 					System.out.println("TURN: " + turn);
 					
@@ -485,7 +488,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 				
 				//Finish ants (special for exploding ants :p)
-				if(frame%(FPS/5)==0){
+				if(frame%(FPS/5)==0 && !PAUSE){
 					for (Ant ant : colony.getAllAnts()) 
 					{
 						if(ant.armor<=0){
@@ -497,7 +500,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 				
 				
-				if (frame == (int) (LEAF_SPEED * FPS)) // after leaves animate
+				if (frame == (int) (LEAF_SPEED * FPS) && !PAUSE) // after leaves animate
 				{
 					for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) // remove dead bees
 					{
@@ -589,8 +592,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					}
 				}
 				
-				JOptionPane.showMessageDialog(this, "The ant queen has perished! Please try again.", "Bzzzzz!", JOptionPane.PLAIN_MESSAGE);
-				System.exit(0); // quit
+				PAUSE = true;
 			}
 		}
 		
@@ -721,7 +723,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			if(entry.getValue().value<=counter && entry.getValue().value2==0){
 				
-				entry.getValue().value2 = 1; // Empecher de mettre plusieurs fois la même abeille
+				entry.getValue().value2 = 1; // Empecher de mettre plusieurs fois la m��me abeille
 				
 				Bee bee = new Bee(entry.getKey().armor/2); ///2 because armore is alway multiplies by 2
 				bee.colonyDegat = entry.getKey().colonyDegat;
@@ -888,7 +890,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private void createLeaf (Ant source, Bee target) {
 		Rectangle antRect = colonyRects.get(source.getPlace());
 		Rectangle beeRect = colonyRects.get(target.getPlace());
-		if(beeRect==null || antRect==null){ //Éviter les problèmes
+		if(beeRect==null || antRect==null){ //��viter les probl��mes
 			return;
 		}
 		int startX = antRect.x + LEAF_START_OFFSET.width;
@@ -1275,6 +1277,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		} 
 		
 		drawIncomingWaves(g2d,decalageY);
+		
 		g2d.drawImage(MENUFRONT, 0, -decalageY, null); // draw a bee at that position!
 
 		// box status
@@ -1287,6 +1290,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		g2d.setColor(Color.WHITE);
 
 		g2d.drawImage(REMOVER_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height -decalageY, null);
+	
+	
+		g2d.fillRect(1, 1, 10, 10);
+		
+		
 	}
 	
 	private void scrollSelector(Graphics2D g2d){
