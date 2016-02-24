@@ -473,7 +473,15 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					for (Ant ant : colony.getAllAnts()) {
 						if (ant instanceof QueenAnt) //if we're a queen , let's buff
 						{
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+							System.out.print(colony.queenPlace.getQueenPlace());
+							if (colony.queenPlace.getQueenPlace().getExit()!=null){
+=======
+>>>>>>> Stashed changes
 							if (colony.queenPlace.getQueenPlace().getExit().getAnt()!=null){
+>>>>>>> origin/master
 								colony.queenPlace.getQueenPlace().getExit().getAnt().buff = true;
 							}
 							if (colony.queenPlace.getQueenPlace().getEntrance().getAnt()!=null){
