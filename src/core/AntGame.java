@@ -367,9 +367,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 		
 		doExplosion(g2d);
-		
-		drawHoverText(g2d);
-		
+		if(!PAUSE){
+			drawHoverText(g2d);
+		}
 		if (!clock.isRunning()) { // start text
 			
 			if(counter%2==0){
@@ -771,7 +771,14 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 */
 	private synchronized void handleClick (MouseEvent e) {
 		Point pt = e.getPoint();
-
+		
+		if(pt.getX()<100 && pt.getY()>FRAME_SIZE.getHeight()-100){
+			PAUSE = !PAUSE;
+			return;
+		}
+		if(PAUSE){
+			return;
+		}
 		// check if deploying an ant
 		for (Rectangle rect : colonyAreas.keySet()) {
 			if (rect.contains(pt)) {
@@ -1037,7 +1044,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				g2d.drawImage(TUNNEL_CLOSED_IMAGE, rect.x+decalage, rect.y, null); // decorative image
 			} 
 			
-			if (rect.contains(mouseX, mouseY) && entry.getValue().tunnel>=minTunnel && entry.getValue().tunnel<=maxTunnel){
+			if (rect.contains(mouseX, mouseY)  && !PAUSE && entry.getValue().tunnel>=minTunnel && entry.getValue().tunnel<=maxTunnel){
 				g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
 			}
 			
@@ -1255,7 +1262,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			Ant ant = entry.getValue(); // ant to select
 			
 			// box status
-			if (rect.contains(mouseX, mouseY)){
+			
+			if (rect.contains(mouseX, mouseY) && !PAUSE){
 				g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
 			}
 			else if (ant == selectedAnt) {
@@ -1281,7 +1289,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		g2d.drawImage(MENUFRONT, 0, -decalageY, null); // draw a bee at that position!
 
 		// box status
-		if (removerArea.contains(mouseX, mouseY)){
+		if (removerArea.contains(mouseX, mouseY)  && !PAUSE){
 			g2d.drawImage(TUNNEL_SELECT_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height -decalageY, null);
 		}
 		else if (selectedAnt == null) {
@@ -1292,7 +1300,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		g2d.drawImage(REMOVER_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height -decalageY, null);
 	
 	
-		g2d.fillRect(1, 1, 10, 10);
+		g2d.fillRect(0, FRAME_SIZE.height-100, 100, 100);
 		
 		
 	}
