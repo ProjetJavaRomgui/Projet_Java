@@ -34,6 +34,10 @@ public abstract class Ant extends Insect {
 		return foodCost;
 	}
 
+	public int getDamage() {
+		if (buff) return damage*2;
+		return damage;
+	}
 	/**
 	 * Removes the ant from its current place
 	 */

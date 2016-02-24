@@ -30,7 +30,7 @@ public class NinjaAnt extends Ant {
 		Bee[] beelist = getBees();
 		for(int i=0; i<beelist.length ; i++){
 			if(beelist[i].getPlace() == this.getPlace()){
-				beelist[i].reduceArmor(damage);
+				beelist[i].reduceArmor(getDamage());
 			}
 		}
 		

@@ -30,7 +30,7 @@ public class HungryAnt extends Ant {
 		Bee target = getTarget();
 		if(Cooldown!=0) Cooldown -= 1 ;
 		else if (target != null){
-			target.reduceArmor(damage);
+			target.reduceArmor(getDamage());
 			if(target.getArmor()<=0){
 				target.invisible = true;
 			}
