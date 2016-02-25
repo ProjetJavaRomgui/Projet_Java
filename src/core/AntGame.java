@@ -1184,12 +1184,16 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			Ant ant = place.getAnt();
 			if (ant != null) { // draw the ant if we have one
-				Image img = ANT_IMAGES.get(ant.getClass().getName());
-				g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+				if(ant.buff){
+					Image img = ANT_IMAGES.get(ant.getClass().getName()+"buffed");
+					g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+				}else{
+					Image img = ANT_IMAGES.get(ant.getClass().getName());
+					g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+				}
 				total_life+=ant.armor;
 				total_life_start+=ant.initArmor;
 			}
-			
 			
 			int barsize = Math.min(60,Math.max(total_life_start*5,15));
 
