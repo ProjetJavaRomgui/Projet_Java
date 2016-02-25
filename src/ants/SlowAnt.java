@@ -3,14 +3,14 @@ package ants;
 import core.AntColony;
 import core.Bee;
 
-public class StunThrowerAnt extends ThrowerAnt {
-	public StunThrowerAnt() {
+public class SlowAnt extends ThrowerAnt{
+	public SlowAnt(){
 		super(1);
 		this.foodCost=25;
 		this.damage=0;
-		this.level=3;
-		this.name = "Stun Thrower Ant";
-		this.description = "Can stun bees !";
+		this.level=2;
+		this.name = "Slow Ant";
+		this.description = "Can slow bees !";
 	}
 	
 	/**
@@ -26,8 +26,8 @@ public class StunThrowerAnt extends ThrowerAnt {
 	public void action (AntColony colony) {
 		Bee target = getTarget();
 		if (target != null) {
-			if (this.buff) target.stun(2);
-			else target.stun(1);
+			if (this.buff) target.slow(6);
+			else target.slow(3);
 		}
 	}
 }

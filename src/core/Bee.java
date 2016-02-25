@@ -13,7 +13,8 @@ public class Bee extends Insect {
 	int turns = 0;
 	int level = 0;
 	int stun = 0; //nombre de tours stun restants
-	
+	int slow = 0;
+	int slowCount = 0;
 	/**
 	 * Creates a new bee with the given armor
 	 *
@@ -80,25 +81,39 @@ public class Bee extends Insect {
 	@Override
 	public void action (AntColony colony) {
 		if(stun == 0){
-			turns++;
-			if (isBlocked()) {
-				if (place.getContainingAnt() != null){
-					sting(place.getContainingAnt());
-				} else if (place.getAnt() != null){
-					sting(place.getAnt());
-				}
+			if(slow > 0){
+				slowCount = (slowCount+1)%3;
 			}
-			else if (armor > 0 && turns>1) {
-				moveTo(place.getExit());
+			if(slow == 0 || slowCount == 0){
+				turns++;
+				if (isBlocked()) {
+					if (place.getContainingAnt() != null){
+						sting(place.getContainingAnt());
+					} else if (place.getAnt() != null){
+						sting(place.getAnt());
+					}
+				}
+				else if (armor > 0 && turns>1) {
+					moveTo(place.getExit());
+				}
 			}
 		}
 		else stun = stun-1;
+		if (slow > 0) slow += -1;
+		else slowCount = 0 ;
 	}
 
 	public void stun(int i) {
 		if (this.stun < i){
 			this.stun=i;
 		}
+	}
+
+	public void slow(int i) {
+		if (this.slow < i){
+		this.slow = i;
+		}
+		
 	}
 	
 }
