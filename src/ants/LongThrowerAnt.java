@@ -19,15 +19,15 @@ public class LongThrowerAnt extends ThrowerAnt {
 		super(1);
 		this.foodCost = 10;
 		level = 4; // Disponible au bout de 200 tours
-
+		this.damage = 2;
 		this.name = "Long Thrower Ant";
-		this.description = "Like the Thrower Ant this ant can cover 5 places !";
+		this.description = "Like the Thrower Ant. This ant can cover 5 places but cannot shoot at short range !";
 	}
 	
 	public LongThrowerAnt (int foodcost) {
 		super(1);
 		this.foodCost = foodcost;
-		damage = 1;
+		this.damage = 2;
 	}
 	/**
 	 * Returns a target for this ant
@@ -35,7 +35,7 @@ public class LongThrowerAnt extends ThrowerAnt {
 	 * @return A bee to target
 	 */
 	public Bee getTarget () {
-		return place.getClosestBee(0, 5);
+		return place.getClosestBee(3, 5);
 	}
 
 	@Override
