@@ -434,14 +434,14 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			if(counter/FPS>Integer.parseInt(stats[0])+4){
 				g2d.setFont(LITTLE);
-				drawLongText("Total food created :",FRAME_SIZE.width/2-140,FRAME_SIZE.height/2,g2d);
+				drawLongText("Total food created :",FRAME_SIZE.width/2-135,FRAME_SIZE.height/2,g2d);
 				g2d.setFont(FONT);
 				drawLongText(""+stats[3],FRAME_SIZE.width/2,FRAME_SIZE.height/2,g2d);
 			}
 			
 			if(counter/FPS>Integer.parseInt(stats[0])+5){
 				g2d.setFont(LITTLE);
-				drawLongText("Dead ants :",FRAME_SIZE.width/2-80,FRAME_SIZE.height/2+20,g2d);
+				drawLongText("Dead ants :",FRAME_SIZE.width/2-90,FRAME_SIZE.height/2+20,g2d);
 				g2d.setFont(FONT);
 				drawLongText(""+stats[4],FRAME_SIZE.width/2,FRAME_SIZE.height/2+20,g2d);
 			}
@@ -456,7 +456,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			if(counter/FPS>Integer.parseInt(stats[0])+7){
 				g2d.setFont(LITTLE);
-				drawLongText("Total time :",FRAME_SIZE.width/2-80,FRAME_SIZE.height/2+80,g2d);
+				drawLongText("Total time :",FRAME_SIZE.width/2-85,FRAME_SIZE.height/2+80,g2d);
 				g2d.setFont(FONT);
 				drawLongText(stats[0]+" s",FRAME_SIZE.width/2,FRAME_SIZE.height/2+80,g2d);
 			}
@@ -464,7 +464,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 		}
 		
-		if(PAUSE){
+		if(PAUSE && !FIN){
 			g2d.drawImage(PLAY_IMG,25, FRAME_SIZE.height-75, 50, 50, getParent());
 			
 			if((int)(counterExt/FPS)%2==0){
