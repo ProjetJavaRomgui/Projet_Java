@@ -388,7 +388,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 		
 		doExplosion(g2d);
-		if(!PAUSE){
+		if(!PAUSE && !FIN){
 			drawHoverText(g2d);
 		}
 		if (!clock.isRunning()) { // start text
@@ -464,7 +464,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 		}
 		
-		if(PAUSE && !FIN){
+		if(FIN){
+			return;
+		}
+		if(PAUSE ){
 			g2d.drawImage(PLAY_IMG,25, FRAME_SIZE.height-75, 50, 50, getParent());
 			
 			if((int)(counterExt/FPS)%2==0){
@@ -1180,7 +1183,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				g2d.drawImage(TUNNEL_CLOSED_IMAGE, rect.x+decalage, rect.y, null); // decorative image
 			} 
 			
-			if (rect.contains(mouseX, mouseY)  && !PAUSE && entry.getValue().tunnel>=minTunnel && entry.getValue().tunnel<=maxTunnel){
+			if (rect.contains(mouseX, mouseY)  && !PAUSE && !FIN && entry.getValue().tunnel>=minTunnel && entry.getValue().tunnel<=maxTunnel){
 				g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
 			}
 			
@@ -1403,7 +1406,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			// box status
 			
-			if (rect.contains(mouseX, mouseY) && !PAUSE){
+			if (rect.contains(mouseX, mouseY) && !PAUSE && !FIN){
 				g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
 			}
 			else if (ant == selectedAnt) {
@@ -1429,7 +1432,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		g2d.drawImage(MENUFRONT, 0, -decalageY, null); // draw a bee at that position!
 
 		// box status
-		if (removerArea.contains(mouseX, mouseY)  && !PAUSE){
+		if (removerArea.contains(mouseX, mouseY)  && !PAUSE && !FIN){
 			g2d.drawImage(TUNNEL_SELECT_IMAGE, removerArea.x + PANEL_PADDING.width, removerArea.y + PANEL_PADDING.height -decalageY, null);
 		}
 		else if (selectedAnt == null) {
