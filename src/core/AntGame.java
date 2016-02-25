@@ -138,6 +138,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static int LEVEL = 0;
 	public static boolean PAUSE = false;
 	public static boolean FIN = false;
+	public static String[] stats = new String[10];
 
 	// areas that can be clicked
 	private Map<Rectangle, Place> colonyAreas; // maps from a clickable area to a Place
@@ -164,6 +165,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private Point scrollPos = new Point(0,0);
 	
 	public static int XP = 0;
+	public static int FOODCREATED = 0;
+	public static int DEADANT = 0;
+	public static int DEADBEES = 0;
 	private int XP_RECORD = 0;
 
 	
@@ -373,7 +377,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 				if(Food[i].y<160-Math.random()*20){
 					Food[i]=null;
-					colony.increaseFood(1);					
+					colony.increaseFood(1);	
+					FOODCREATED++;
 					addXP(1);
 					food_earn.play();
 				}else{
@@ -410,8 +415,53 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		if(FIN){
 			if((int)(counterExt/FPS)%2==0){
 				g2d.setFont(TITLE);
-				drawLongText("Game over !",FRAME_SIZE.width/2-100,FRAME_SIZE.height/2-20,g2d);
+				drawLongText("Game over !",FRAME_SIZE.width/2-70,FRAME_SIZE.height/2-90,g2d);
 			}
+			
+			if(counter/FPS>Integer.parseInt(stats[0])+2){
+				g2d.setFont(LITTLE);
+				drawLongText("XP :",FRAME_SIZE.width/2-40,FRAME_SIZE.height/2-40,g2d);
+				g2d.setFont(FONT);
+				drawLongText(stats[1],FRAME_SIZE.width/2,FRAME_SIZE.height/2-40,g2d);
+			}
+			
+			if(counter/FPS>Integer.parseInt(stats[0])+3){
+				g2d.setFont(LITTLE);
+				drawLongText("Best :",FRAME_SIZE.width/2-50,FRAME_SIZE.height/2-20,g2d);
+				g2d.setFont(FONT);
+				drawLongText(""+stats[2],FRAME_SIZE.width/2,FRAME_SIZE.height/2-20,g2d);
+			}
+			
+			if(counter/FPS>Integer.parseInt(stats[0])+4){
+				g2d.setFont(LITTLE);
+				drawLongText("Total food created :",FRAME_SIZE.width/2-140,FRAME_SIZE.height/2,g2d);
+				g2d.setFont(FONT);
+				drawLongText(""+stats[3],FRAME_SIZE.width/2,FRAME_SIZE.height/2,g2d);
+			}
+			
+			if(counter/FPS>Integer.parseInt(stats[0])+5){
+				g2d.setFont(LITTLE);
+				drawLongText("Dead ants :",FRAME_SIZE.width/2-80,FRAME_SIZE.height/2+20,g2d);
+				g2d.setFont(FONT);
+				drawLongText(""+stats[4],FRAME_SIZE.width/2,FRAME_SIZE.height/2+20,g2d);
+			}
+			
+			if(counter/FPS>Integer.parseInt(stats[0])+6){
+				g2d.setFont(LITTLE);
+				drawLongText("Killed bees :",FRAME_SIZE.width/2-90,FRAME_SIZE.height/2+40,g2d);
+				g2d.setFont(FONT);
+				drawLongText(""+stats[5],FRAME_SIZE.width/2,FRAME_SIZE.height/2+40,g2d);
+			}
+			
+			
+			if(counter/FPS>Integer.parseInt(stats[0])+7){
+				g2d.setFont(LITTLE);
+				drawLongText("Total time :",FRAME_SIZE.width/2-80,FRAME_SIZE.height/2+80,g2d);
+				g2d.setFont(FONT);
+				drawLongText(stats[0]+" s",FRAME_SIZE.width/2,FRAME_SIZE.height/2+80,g2d);
+			}
+
+			
 		}
 		
 		if(PAUSE){
@@ -430,9 +480,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	}
 	
 	public static void addXP(int howmany){
-		XP+=Math.max(0, howmany);
+		if(!FIN){
+			XP+=Math.max(0, howmany);
+		}
 	}
-
+	
 	/**
 	 * Runs the actual game, processing what occurs on every frame of the game (including individual turns).
 	 * This handles both some game logic (turn order) and animation control
@@ -643,7 +695,16 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					}
 				}
 				
-				FIN = true;
+				if(FIN==false){
+					FIN = true;
+					stats[0] = ""+counter/FPS;
+					stats[1] = String.format("%,d",XP) + " xp";
+					stats[2] = String.format("%,d",XP_RECORD) + " xp";
+					stats[3] = String.format("%,d",FOODCREATED) + "";
+					stats[4] = String.format("%,d",DEADANT) + " ant(s)";
+					stats[5] = String.format("%,d",DEADBEES) + " bee(s)";
+				}
+				
 			}
 		}
 		

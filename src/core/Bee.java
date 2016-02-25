@@ -51,6 +51,7 @@ public class Bee extends Insect {
 
 	@Override
 	public void leavePlace () {
+		AntGame.DEADBEES++;
 		place.removeInsect(this);
 	}
 

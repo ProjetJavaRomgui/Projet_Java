@@ -43,6 +43,7 @@ public abstract class Ant extends Insect {
 	 */
 	@Override
 	public void leavePlace () {
+		AntGame.DEADANT++;
 		place.removeInsect(this);
 	}
 	
