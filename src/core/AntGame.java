@@ -542,19 +542,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 								colony.queenPlace.getQueenPlace().getEntrance().getAnt().buff = true;
 							}
 						}
-						if (ant instanceof ThrowerAnt) // if we're a thrower, might need to make a leaf!
-						{
-							Bee target = ((ThrowerAnt) ant).getTarget(); // who we'll throw at (really which square, but works out the same)
-							if (target != null) {
-								createLeaf(ant, target);
-								addXP(1);
-							}
-						}
-						if(ant instanceof NinjaThrowerAnt){
-							createNinjaLeaf(ant);
-							addXP(2);
-						}
-						ant.action(colony); // take the action (actually completes the throw now)
+
 						addXP(1);
 					}
 					
@@ -644,6 +632,23 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 				for (Ant ant : colony.getAllAnts()) // apply time
 				{
+					if(ant.lastAttack>FPS + (int)((0.5-Math.random())*FPS*0.2)){
+						if (ant instanceof ThrowerAnt) // if we're a thrower, might need to make a leaf!
+						{
+							Bee target = ((ThrowerAnt) ant).getTarget(); // who we'll throw at (really which square, but works out the same)
+							if (target != null) {
+								createLeaf(ant, target);
+								addXP(1);
+							}
+						}
+						if(ant instanceof NinjaThrowerAnt){
+							createNinjaLeaf(ant);
+							addXP(2);
+						}
+						ant.action(colony); // take the action (actually completes the throw now)
+						ant.lastAttack = 0;
+					}
+					
 					ant.lastAttacked++;
 					ant.lastAttack++;
 				}
