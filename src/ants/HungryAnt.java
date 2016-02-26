@@ -19,7 +19,7 @@ public class HungryAnt extends Ant {
 		level = 6; // Disponible au bout de 300 tours
 
 		this.name = "Hungry Ant";
-		this.description = "This ant eat Bees !";
+		this.description = "It was in an psychiatric hospital,\n now it's used here because this ant like to eat bees...\n It take 3 seconds for this ant to eat a bee.";
 	}
 	
 	public Bee getTarget(){

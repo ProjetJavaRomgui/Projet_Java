@@ -21,7 +21,7 @@ public class LongThrowerAnt extends ThrowerAnt {
 		level = 4; // Disponible au bout de 200 tours
 		this.damage = 2;
 		this.name = "Long Thrower Ant";
-		this.description = "Like the Thrower Ant. This ant can cover 5 places but cannot shoot at short range !";
+		this.description = "Like the Thrower Ant but with a big thing overhead.\nThis ant can cover 5 places but cannot shoot at short range !";
 	}
 	
 	public LongThrowerAnt (int foodcost) {

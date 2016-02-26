@@ -10,7 +10,7 @@ public class StunThrowerAnt extends ThrowerAnt {
 		this.damage=0;
 		this.level=3;
 		this.name = "Stun Thrower Ant";
-		this.description = "Can stun bees !";
+		this.description = "Particulary violent,\nthis ant can stun bees.";
 	}
 	
 	/**

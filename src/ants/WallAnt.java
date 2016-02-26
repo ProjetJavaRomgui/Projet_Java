@@ -19,7 +19,8 @@ public class WallAnt extends Ant {
 		level = 1; // Disponible au bout de 50 tours
 
 		this.name = "Wall Ant";
-		this.description = "Bees cannot pass through this ant until it die !";
+		this.description = "Bees cannot pass through this ant until it die !\nThe original <<you'll have to pass over my body>>"
+;
 		
 	}
 

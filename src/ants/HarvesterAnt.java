@@ -21,7 +21,7 @@ public class HarvesterAnt extends Ant {
 		this.foodMakePerTurn = 1;
 		
 		this.name = "Harvester Ant";
-		this.description = "This ant make 3 food each 5 seconds.";
+		this.description = "This ant hate its job.\n It have to make dinner for the colony. \nThis ant make 3 food each 5 seconds.";
 		
 	}
 

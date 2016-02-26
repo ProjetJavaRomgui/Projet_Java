@@ -10,7 +10,7 @@ public class ShortThrowerAnt extends ThrowerAnt {
 		this.damage=2;
 		this.level=3; //disponible au bout de 150 tours
 		this.name = "Short Thrower Ant";
-		this.description = "Like the Thrower Ant. This ant can only cover 2 places";
+		this.description = "Like the Thrower Ant.\nThis ant can only cover 2 places but make more damages.";
 	}
 	/**
 	 * Returns a target for this ant

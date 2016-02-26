@@ -18,7 +18,7 @@ public class BodyguardAnt extends Ant {
 		level = 2; // Disponible au bout de 100 tours
 
 		this.name = "Little guard";
-		this.description = "Add an armor of 3.";
+		this.description = "This beautiful armor can be placed over an other ant.\n It add an armor of 3.";
 	}
 
 	@Override

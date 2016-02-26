@@ -10,7 +10,7 @@ public class SlowAnt extends ThrowerAnt{
 		this.damage=0;
 		this.level=2;
 		this.name = "Slow Ant";
-		this.description = "Can slow bees !";
+		this.description = "Found in a strange blue police cabin (apparently called TantRDIS),\nthis ant can slow bees for seconds !";
 	}
 	
 	/**

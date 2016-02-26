@@ -20,7 +20,8 @@ public class NinjaThrowerAnt extends Ant {
 		super(1);
 		this.foodCost = 150;
 		level = 8; // Disponible au bout de 400 tours
-		this.name = "Ninja Thrower Ant";
+		this.name = "TantK";
+		this.description = "This is a result of some colony's military experiments,\n this ant can target every bees in the same line of it.\n In the same time.";
 	}
 	
 	public NinjaThrowerAnt (int foodcost) {

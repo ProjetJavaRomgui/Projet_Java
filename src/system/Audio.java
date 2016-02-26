@@ -35,7 +35,7 @@ public class Audio {
 	//Ci dessous gestion de play pause...
 	public void play(){
 		
-		if(me==null || true){
+		if(me==null){
 
 		
 			try{		
@@ -59,18 +59,10 @@ public class Audio {
 		
 		}else{
 			
-	        try {
-				clip = AudioSystem.getClip();
-				clip.open(me);
-				clip.setMicrosecondPosition(0);
-				playing = true;
-				this.gain(this.megain);
-				clip.start();
-				
-	        } catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			clip.setMicrosecondPosition(position);
+			playing = true;
+			this.gain(this.megain);
+			clip.start();
 	        
 		}
 	}

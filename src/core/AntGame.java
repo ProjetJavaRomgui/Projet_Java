@@ -107,7 +107,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Font LITTLE = new Font("Helvetica", Font.ITALIC, 15);
 	private final Font LITTLEMAP = new Font("Helvetica", Font.ITALIC, 10);
 
-	public String[] randomText = "Hey !|Hello ?|I don't want to die !|Help me !|Who are you ?".split("\\|");
+	public String[] randomText = "Hey !|Hello ?|I don't want to die !|Help me !|Who are you ?|Did you see the marvel ManAnt ?|I am the doctor !|Where is my TARDIS ?|Potatoes.|You're making a big mistake !|I'll kill you !|Who am I ?|Wow it's dirty !".split("\\|");
 	// positioning constants
 	public static final Dimension FRAME_SIZE = new Dimension(1024, 700);
 	public static final Dimension ANT_IMAGE_SIZE = new Dimension(66, 71); // assumed size; may be greater than actual image size
@@ -172,6 +172,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int XP_RECORD = 0;
 	private boolean HASQUEEN = false;
 	private int LASTLEVELCHANGE = 1000;
+	private int ANTSDISCOVERED = 0;
 
 	
 	/**
@@ -336,7 +337,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		turn = 0;
 		LEVEL = 0;
 		clock.restart();
+		DOCLICK = 0;
 		this.hive = new Hive();
+		ANTSDISCOVERED = 0;
 
 
 		// game clock tracking
@@ -511,13 +514,21 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				drawLongText(""+stats[5],FRAME_SIZE.width/2,FRAME_SIZE.height/2+40,g2d);
 			}
 			
-			
 			if(counter/FPS>Integer.parseInt(stats[0])+3){
 				g2d.setFont(LITTLE);
-				drawLongText("Total time :",FRAME_SIZE.width/2-85,FRAME_SIZE.height/2+80,g2d);
+				drawLongText("Total time :",FRAME_SIZE.width/2-85,FRAME_SIZE.height/2+70,g2d);
 				g2d.setFont(FONT);
-				drawLongText(stats[0]+" s",FRAME_SIZE.width/2,FRAME_SIZE.height/2+80,g2d);
+				drawLongText(stats[0]+" s",FRAME_SIZE.width/2,FRAME_SIZE.height/2+70,g2d);
 			}
+			
+			if(counter/FPS>Integer.parseInt(stats[0])+4){
+				g2d.setFont(LITTLE);
+				drawLongText("Ants discovered :",FRAME_SIZE.width/2-128,FRAME_SIZE.height/2+100,g2d);
+				g2d.setFont(FONT);
+				drawLongText(""+stats[6],FRAME_SIZE.width/2,FRAME_SIZE.height/2+100,g2d);
+			}
+			
+			
 
 			
 		}
@@ -787,6 +798,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					stats[3] = String.format("%,d",FOODCREATED) + "";
 					stats[4] = String.format("%,d",DEADANT) + " ant(s)";
 					stats[5] = String.format("%,d",DEADBEES) + " bee(s)";
+					stats[6] = "" + ANTSDISCOVERED + "/16";
 				}
 				
 			}
@@ -804,7 +816,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			if(turn<80){
 				
-				int nb = 1;
+				int nb = turn%2;
 				
 				if(Math.random()>0.96){
 					nb = nb*2;
@@ -824,7 +836,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			if(turn<180 && turn>100){
 				
-				int nb = 1;
+				int nb = turn%2;
 				int max = 0;
 				
 				if(Math.random()>0.96){
@@ -837,16 +849,14 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 				
 				for(int i=0;i<nb;i++){
-					addBee(Math.max(3, (int)((9+max)*Math.random())),1);
+					addBee(Math.max(3, (int)((6+max)*Math.random())),1);
 				}
 				
 			}
 			
-			//40 turn pause
-			
-			if(turn<360 && turn>220){
+			if(turn<280 && turn>200){
 				
-				int nb = 2;
+				int nb = 1;
 				int max = 0;
 				
 				if(Math.random()>0.96){
@@ -859,6 +869,51 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 				
 				for(int i=0;i<nb;i++){
+					addBee(Math.max(3, (int)((9+max)*Math.random())),1);
+				}
+				
+			}
+			
+			
+			//40 turn pause
+			
+			if(turn<460 && turn>320){
+				
+				int nb = 2;
+				int max = 0;
+				
+				if(Math.random()>0.96){
+					nb = nb*2;
+				}
+				
+				if(turn>365){
+					nb = nb*2;
+					max = 5;
+				}
+				
+				for(int i=0;i<nb;i++){
+					addBee(Math.max(5, (int)((9+max)*Math.random())),1);
+				}
+				
+			}
+			
+			//40 turn pause
+			
+			if(turn<560 && turn>420){
+				
+				int nb = 2;
+				int max = 0;
+				
+				if(Math.random()>0.96){
+					nb = nb*2;
+				}
+				
+				if(turn>465){
+					nb = nb*2;
+					max = 5;
+				}
+				
+				for(int i=0;i<nb;i++){
 					addBee(Math.max(5, (int)((14+max)*Math.random())),1);
 				}
 				
@@ -866,7 +921,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			//Then die !
 			
-			if(turn>380 || FIN){
+			if(turn>580 || FIN){
 				int nb = turn/70+1;
 				
 				if(Math.random()>0.96){
@@ -969,7 +1024,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		Point pt = e.getPoint();
 		
 		if(FIN){
-			restartGame();
+			if(counter/FPS>Integer.parseInt(stats[0])+2){
+				restartGame();
+			}
 		}
 		
 		if(pt.getX()<100 && pt.getY()>FRAME_SIZE.getHeight()-100){
@@ -1216,7 +1273,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						drawLongText(entry.getValue().description,mouseX + 3, mouseY+3+20, g2d);
 					}else{
 						g2d.setFont(FONT);
-						drawLongText("\""+randomText[(int) ((Math.pow((int)(turn/4),2))%randomText.length)]+"\"",mouseX + 3, mouseY+3, g2d);
+						drawLongText("\""+randomText[(int) ((Math.pow((int)(turn/4+entry.getValue().left+entry.getValue().tunnel+entry.getValue().getAnt().armor+entry.getValue().getAnt().description.length()),2))%randomText.length)]+"\"",mouseX + 3, mouseY+3, g2d);
 						g2d.setFont(LITTLE);
 						drawLongText("This ant have "+(entry.getValue().getAnt().armor*100/entry.getValue().getAnt().initArmor)+"% left",mouseX + 3, mouseY+3+20, g2d);
 					}
@@ -1459,7 +1516,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		int y = 0;
 		int level = 0;
 		Image img;
-		
+		int add;
 		for(Entry<Bee, PointValue> entry: futureBees.entrySet()){
 			
 			x = 230-(counter-entry.getValue().value)*30/FPS + entry.getValue().x;
@@ -1471,9 +1528,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				img = BEE_IMAGE2[level];
 			}
 			
-			g2d.drawImage(img,x-10,y-10 + (int)(5*Math.cos((float)(3*counter)/FPS)),20,20,this);
+			add = +20*entry.getKey().randomDecalage*FPS;
+			
+			g2d.drawImage(img,x-10,y-10 + (int)(5*Math.cos((float)(3*counter +add)/FPS)),20,20,this);
 			g2d.setFont(LITTLEMAP);
-			drawLongText("lv."+(level+1),x-10,y + 10+ (int)(5*Math.cos((float)(3*counter)/FPS)),g2d);
+			drawLongText("lv."+(level+1),x-10,y + 10+ (int)(5*Math.cos((float)(3*counter+add)/FPS)),g2d);
 			g2d.setFont(FONT);
 
 		}
@@ -1485,7 +1544,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		scrollSelector(g2d);
 		
-		if(STARTED<=0 && (counter*6/FPS)%2==0 && LASTLEVELCHANGE<FPS*2){
+		if(STARTED<=0 && (counter*6/FPS)%2==0 && LASTLEVELCHANGE<FPS){
 			g2d.setColor(Color.WHITE);
 			g2d.fillRect(2, 2, FRAME_SIZE.width, 119);
 		}
@@ -1677,10 +1736,15 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		removerArea = new Rectangle(pos.x, pos.y, width, height);
 		pos.translate(width + 2, 0);
 
+		ANTSDISCOVERED = 0;
 		for (String antType : ANT_TYPES) // go through the ants in the types; in order
 		{
+
 			Rectangle clickable = new Rectangle(pos.x, pos.y, width, height); // where to put the selector
 			Ant ant = buildAnt(antType); // the ant that gets deployed from that selector
+			if(ant!= null){
+				ANTSDISCOVERED++;
+			}
 			if(ant!= null && !(ant instanceof QueenAnt && HASQUEEN)){
 				if(ant.level <= LEVEL || DEBUG){ //Only our level of ants
 

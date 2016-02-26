@@ -18,7 +18,7 @@ public class BodyguardAntBetter extends Ant {
 		level = 6; // Disponible au bout de 300 tours
 
 		this.name = "Big guard";
-		this.description = "Add an armor of 10.";
+		this.description = "This isn't a fork,\nit can add an armor of 10 if placed over an ant.";
 	}
 
 	@Override

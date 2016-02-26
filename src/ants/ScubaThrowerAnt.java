@@ -14,7 +14,7 @@ public class ScubaThrowerAnt extends ThrowerAnt {
 
 		
 		this.name = "Scuba Thrower Ant";
-		this.description = "The first amphibious thrower ant !";
+		this.description = "The first amphibious thrower ant !\nInvented by Jules VernAnt, a scientist of the colony.";
 	}
 	public ScubaThrowerAnt (int foodcost) {
 		super(foodcost);

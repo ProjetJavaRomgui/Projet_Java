@@ -18,7 +18,7 @@ public class NinjaAnt extends Ant {
 		level = 4; // Disponible au bout de 200 tours
 
 		this.name = "Ninja Ant";
-		this.description = "Bees don't see Ninja ants !";
+		this.description = "Bees are stupid,\nthey don't see Ninja ants because their have a ninja costume !";
 	}
 	
 	public Bee[] getBees(){
