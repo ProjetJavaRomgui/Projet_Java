@@ -138,6 +138,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static int LEVEL = 0;
 	public static boolean PAUSE = false;
 	public static boolean FIN = false;
+	public static int DOCLICK = 0;
 	public static String[] stats = new String[10];
 
 	// areas that can be clicked
@@ -415,7 +416,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		if(FIN){
 			if((int)(counterExt/FPS)%2==0){
 				g2d.setFont(TITLE);
-				drawLongText("Game over !",FRAME_SIZE.width/2-70,FRAME_SIZE.height/2-90,g2d);
+				drawLongText("Game over !",FRAME_SIZE.width/2-65,FRAME_SIZE.height/2-90,g2d);
 			}
 			
 			if(counter/FPS>Integer.parseInt(stats[0])+1){
@@ -501,7 +502,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		if(clock.isRunning()){
 			
-			STARTED+=-1;
+			STARTED+=-1-DOCLICK;
 			STARTED = Math.max(0, STARTED);
 	
 			
@@ -640,7 +641,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						ant.armor = colony.life;
 						if(ant.armor<=0){
 							addExplosion(ant.getPlace());
-							addBigExplosion(FRAME_SIZE.width/2,FRAME_SIZE.height/2,FRAME_SIZE.width/2,400);
+							addBigExplosion(FRAME_SIZE.width/2,FRAME_SIZE.height/2,FRAME_SIZE.width/3,100);
 						}
 					}
 					
@@ -800,7 +801,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			//Then die !
 			
-			if(turn>380){
+			if(turn>380 || FIN){
 				int nb = turn/70+1;
 				
 				if(Math.random()>0.96){
@@ -1651,7 +1652,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		if (!clock.isRunning()) {
 			clock.start();
 		}else if(STARTED!=0){
-			STARTED = 0;
+			DOCLICK = 10;
 		}
 		
 		if(mousePressed == false){
