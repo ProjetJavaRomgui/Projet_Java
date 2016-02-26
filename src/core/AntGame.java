@@ -53,7 +53,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	/**
 	 *
 	 */
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	
 	private static final long serialVersionUID = 1L;
 	// game models
@@ -134,12 +134,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	public static Audio[] add = new Audio[4];
 
-	public static Point[] Food = new Point[100];
-	public static int LEVEL = 0;
-	public static boolean PAUSE = false;
+	public Point[] Food = new Point[100];
+	public int LEVEL = 0;
+	public boolean PAUSE = false;
 	public static boolean FIN = false;
-	public static int DOCLICK = 0;
-	public static String[] stats = new String[10];
+	public int DOCLICK = 0;
+	public String[] stats = new String[10];
 
 	// areas that can be clicked
 	private Map<Rectangle, Place> colonyAreas; // maps from a clickable area to a Place
@@ -166,10 +166,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private Point scrollPos = new Point(0,0);
 	
 	public static int XP = 0;
-	public static int FOODCREATED = 0;
+	public int FOODCREATED = 0;
 	public static int DEADANT = 0;
 	public static int DEADBEES = 0;
 	private int XP_RECORD = 0;
+	private boolean HASQUEEN = false;
+	private int LASTLEVELCHANGE = 1000;
 
 	
 	/**
@@ -182,6 +184,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 */
 	public AntGame (AntColony colony) {
 
+		
 		
 		//Mise en place de la musique
 		Audio music = new Audio("music.wav");
@@ -312,6 +315,56 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	}
 	
+	private void restartGame(){
+		colony = null;
+		colony = new AntColony(5, 8, 2, 20, 10, 1); // specify the colony ]tunnels, length, moats, food, life, difficulty (1-10)]
+		
+		//Initialisation des variables statiques
+		minTunnel = 2;
+		maxTunnel = 2;
+		DEADBEES = 0;
+		DEADANT = 0;
+		XP = 0;
+		FOODCREATED = 0;
+		STARTED = FPS*STARTTIME;
+		HASQUEEN = false;
+		FIN = false;
+		PAUSE = false;
+		counterExt = 0;
+		counter = 0;
+		DEAD = false;
+		turn = 0;
+		LEVEL = 0;
+		clock.restart();
+		this.hive = new Hive();
+
+
+		// game clock tracking
+		frame = 0;
+		counter = 0;
+		turn = 0;
+		clock = new Timer(1000 / FPS, this);
+
+
+		initializeAnts();
+
+		// tracking bee animations
+		allBeePositions = new HashMap<Bee, AnimPosition>();
+		futureBees = new HashMap<Bee, PointValue>();
+		initializeBees();
+		leaves = new ArrayList<AnimPosition>();
+		
+		LASTLEVELCHANGE = 1000;
+
+		// map clickable areas to what they refer to. Might be more efficient to use separate components, but this keeps everything together
+		antSelectorAreas = new HashMap<Rectangle, Ant>();
+		colonyAreas = new HashMap<Rectangle, Place>();
+		colonyRects = new HashMap<Place, Rectangle>();
+		initializeAntSelector();
+		initializeColony();
+		
+	}
+	
 	//Return smooth animation position a, position b, temps actuel, duree
 	public float smooth(int a,int t,int d){
 		if(t<d/2){
@@ -383,7 +436,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					addXP(1);
 					food_earn.play();
 				}else{
-					g2d.drawImage(FOOD, Food[i].x, Food[i].y, null); // draw a bee at that position!
+					g2d.drawImage(FOOD, Food[i].x, Food[i].y, null);
 				}
 			}
 		}
@@ -416,7 +469,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		if(FIN){
 			if((int)(counterExt/FPS)%2==0){
 				g2d.setFont(TITLE);
-				drawLongText("Game over !",FRAME_SIZE.width/2-65,FRAME_SIZE.height/2-90,g2d);
+				if(counter/FPS<Integer.parseInt(stats[0])+5){
+					drawLongText("Game over !",FRAME_SIZE.width/2-65,FRAME_SIZE.height/2-90,g2d);
+				}else{
+					drawLongText("Click anywhere to play again !",FRAME_SIZE.width/2-165,FRAME_SIZE.height/2-90,g2d);
+				}
 			}
 			
 			if(counter/FPS>Integer.parseInt(stats[0])+1){
@@ -499,6 +556,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			counter++;
 		}
 		counterExt++;
+		LASTLEVELCHANGE++;
 		
 		if(clock.isRunning()){
 			
@@ -529,7 +587,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					
 					//Changer le niveau de jeu (et les ants disponibles)
 					if(turn%50==0){
+						int temp = LEVEL;
 						LEVEL = turn/50;
+						if(temp!=LEVEL){
+							LASTLEVELCHANGE = 0;
+						}
 						//1 level = 50 tours
 						initializeAntSelector();
 					}
@@ -558,7 +620,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 							pos++;
 						}
 	
-						if(entry.getKey().getAnt()!= null && entry.getKey().getAnt().foodMakePerTurn>0 && Math.random()>0.5){
+						if(entry.getKey().getAnt()!= null && entry.getKey().getAnt().foodMakePerTurn>0 && (Math.random()>0.5 || entry.getKey().getAnt().buff)){
 							Food[pos] = new Point(entry.getValue().x + entry.getValue().width/2,entry.getValue().y + entry.getValue().height/2);
 						}
 						
@@ -627,10 +689,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					System.out.println("Queen Has Bees !!!");
 					for (Bee bee: colony.queenPlace.getBees())
 					{
-						System.out.println("OUUUUCH");
-						if(bee.armor>0){
-							bee.reduceArmor(bee.getArmor());
-							colony.life += -bee.colonyDegat; // Big bees can destroy all the colony
+						if(bee != null){
+							System.out.println("OUUUUCH");
+							if(bee.armor>0){
+								bee.reduceArmor(bee.getArmor());
+								colony.life += -bee.colonyDegat; // Big bees can destroy all the colony
+							}
 						}
 					}
 				}
@@ -638,10 +702,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				{
 					//Change Queen armor
 					if(ant instanceof QueenAnt){
+						HASQUEEN = true;
 						ant.armor = colony.life;
 						if(ant.armor<=0){
 							addExplosion(ant.getPlace());
-							addBigExplosion(FRAME_SIZE.width/2,FRAME_SIZE.height/2,FRAME_SIZE.width/3,100);
+							addBigExplosion(FRAME_SIZE.width/2,FRAME_SIZE.height/2,FRAME_SIZE.width/3,50);
 						}
 					}
 					
@@ -903,6 +968,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private synchronized void handleClick (MouseEvent e) {
 		Point pt = e.getPoint();
 		
+		if(FIN){
+			restartGame();
+		}
+		
 		if(pt.getX()<100 && pt.getY()>FRAME_SIZE.getHeight()-100){
 			Sou_select.play();
 			PAUSE = !PAUSE;
@@ -917,6 +986,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				if (selectedAnt == null) {
 					if(colonyAreas.get(rect).getAnt()!=null && !(colonyAreas.get(rect).getAnt() instanceof QueenAnt)){
 						Sou_delete.play();
+						colony.increaseFood((colonyAreas.get(rect).getAnt().foodCost+1)/2);
 					}
 					colony.removeAnt(colonyAreas.get(rect));
 					return; // stop searching
@@ -931,6 +1001,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					}
 					Ant deployable = buildAnt(selectedAnt.getClass().getName()); // make a new ant of the appropriate type
 					colony.deployAnt(colonyAreas.get(rect), deployable);
+					
+					if(deployable instanceof QueenAnt){
+						HASQUEEN = true;
+						initializeAntSelector();
+					}
+
 					
 					return; // stop searching
 				}
@@ -1409,6 +1485,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		scrollSelector(g2d);
 		
+		if(STARTED<=0 && (counter*6/FPS)%2==0 && LASTLEVELCHANGE<FPS*2){
+			g2d.setColor(Color.WHITE);
+			g2d.fillRect(2, 2, FRAME_SIZE.width, 119);
+		}
+		
 		// go through each selector area
 		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
 			
@@ -1600,7 +1681,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		{
 			Rectangle clickable = new Rectangle(pos.x, pos.y, width, height); // where to put the selector
 			Ant ant = buildAnt(antType); // the ant that gets deployed from that selector
-			if(ant!= null){
+			if(ant!= null && !(ant instanceof QueenAnt && HASQUEEN)){
 				if(ant.level <= LEVEL || DEBUG){ //Only our level of ants
 
 					antSelectorAreas.put(clickable, ant); // register the deployable ant so we can select it
