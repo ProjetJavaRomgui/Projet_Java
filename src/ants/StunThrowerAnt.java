@@ -29,5 +29,7 @@ public class StunThrowerAnt extends ThrowerAnt {
 			if (this.buff) target.stun(2);
 			else target.stun(1);
 		}
+		
+		
 	}
 }

@@ -44,5 +44,7 @@ public class LongThrowerAnt extends ThrowerAnt {
 		if (target != null) {
 			target.reduceArmor(getDamage());
 		}
+		
+		
 	}
 }

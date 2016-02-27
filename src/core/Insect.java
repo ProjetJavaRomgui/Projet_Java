@@ -11,7 +11,7 @@ public abstract class Insect {
 	public int armor; // insect's current armor
 	public int initArmor;
 	protected Place place; // insect's current location
-	public int lastAttacked;
+	public int lastAttacked = 10000;
 	public int lastAttack;
 	public boolean waterSafe = false;
 	public String name = "Thing";

@@ -13,6 +13,7 @@ public abstract class Ant extends Insect {
 	protected boolean blocking = true ;
 	public boolean buff = false;
 	public int level = 0;
+	public boolean DEAD = false;
 
 	/**
 	 * Creates a new Ant, with a food cost of 0.
@@ -45,6 +46,10 @@ public abstract class Ant extends Insect {
 	 */
 	@Override
 	public void leavePlace () {
+		DEAD = true;
+	}
+	
+	public void remove () {
 		AntGame.DEADANT++;
 		place.removeInsect(this);
 	}

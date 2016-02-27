@@ -81,26 +81,27 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Map<String, Color> LEAF_COLORS;// = new HashMap<String, Color>();
 
 	// other images (stored as member variables)
-	private final Image TUNNEL_IMAGE = ImageUtils.loadImage("img/tunnel.gif");
-	private final Image TUNNEL_CLOSED_IMAGE = ImageUtils.loadImage("img/tunnelclosed.gif");
-	private final Image WATER_IMAGE = ImageUtils.loadImage("img/water.png");
-	private final Image TUNNEL_SELECT_IMAGE = ImageUtils.loadImage("img/tun_select.png");
-	private final Image TUNNEL_SELECTED_IMAGE = ImageUtils.loadImage("img/tun_selected.png");
-	private final Image FOOD = ImageUtils.loadImage("img/food.png");
+	private final Image TUNNEL_IMAGE = ImageUtils.loadImage("assets/imgs/tunnel.gif");
+	private final Image TUNNEL_CLOSED_IMAGE = ImageUtils.loadImage("assets/imgs/tunnelclosed.gif");
+	private final Image WATER_IMAGE = ImageUtils.loadImage("assets/imgs/water.png");
+	private final Image TUNNEL_SELECT_IMAGE = ImageUtils.loadImage("assets/imgs/tun_select.png");
+	private final Image TUNNEL_SELECTED_IMAGE = ImageUtils.loadImage("assets/imgs/tun_selected.png");
+	private final Image FOOD = ImageUtils.loadImage("assets/imgs/food.png");
 	private final Image BEE_IMAGE[] = new Image[10];
 	private final Image BEE_IMAGE2[] = new Image[10];
 	private final Image BEEBAD_IMAGE[] = new Image[10];
 	private final Image BEEATTACK_IMAGE[] = new Image[10];
+	private final Image BANG[] = new Image[5];
 	private final Image EXPLOSION[] = new Image[7];
-	private final Image REMOVER_IMAGE = ImageUtils.loadImage("img/remover.gif");
-	private final Image BACK = ImageUtils.loadImage("assets/preback.png");
-	private final Image START = ImageUtils.loadImage("assets/start.png");
-	private final Image STARTCLICK = ImageUtils.loadImage("assets/start_button.png");
-	private final Image MENU = ImageUtils.loadImage("assets/menutop.png");
-	private final Image MENUFRONT = ImageUtils.loadImage("assets/menutop_front.png");
-	private final Image PAUSE_IMG = ImageUtils.loadImage("assets/pause.png");
-	private final Image PLAY_IMG = ImageUtils.loadImage("assets/play.png");
-	private final Image HOVERBLACK = ImageUtils.loadImage("assets/hoverblack.png");
+	private final Image REMOVER_IMAGE = ImageUtils.loadImage("assets/imgs/remover.gif");
+	private final Image BACK = ImageUtils.loadImage("assets/imgs/preback.png");
+	private final Image START = ImageUtils.loadImage("assets/imgs/start.png");
+	private final Image STARTCLICK = ImageUtils.loadImage("assets/imgs/start_button.png");
+	private final Image MENU = ImageUtils.loadImage("assets/imgs/menutop.png");
+	private final Image MENUFRONT = ImageUtils.loadImage("assets/imgs/menutop_front.png");
+	private final Image PAUSE_IMG = ImageUtils.loadImage("assets/imgs/pause.png");
+	private final Image PLAY_IMG = ImageUtils.loadImage("assets/imgs/play.png");
+	private final Image HOVERBLACK = ImageUtils.loadImage("assets/imgs/hoverblack.png");
 	
 	private final Font TITLE = new Font("Helvetica", Font.BOLD, 20);
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
@@ -131,6 +132,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static Audio Sou_delete = new Audio("delete.wav");
 	public static Audio Sou_explosion = new Audio("explosion.wav");
 	public static Audio Sou_leaf = new Audio("throw.wav");
+	public static Audio Sou_slap = new Audio("slap.wav");
 
 	public static Audio[] add = new Audio[4];
 
@@ -236,16 +238,23 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		//Get Bees
 		for(int i=0; i<BEE_IMAGE.length;i++){
 			
-			BEE_IMAGE[i] = ImageUtils.loadImage("img/bees/"+i+"/bee_image.gif");
-			BEE_IMAGE2[i] = ImageUtils.loadImage("img/bees/"+i+"/bee_image2.gif");
-			BEEBAD_IMAGE[i] = ImageUtils.loadImage("img/bees/"+i+"/beebad_image.gif");
-			BEEATTACK_IMAGE[i] = ImageUtils.loadImage("img/bees/"+i+"/beeattack_image.gif");
+			BEE_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/bee_image.gif");
+			BEE_IMAGE2[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/bee_image2.gif");
+			BEEBAD_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/beebad_image.gif");
+			BEEATTACK_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/beeattack_image.gif");
+
+		}
+		
+		//Get Bang
+		for(int i=0; i<BANG.length;i++){
+			
+			BANG[i] = ImageUtils.loadImage("assets/imgs/bang/"+i+".png");
 
 		}
 		
 		
 		for(int i=0; i<EXPLOSION.length;i++){
-			EXPLOSION[i] = ImageUtils.loadImage("img/explosion/"+i+".png");
+			EXPLOSION[i] = ImageUtils.loadImage("assets/imgs/explosion/"+i+".png");
 		}
 		
 		addMouseMotionListener(new MouseAdapter() {
@@ -760,6 +769,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					
 					ant.lastAttacked++;
 					ant.lastAttack++;
+					
+					if(ant.DEAD && ant.lastAttacked>FPS/6){
+						ant.remove();
+					}
 				}
 				Iterator<AnimPosition> iter = leaves.iterator(); // apply animations ot all the leaves
 				while (iter.hasNext()) { // iterator so we can remove when finished
@@ -1357,7 +1370,6 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			int total_life = 0;
 			int total_life_start = 0;
-			
 			Ant ant = place.getAnt();
 			if (ant != null) { // draw the ant if we have one
 				if(ant.buff){
@@ -1369,8 +1381,18 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 				total_life+=ant.armor;
 				total_life_start+=ant.initArmor;
+				
+				int size = 0;
+				if(ant.lastAttacked<FPS/4){
+					size = (130/(FPS/4))*(ant.lastAttacked);
+					g2d.drawImage(BANG[(int)(Math.random()*BANG.length)], rect.x + 40 + (int)((1-Math.random())*20) - size/2, rect.y + 50 + (int)((1-Math.random())*20) - size/2, size,size, null);
+				}
+				if(ant.lastAttacked<FPS/4){
+					Sou_slap.play();
+				}
 			}
 			
+
 			int barsize = Math.min(60,Math.max(total_life_start*5,15));
 
 			if(total_life>0){

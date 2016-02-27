@@ -37,6 +37,8 @@ public class HungryAnt extends Ant {
 			Cooldown = 3;
 		}
 		
+		
+		
 	}
 	
 	

@@ -27,5 +27,7 @@ public class ShortThrowerAnt extends ThrowerAnt {
 		if (target != null) {
 			target.reduceArmor(getDamage());
 		}
+		
+		
 	}
 }

@@ -29,5 +29,7 @@ public class SlowAnt extends ThrowerAnt{
 			if (this.buff) target.slow(6);
 			else target.slow(3);
 		}
+		
+		
 	}
 }

@@ -41,5 +41,7 @@ public class NinjaThrowerAnt extends Ant {
 				target.reduceArmor(getDamage());
 			}
 		}
+		
+		
 	}
 }

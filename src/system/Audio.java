@@ -123,7 +123,7 @@ public class Audio {
 	//Ci dessous gestion du gain
 	public void gain(float val){
 			
-		if(clip.isRunning()){
+		if(clip!=null && clip.isRunning()){
 			FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 			if(val>gainLimit){
 				val = gainLimit;
