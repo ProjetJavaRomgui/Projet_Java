@@ -6,7 +6,9 @@ import javax.sound.sampled.*;
 public class Audio {
 
 	Clip clip;
+	Clip clipB;
 	AudioInputStream me;
+	AudioInputStream me2;
 	boolean correct = true;
 	String path = "";
 	boolean playing;
@@ -14,6 +16,8 @@ public class Audio {
 	float gainLimit = 0;
 	
 	public long position = 0; // Position en microsecondes
+	
+	
 	
 	public Audio(String path){
 		this.path = path;
@@ -43,12 +47,20 @@ public class Audio {
 		        clip = AudioSystem.getClip();
 		        // getAudioInputStream() also accepts a File or InputStream
 		        me = AudioSystem.getAudioInputStream( new File("assets/sounds/"+this.path) );
+		        me2 = AudioSystem.getAudioInputStream( new File("assets/sounds/"+this.path) );
+
 				clip.open(me);
 				clip.setMicrosecondPosition(position);
+				
+		        clipB = AudioSystem.getClip();
+				clipB.open(me2);
+				clipB.setMicrosecondPosition(position);
+				
 				playing = true;
 				this.gain(this.megain);
 				clip.start();
-	
+
+				
 	
 	
 			}catch(Exception exc){
@@ -58,11 +70,17 @@ public class Audio {
 			}
 		
 		}else{
-			
-			clip.setMicrosecondPosition(position);
-			playing = true;
-			this.gain(this.megain);
-			clip.start();
+
+ 			if(!clip.isRunning()){
+				clip.setMicrosecondPosition(0);
+				playing = true;
+				this.gain(this.megain);
+				clip.start();
+			}else{
+				clipB.setMicrosecondPosition(0);
+				this.gain(this.megain);
+				clipB.start();
+			}
 	        
 		}
 	}
@@ -105,7 +123,7 @@ public class Audio {
 	//Ci dessous gestion du gain
 	public void gain(float val){
 			
-		if(playing){
+		if(clip.isRunning()){
 			FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 			if(val>gainLimit){
 				val = gainLimit;
@@ -115,9 +133,22 @@ public class Audio {
 			}
 	
 			gainControl.setValue(val);
-		}else{
-			this.megain = val;
+			
+		}else if(clipB.isRunning()){
+			FloatControl gainControl = (FloatControl) clipB.getControl(FloatControl.Type.MASTER_GAIN);
+			if(val>gainLimit){
+				val = gainLimit;
+			}
+			if(val<gainControl.getMinimum()){
+				val = gainControl.getMinimum();
+			}
+	
+			gainControl.setValue(val);
+			
 		}
+		
+		this.megain = val;
+		
 	}
 	
 	public float gain(){

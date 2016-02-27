@@ -174,6 +174,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int LASTLEVELCHANGE = 1000;
 	private int ANTSDISCOVERED = 0;
 
+	Audio gameover = new Audio("gameover.wav");
+	Audio title = new Audio("title.wav");
+	Audio music = new Audio("music.wav");
 	
 	/**
 	 * Creates a new game of Ants vs. Some-Bees, with the given colony and hive setup
@@ -188,10 +191,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		
 		//Mise en place de la musique
-		Audio music = new Audio("music.wav");
-		music.play();
-		music.gain(-10);
-		music.loop(true);
+		title.play();
+		title.gain(-3);
+		title.loop(true);
+
+		
 		//Sons
 		add[0] = new Audio("add1.wav");
 		add[1] = new Audio("add2.wav");
@@ -311,7 +315,6 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		frame.add(this);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
-
 		frame.setVisible(true);
 
 	}
@@ -348,7 +351,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		turn = 0;
 		clock = new Timer(1000 / FPS, this);
 
-
+		gameover.pause();
+		title.play();
+		title.gain(-3);
+		title.loop(true);
+		
 		initializeAnts();
 
 		// tracking bee animations
@@ -571,14 +578,26 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		if(clock.isRunning()){
 			
+			int temps = STARTED;
 			STARTED+=-1-DOCLICK;
 			STARTED = Math.max(0, STARTED);
 	
-			
+			if(STARTED == 0 && temps !=0){
+				music.play();
+				music.gain(-40);
+				music.loop(true);
+			}
 			if(STARTED==0){
 		
-	
-				
+				//Fondu des musiques
+				if(counter%4 == 0){
+					if(title.gain()>-40){
+						title.gain(title.gain() - 1);
+					}
+					if(title.gain()<-10){
+						music.gain(Math.min(-10, music.gain() + 1));
+					}
+				}
 				
 				if (frame == 0 && !PAUSE) // at the start of a turn
 				{
@@ -792,6 +811,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				
 				if(FIN==false){
 					FIN = true;
+					
+					music.pause();
+					gameover.play();
+					gameover.gain(-10);
+					
 					stats[0] = ""+counter/FPS;
 					stats[1] = String.format("%,d",XP) + " xp";
 					stats[2] = String.format("%,d",XP_RECORD) + " xp";
