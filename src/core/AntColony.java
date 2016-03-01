@@ -13,6 +13,7 @@ public class AntColony {
 	public static final String QUEEN_NAME = "AntQueen"; // name of the Queen's place
 	public static final int MAX_TUNNEL_LENGTH = 8;
 	public int life = 10;
+	public int lastAttacked = 1000;
  
 	private int food; // amount of food available
 	QueenPlace queenPlace; // where the queen is
@@ -63,7 +64,7 @@ public class AntColony {
 					lineWater = 1000;
 				}
 				
-				for (int step = 0; step < tunnelLength; step++) {
+				for (int step = 0; step < tunnelLength+1; step++) {
 					
 					prev = curr; // keep track of the previous guy (who we will exit to)
 					if (Math.random()<1-(float)difficulty/10 || lineWater>=tunnelLength*(float)difficulty/10+1 || step>=numTunnels-1){

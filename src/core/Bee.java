@@ -15,6 +15,7 @@ public class Bee extends Insect {
 	int stun = 0; //nombre de tours stun restants
 	int slow = 0;
 	int slowCount = 0;
+	public boolean damageDone = false;
 	/**
 	 * Creates a new bee with the given armor
 	 *

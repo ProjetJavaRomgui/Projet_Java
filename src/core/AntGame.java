@@ -102,7 +102,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image PAUSE_IMG = ImageUtils.loadImage("assets/imgs/pause.png");
 	private final Image PLAY_IMG = ImageUtils.loadImage("assets/imgs/play.png");
 	private final Image HOVERBLACK = ImageUtils.loadImage("assets/imgs/hoverblack.png");
-	
+	private final Image BLOOD = ImageUtils.loadImage("assets/imgs/blood.png");
+	private final Image BLOOD2 = ImageUtils.loadImage("assets/imgs/blood2.png");
+	private final Image BLOOD5 = ImageUtils.loadImage("assets/imgs/blood5.png");
+
 	private final Font TITLE = new Font("Helvetica", Font.BOLD, 20);
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
 	private final Font LITTLE = new Font("Helvetica", Font.ITALIC, 15);
@@ -133,7 +136,6 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static Audio Sou_explosion = new Audio("explosion.wav");
 	public static Audio Sou_leaf = new Audio("throw.wav");
 	public static Audio Sou_slap = new Audio("slap.wav");
-
 	public static Audio[] add = new Audio[4];
 
 	public Point[] Food = new Point[100];
@@ -481,6 +483,21 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 		
 
+		if(colony.life<=5){
+			g2d.drawImage(BLOOD5, 0, 0, getParent());
+		}
+		if(colony.life<=2){
+			g2d.drawImage(BLOOD2, 0, 0, getParent());
+		}
+		float size = 1;
+		if(colony.lastAttacked<=10){
+			size = (float) (1f+colony.lastAttacked*0.05);
+			g2d.drawImage(BLOOD,  0-(int)((size-1)*FRAME_SIZE.width)/2, 0-(int)((size-1)*FRAME_SIZE.height)/2, (int)(size*FRAME_SIZE.width), (int)(size*FRAME_SIZE.height), getParent());
+		}
+		if(colony.lastAttacked==1){
+			addBigExplosion(0,FRAME_SIZE.height/2+50,100,10);
+		}
+		
 		if(PAUSE || FIN){
 			g2d.drawImage(HOVERBLACK,0, 0, FRAME_SIZE.width, FRAME_SIZE.height, getParent());
 		}
@@ -581,6 +598,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		if(!PAUSE){
 			counter++;
+			colony.lastAttacked++;
 		}
 		counterExt++;
 		LASTLEVELCHANGE++;
@@ -613,6 +631,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					System.out.println("TURN: " + turn);
 					
 					addXP(10);
+					
+					
 					
 					
 					///////////////////
@@ -672,6 +692,19 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 							bee.action(colony);
 							startAnimation(bee); // start up animation for the bee if needed
 						}
+						
+						
+					}
+					
+					if (colony.queenHasBees()) { // more than 1 life
+						System.out.println("Queen Has Bees !!!");
+						for (Bee bee: colony.queenPlace.getBees())
+						{
+							if(bee.damageDone){
+								bee.getPlace().removeInsect(bee);
+								bee.invisible = true;
+							}
+						}
 					}
 		
 					// new invaders attack!
@@ -724,6 +757,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					entry.getKey().lastAttacked++;
 					entry.getKey().lastAttack++;
 				}
+				
 				if (colony.queenHasBees()) { // more than 1 life
 					System.out.println("Queen Has Bees !!!");
 					for (Bee bee: colony.queenPlace.getBees())
@@ -731,12 +765,20 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						if(bee != null){
 							System.out.println("OUUUUCH");
 							if(bee.armor>0){
-								bee.reduceArmor(bee.getArmor());
-								colony.life += -bee.colonyDegat; // Big bees can destroy all the colony
+								if(bee.getPlace()!=null && bee.getPlace().left>=0){
+									bee.getPlace().getAnt().lastAttacked = 0;
+									bee.reduceArmor(bee.getArmor());
+								}
+								if(bee.damageDone == false){
+									colony.life += -bee.colonyDegat; // Big bees can destroy all the colony
+									bee.damageDone = true;
+									colony.lastAttacked = 0;
+								}
 							}
 						}
 					}
 				}
+				
 				for (Ant ant : colony.getAllAnts()) // apply time
 				{
 					//Change Queen armor
@@ -847,6 +889,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	}
 	
 	private void gestionJeu(){
+		
 		
 		//Ajout des abeilles
 		if(Math.random()>0.6){
@@ -1076,7 +1119,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 		// check if deploying an ant
 		for (Rectangle rect : colonyAreas.keySet()) {
-			if (rect.contains(pt)) {
+			if (rect.contains(pt) && colonyAreas.get(rect).left<8) {
 				if (selectedAnt == null) {
 					if(colonyAreas.get(rect).getAnt()!=null && !(colonyAreas.get(rect).getAnt() instanceof QueenAnt)){
 						Sou_delete.play();
@@ -1302,7 +1345,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 			for (Map.Entry<Rectangle, Place> entry : colonyAreas.entrySet()) {
 				
-				if (entry.getKey().contains(mouseX, mouseY) && entry.getValue().tunnel>=minTunnel && entry.getValue().tunnel<=maxTunnel){
+				if (entry.getValue().left<8 && entry.getKey().contains(mouseX, mouseY) && entry.getValue().tunnel>=minTunnel && entry.getValue().tunnel<=maxTunnel){
 					if(entry.getValue().getAnt() == null){
 						g2d.setFont(FONT);
 						drawLongText(entry.getValue().name,mouseX + 3, mouseY+3, g2d);
@@ -1329,108 +1372,112 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private void drawColony (Graphics2D g2d, int decalage) {
 		
 		for (Map.Entry<Rectangle, Place> entry : colonyAreas.entrySet()) {
-			Rectangle rect = entry.getKey(); // rectangle area for this place
-			Place place = entry.getValue(); // place to draw
+			
+			if(entry.getValue().left<8){
 
-			g2d.setColor(Color.BLACK);
-			//g2d.draw(rect); // border box (where to click)
-
-			if (place != tunnelEnd && place instanceof Water) {
-				g2d.drawImage(WATER_IMAGE, rect.x+decalage, rect.y, null); // decorative image
-			} 
-			else if (place != tunnelEnd) {
-				g2d.drawImage(TUNNEL_IMAGE, rect.x+decalage, rect.y, null); //water image
-			}
-			
-			
-			boolean transparent=false;
-			
-			if((counter/4)%2==0){
-				if(turn>95 && place.tunnel==1){
-					transparent = true;
+				Rectangle rect = entry.getKey(); // rectangle area for this place
+				Place place = entry.getValue(); // place to draw
+	
+				g2d.setColor(Color.BLACK);
+				//g2d.draw(rect); // border box (where to click)
+	
+				if (place != tunnelEnd && place instanceof Water) {
+					g2d.drawImage(WATER_IMAGE, rect.x+decalage, rect.y, null); // decorative image
+				} 
+				else if (place != tunnelEnd) {
+					g2d.drawImage(TUNNEL_IMAGE, rect.x+decalage, rect.y, null); //water image
 				}
-				if(turn>145 && place.tunnel==3){
-					transparent = true;
+				
+				
+				boolean transparent=false;
+				
+				if((counter/4)%2==0){
+					if(turn>95 && place.tunnel==1){
+						transparent = true;
+					}
+					if(turn>145 && place.tunnel==3){
+						transparent = true;
+					}
+					if(turn>245 && place.tunnel==0){
+						transparent = true;
+					}
+					if(turn>295 && place.tunnel==4){
+						transparent = true;
+					}
 				}
-				if(turn>245 && place.tunnel==0){
-					transparent = true;
+				
+				if (!transparent && place != tunnelEnd && (place.tunnel<minTunnel || place.tunnel>maxTunnel) ) {
+					g2d.drawImage(TUNNEL_CLOSED_IMAGE, rect.x+decalage, rect.y, null); // decorative image
+				} 
+				
+				if (rect.contains(mouseX, mouseY)  && !PAUSE && !FIN && entry.getValue().tunnel>=minTunnel && entry.getValue().tunnel<=maxTunnel){
+					g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
 				}
-				if(turn>295 && place.tunnel==4){
-					transparent = true;
+				
+				int total_life = 0;
+				int total_life_start = 0;
+				Ant ant = place.getAnt();
+				if (ant != null) { // draw the ant if we have one
+					if(ant.buff){
+						Image img = ANT_IMAGES.get(ant.getClass().getName()+"buffed");
+						g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+					}else{
+						Image img = ANT_IMAGES.get(ant.getClass().getName());
+						g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+					}
+					total_life+=ant.armor;
+					total_life_start+=ant.initArmor;
+					
+					int size = 0;
+					if(ant.lastAttacked<FPS/4){
+						size = (130/(FPS/4))*(ant.lastAttacked);
+						g2d.drawImage(BANG[(int)(Math.random()*BANG.length)], rect.x + 40 + (int)((1-Math.random())*20) - size/2, rect.y + 50 + (int)((1-Math.random())*20) - size/2, size,size, null);
+					}
+					if(ant.lastAttacked<FPS/4){
+						Sou_slap.play();
+					}
 				}
-			}
-			
-			if (!transparent && place != tunnelEnd && (place.tunnel<minTunnel || place.tunnel>maxTunnel) ) {
-				g2d.drawImage(TUNNEL_CLOSED_IMAGE, rect.x+decalage, rect.y, null); // decorative image
-			} 
-			
-			if (rect.contains(mouseX, mouseY)  && !PAUSE && !FIN && entry.getValue().tunnel>=minTunnel && entry.getValue().tunnel<=maxTunnel){
-				g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
-			}
-			
-			int total_life = 0;
-			int total_life_start = 0;
-			Ant ant = place.getAnt();
-			if (ant != null) { // draw the ant if we have one
-				if(ant.buff){
-					Image img = ANT_IMAGES.get(ant.getClass().getName()+"buffed");
-					g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
-				}else{
+				
+	
+				int barsize = Math.min(60,Math.max(total_life_start*5,15));
+	
+				if(total_life>0){
+					g2d.setColor(Color.GRAY);
+					g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2, rect.y + PLACE_PADDING.height + 10, barsize,5);
+					
+					g2d.setColor(Color.GREEN);
+					if((float)total_life/total_life_start<=0.7){
+						g2d.setColor(Color.ORANGE);
+					}else if((float)total_life/total_life_start<=0.4){
+						g2d.setColor(Color.RED);
+					}
+					g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2+1, rect.y + PLACE_PADDING.height + 11, (int)((barsize-2)*((float)total_life/total_life_start)),3);
+	
+				}
+				
+				total_life = 0;
+				total_life_start = 0;
+				ant = place.getContainingAnt();
+				if (ant != null) { // draw the containing ant if we have one
 					Image img = ANT_IMAGES.get(ant.getClass().getName());
 					g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+					total_life+=ant.armor;
+					total_life_start+=ant.initArmor;
 				}
-				total_life+=ant.armor;
-				total_life_start+=ant.initArmor;
 				
-				int size = 0;
-				if(ant.lastAttacked<FPS/4){
-					size = (130/(FPS/4))*(ant.lastAttacked);
-					g2d.drawImage(BANG[(int)(Math.random()*BANG.length)], rect.x + 40 + (int)((1-Math.random())*20) - size/2, rect.y + 50 + (int)((1-Math.random())*20) - size/2, size,size, null);
-				}
-				if(ant.lastAttacked<FPS/4){
-					Sou_slap.play();
-				}
-			}
-			
-
-			int barsize = Math.min(60,Math.max(total_life_start*5,15));
-
-			if(total_life>0){
-				g2d.setColor(Color.GRAY);
-				g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2, rect.y + PLACE_PADDING.height + 10, barsize,5);
 				
-				g2d.setColor(Color.GREEN);
-				if((float)total_life/total_life_start<=0.7){
-					g2d.setColor(Color.ORANGE);
-				}else if((float)total_life/total_life_start<=0.4){
-					g2d.setColor(Color.RED);
+				barsize = Math.min(60,Math.max(total_life_start*5,15));
+	
+				if(total_life>0){
+					g2d.setColor(Color.GRAY);
+					g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2, rect.y + PLACE_PADDING.height + 10 - 10, barsize,5);
+					
+					g2d.setColor(Color.WHITE);
+					g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2+1, rect.y + PLACE_PADDING.height + 11 - 10, (int)((barsize-2)*((float)total_life/total_life_start)),3);
+	
 				}
-				g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2+1, rect.y + PLACE_PADDING.height + 11, (int)((barsize-2)*((float)total_life/total_life_start)),3);
 
 			}
-			
-			total_life = 0;
-			total_life_start = 0;
-			ant = place.getContainingAnt();
-			if (ant != null) { // draw the containing ant if we have one
-				Image img = ANT_IMAGES.get(ant.getClass().getName());
-				g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
-				total_life+=ant.armor;
-				total_life_start+=ant.initArmor;
-			}
-			
-			
-			barsize = Math.min(60,Math.max(total_life_start*5,15));
-
-			if(total_life>0){
-				g2d.setColor(Color.GRAY);
-				g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2, rect.y + PLACE_PADDING.height + 10 - 10, barsize,5);
-				
-				g2d.setColor(Color.WHITE);
-				g2d.fillRect(rect.x + PLACE_PADDING.width+30-barsize/2+1, rect.y + PLACE_PADDING.height + 11 - 10, (int)((barsize-2)*((float)total_life/total_life_start)),3);
-
-			}
-
 
 		}
 	}
@@ -1471,12 +1518,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					image = BEEATTACK_IMAGE[level];
 				}
 			
-				if(bee.armor<=0 && entry.getKey().place.toString()!="AntQueen"){ //Change l'image
+				if(bee.armor<=0 && entry.getKey().place.left!=0){ //Change l'image
 					flip = true;
 				}
 			}else{
 				flip = true;
 			}
+			
 			
 			int mx = (int)(Math.cos((float)counter/(20+bee.randomDecalage))*5);
 			int my = (int)(Math.cos((float)counter/(20+bee.randomDecalage))*10)+5;
@@ -1497,20 +1545,22 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 							null); // draw a bee at that position!
 				}
 			
-			}
 			
 			
-			int barsize = Math.min(100,bee.initArmor*3);
-			
-			if(bee.armor>0){
-				g2d.setColor(Color.GRAY);
-				g2d.fillRect((int)(pos.x + PLACE_PADDING.width + 30-barsize/2 + mx), (int)(pos.y + PLACE_PADDING.height + 10 + my), barsize,5);
 				
-				g2d.setColor(Color.RED);
-				g2d.fillRect((int)(pos.x + PLACE_PADDING.width + 30-barsize/2 +mx + 1), (int)(pos.y + PLACE_PADDING.height + 10 + my + 1),
-						(int)((barsize-2)*((float)bee.armor/bee.initArmor)),3);
-
-
+				int barsize = Math.min(100,bee.initArmor*3);
+				
+				if(bee.armor>0){
+					g2d.setColor(Color.GRAY);
+					g2d.fillRect((int)(pos.x + PLACE_PADDING.width + 30-barsize/2 + mx), (int)(pos.y + PLACE_PADDING.height + 10 + my), barsize,5);
+					
+					g2d.setColor(Color.RED);
+					g2d.fillRect((int)(pos.x + PLACE_PADDING.width + 30-barsize/2 +mx + 1), (int)(pos.y + PLACE_PADDING.height + 10 + my + 1),
+							(int)((barsize-2)*((float)bee.armor/bee.initArmor)),3);
+	
+	
+				}
+			
 			}
 			
 		}
@@ -1597,31 +1647,31 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		// go through each selector area
 		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
-			
-			Rectangle rect = entry.getKey(); // selected area
-			Ant ant = entry.getValue(); // ant to select
-			
-			// box status
-			
-			if (rect.contains(mouseX, mouseY) && !PAUSE && !FIN){
-				g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
-			}
-			else if (ant == selectedAnt) {
-				g2d.drawImage(TUNNEL_SELECTED_IMAGE, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
-			}
+							
+				Rectangle rect = entry.getKey(); // selected area
+				Ant ant = entry.getValue(); // ant to select
+				
+				// box status
+				
+				if (rect.contains(mouseX, mouseY) && !PAUSE && !FIN){
+					g2d.drawImage(TUNNEL_SELECT_IMAGE, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
+				}
+				else if (ant == selectedAnt) {
+					g2d.drawImage(TUNNEL_SELECTED_IMAGE, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
+				}
+	
+				// ant image
+				Image img = ANT_IMAGES.get(ant.getClass().getName());
+				if (ant.getFoodCost() > colony.getFood()) {
+					img = ANT_IMAGES.get(ant.getClass().getName()+"disabled");
+				}
+				g2d.drawImage(img, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
+	
+				// food cost
+				g2d.setColor(Color.WHITE);
+				g2d.drawString("" + ant.getFoodCost(), rect.x + (rect.width / 2), rect.y + ANT_IMAGE_SIZE.height + 4 + PANEL_PADDING.height -decalageY);
 
-			// ant image
-			Image img = ANT_IMAGES.get(ant.getClass().getName());
-			if (ant.getFoodCost() > colony.getFood()) {
-				img = ANT_IMAGES.get(ant.getClass().getName()+"disabled");
-			}
-			g2d.drawImage(img, rect.x + PANEL_PADDING.width, rect.y + PANEL_PADDING.height -decalageY, null);
-
-			// food cost
-			g2d.setColor(Color.WHITE);
-			g2d.drawString("" + ant.getFoodCost(), rect.x + (rect.width / 2), rect.y + ANT_IMAGE_SIZE.height + 4 + PANEL_PADDING.height -decalageY);
-
-		
+			
 		} 
 		
 		drawIncomingWaves(g2d,decalageY);
@@ -1742,24 +1792,26 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		int row = 0;
 		pos.translate((width + PLACE_MARGIN) / 2, 0); // extra shift to make room for queen
 		for (Place place : colony.getPlaces()) {
-			if (place.getExit() == colony.getQueenPlace()) // if this place leads to the queen (the end)
-			{
-				pos.setLocation(PLACE_POS.x, PLACE_POS.y + row * (height + PLACE_MARGIN)); // move down to beginning of next row
-				pos.translate((width + PLACE_MARGIN) / 2, 0); // extra shift to make room for queen
-				row++; // increase row number
-			}
-
-			Rectangle clickable = new Rectangle(pos.x, pos.y, width, height);
-			if(place.getEntrance()!=null){
-				colonyAreas.put(clickable, place);
-				colonyRects.put(place, clickable);
-			}
-
-			pos.translate(width + PLACE_MARGIN, 0); // shift rectangle position for next run
+				if (place.getExit() == colony.getQueenPlace()) // if this place leads to the queen (the end)
+				{
+					pos.setLocation(PLACE_POS.x, PLACE_POS.y + row * (height + PLACE_MARGIN)); // move down to beginning of next row
+					pos.translate((width + PLACE_MARGIN) / 2, 0); // extra shift to make room for queen
+					row++; // increase row number
+				}
+	
+				Rectangle clickable = new Rectangle(pos.x, pos.y, width, height);
+				if(place.getEntrance()!=null){
+					colonyAreas.put(clickable, place);
+					colonyRects.put(place, clickable);
+				}
+	
+				pos.translate(width + PLACE_MARGIN, 0); // shift rectangle position for next run
+			
+			
 		}
-
+		
 		// make queen location
-		pos.setLocation(0, PLACE_POS.y + (row - 1) * (height + PLACE_MARGIN) / 2); // middle of the tunnels (about)
+		pos.setLocation(-100, PLACE_POS.y + (row - 1) * (height + PLACE_MARGIN) / 2); // middle of the tunnels (about)
 		Rectangle queenRect = new Rectangle(pos.x, pos.y, 0, 0); // no size, will not be drawn
 		tunnelEnd = colony.getQueenPlace();
 		colonyAreas.put(queenRect, tunnelEnd);
@@ -1867,8 +1919,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	// Specifies and starts an animation for a Bee (moving to a particular place)
 	private void startAnimation (Bee b) {
+
 		AnimPosition anim = allBeePositions.get(b);
-		if (anim.framesLeft == 0) // if not already animating
+		if (anim.framesLeft == 0 && b.damageDone == false) // if not already animating
 		{
 			Rectangle rect = colonyRects.get(b.getPlace()); // where we want to go to
 			if (rect != null && !rect.contains(anim.x, anim.y)) {

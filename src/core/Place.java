@@ -83,7 +83,7 @@ public class Place {
 	public Bee getClosestBee (int minDistance, int maxDistance) {
 		Place p = this;
 		for (int dist = 0; p != null && dist <= maxDistance; dist++) {
-			if (dist >= minDistance && p.bees.size() > 0 && p.entrance!=null) {
+			if (dist >= minDistance && p.bees.size() > 0 && p.entrance!=null && p.left<8) {
 				return p.bees.get((int) (Math.random() * p.bees.size())); // pick a random bee
 			}
 			p = p.entrance;
