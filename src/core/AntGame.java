@@ -765,7 +765,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						if(bee != null){
 							System.out.println("OUUUUCH");
 							if(bee.armor>0){
-								if(bee.getPlace()!=null && bee.getPlace().left>=0){
+								if(bee.getPlace()!=null && bee.getPlace().left>=0 && bee.getPlace().getAnt()!=null){
 									bee.getPlace().getAnt().lastAttacked = 0;
 									bee.reduceArmor(bee.getArmor());
 								}
