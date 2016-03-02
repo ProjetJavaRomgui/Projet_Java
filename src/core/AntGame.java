@@ -91,6 +91,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image BEE_IMAGE2[] = new Image[10];
 	private final Image BEEBAD_IMAGE[] = new Image[10];
 	private final Image BEEATTACK_IMAGE[] = new Image[10];
+	private final Image BEESLOW_IMAGE[] = new Image[10];
+	private final Image BEESTUN_IMAGE[] = new Image[10];
 	private final Image BANG[] = new Image[5];
 	private final Image EXPLOSION[] = new Image[7];
 	private final Image REMOVER_IMAGE = ImageUtils.loadImage("assets/imgs/remover.gif");
@@ -247,6 +249,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			BEE_IMAGE2[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/bee_image2.gif");
 			BEEBAD_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/beebad_image.gif");
 			BEEATTACK_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/beeattack_image.gif");
+			BEESTUN_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/beestun_image.png");
+			BEESLOW_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/beeslow_image.gif");
 
 		}
 		
@@ -285,7 +289,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		// game init stuff
 		this.colony = colony;
 		
-		this.hive = new Hive();
+		this.hive = new Hive(); 
 
 
 		// game clock tracking
@@ -294,12 +298,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		turn = 0;
 		
 		//DEBUG
-		/*
+		
 		turn = 600;
 		minTunnel = 0;
 		maxTunnel = 4;
 		colony.increaseFood(200000);
-		 */
+		 
 		
 		clock = new Timer(1000 / FPS, this);
 
@@ -719,7 +723,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						System.out.println("Queen Has Bees !!!");
 						for (Bee bee: colony.queenPlace.getBees())
 						{
-							if(bee.damageDone){
+							if(bee!=null && bee.damageDone){
 								bee.getPlace().removeInsect(bee);
 								bee.invisible = true;
 							}
@@ -1576,6 +1580,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 				if(bee.lastAttack<FPS/4){ //Change l'image pour un quart de seconde
 					image = BEEATTACK_IMAGE[level];
+				}
+				if(bee.slow>=0){
+					image = BEESLOW_IMAGE[level];
+				}
+				if(bee.stun>=0){
+					image = BEESTUN_IMAGE[level];
 				}
 			
 				if(bee.armor<=0 && entry.getKey().place.left!=0){ //Change l'image

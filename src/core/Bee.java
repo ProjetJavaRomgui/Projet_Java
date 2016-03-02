@@ -81,7 +81,7 @@ public class Bee extends Insect {
 	 */
 	@Override
 	public void action (AntColony colony) {
-		if(stun == 0){
+		if(stun <= 0){
 			if(slow > 0){
 				slowCount = (slowCount+1)%3;
 			}
@@ -99,9 +99,8 @@ public class Bee extends Insect {
 				}
 			}
 		}
-		else stun = stun-1;
-		if (slow > 0) slow += -1;
-		else slowCount = 0 ;
+		stun = stun-1;
+		slow += -1;
 	}
 
 	public void stun(int i) {
