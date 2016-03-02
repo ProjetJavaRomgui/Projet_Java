@@ -298,12 +298,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		turn = 0;
 		
 		//DEBUG
-		
+		/*
 		turn = 600;
 		minTunnel = 0;
 		maxTunnel = 4;
 		colony.increaseFood(200000);
-		 
+		 */
 		
 		clock = new Timer(1000 / FPS, this);
 
@@ -1490,7 +1490,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					}else{
 						img = ANT_IMAGES.get(ant.getClass().getName());
 					}
-					float respiration = (float) (1+0.05*Math.cos((float)(counter+ant.randomDecalage)*7f/FPS));
+					float respiration = (float) (1+0.05*Math.cos((float)(counter+ant.randomDecalage*10)*4f/FPS));
 					g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height+(int)((1-respiration)*img.getHeight(getParent())) - (int)(respiration*10) + 10, img.getWidth(getParent()), (int)(respiration*img.getHeight(getParent())), null);
 					
 					total_life+=ant.armor;
