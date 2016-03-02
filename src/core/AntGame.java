@@ -294,11 +294,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		turn = 0;
 		
 		//DEBUG
+		/*
 		turn = 600;
 		minTunnel = 0;
 		maxTunnel = 4;
 		colony.increaseFood(200000);
-
+		 */
+		
 		clock = new Timer(1000 / FPS, this);
 
 		// member ant property storage variables
@@ -364,6 +366,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		DOCLICK = 0;
 		this.hive = new Hive();
 		ANTSDISCOVERED = 0;
+		tombstone = new PointValue[1000];
 
 
 		// game clock tracking
@@ -829,6 +832,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					ant.lastAttack++;
 					
 					if(ant.DEAD && ant.lastAttacked>FPS/6){
+						addTomb(ant.place);
 						ant.remove();
 					}
 				}
@@ -1261,15 +1265,15 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 	}
 	
-	public static void addTumb(Place pl){
+	public static void addTomb(Place pl){
 		
 		for(Entry<Place, Rectangle> entry: colonyRects.entrySet()){
 			
 			if(entry.getKey()!=null && pl!=null){
 				if(entry.getKey().left==pl.left && entry.getKey().tunnel==pl.tunnel){
 					
-					int x = entry.getValue().x + (int)(Math.random()*entry.getValue().width);
-					int y = entry.getValue().y + (int)(Math.random()*entry.getValue().height);
+					int x = entry.getValue().x + (int)((0.5-Math.random())*entry.getValue().width/2) + entry.getValue().width/2;
+					int y = entry.getValue().y + (int)((0.5-Math.random())*entry.getValue().height/2) + entry.getValue().height/2;
 					
 					int i = 0;
 					while(i<tombstone.length && tombstone[i]!=null){
@@ -1281,6 +1285,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					
 										
 					tombstone[i] = new PointValue(x-20,y-20);
+					
+					System.out.println("Added Tombstone");
 					
 					return;
 				}
