@@ -8,7 +8,6 @@ package core;
 public class Bee extends Insect {
 
 	private static final int DAMAGE = 1;
-	int randomDecalage = 0;
 	int colonyDegat = 1;
 	int turns = 0;
 	int level = 0;
@@ -24,7 +23,6 @@ public class Bee extends Insect {
 	 */
 	public Bee (int armor) {
 		super(armor);
-		randomDecalage = (int)(10-Math.random()*20);
 		waterSafe = true ;
 		
 		this.level = armor/5;

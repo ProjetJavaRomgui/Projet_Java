@@ -512,7 +512,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			size = (float) (1f+colony.lastAttacked*0.05);
 			g2d.drawImage(BLOOD,  0-(int)((size-1)*FRAME_SIZE.width)/2, 0-(int)((size-1)*FRAME_SIZE.height)/2, (int)(size*FRAME_SIZE.width), (int)(size*FRAME_SIZE.height), getParent());
 		}
-		if(colony.lastAttacked==1){
+		if(colony.lastAttacked==1 && !FIN){
 			addBigExplosion(0,FRAME_SIZE.height/2+50,100,10);
 		}
 		
@@ -809,8 +809,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						HASQUEEN = true;
 						ant.armor = colony.life;
 						if(ant.armor<=0){
-							addExplosion(ant.getPlace());
-							addBigExplosion(FRAME_SIZE.width/2,FRAME_SIZE.height/2,FRAME_SIZE.width/3,50);
+							if(!FIN){
+								addExplosion(ant.getPlace());
+								addBigExplosion(FRAME_SIZE.width/2,FRAME_SIZE.height/2,FRAME_SIZE.width/3,50);
+							}
 						}
 					}
 					
@@ -1482,13 +1484,15 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				int total_life_start = 0;
 				Ant ant = place.getAnt();
 				if (ant != null) { // draw the ant if we have one
+					Image img;
 					if(ant.buff){
-						Image img = ANT_IMAGES.get(ant.getClass().getName()+"buffed");
-						g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+						img = ANT_IMAGES.get(ant.getClass().getName()+"buffed");
 					}else{
-						Image img = ANT_IMAGES.get(ant.getClass().getName());
-						g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, null);
+						img = ANT_IMAGES.get(ant.getClass().getName());
 					}
+					float respiration = (float) (1+0.05*Math.cos((float)(counter+ant.randomDecalage)*7f/FPS));
+					g2d.drawImage(img, rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height+(int)((1-respiration)*img.getHeight(getParent())) - (int)(respiration*10) + 10, img.getWidth(getParent()), (int)(respiration*img.getHeight(getParent())), null);
+					
 					total_life+=ant.armor;
 					total_life_start+=ant.initArmor;
 					
