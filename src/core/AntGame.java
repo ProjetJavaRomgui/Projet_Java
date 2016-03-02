@@ -105,6 +105,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image BLOOD = ImageUtils.loadImage("assets/imgs/blood.png");
 	private final Image BLOOD2 = ImageUtils.loadImage("assets/imgs/blood2.png");
 	private final Image BLOOD5 = ImageUtils.loadImage("assets/imgs/blood5.png");
+	private final Image TOMB = ImageUtils.loadImage("assets/imgs/tomb.png");
 
 	private final Font TITLE = new Font("Helvetica", Font.BOLD, 20);
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
@@ -163,6 +164,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private Map<Bee, PointValue> futureBees; // maps from Bee to an object storing animation status
 	private ArrayList<AnimPosition> leaves; // leaves we're animating
 	public static PointValue[] explosions = new PointValue[100];
+	public static PointValue[] tombstone = new PointValue[1000];
 	
 	private int mouseX = 0;
 	private int mouseY = 0;
@@ -444,6 +446,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 		}
 		
+		drawTomb(g2d);
 		drawColony(g2d,decalage);
 		drawBees(g2d);
 		drawLeaves(g2d);
@@ -1255,6 +1258,47 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 		}
 		
+		
+	}
+	
+	public static void addTumb(Place pl){
+		
+		for(Entry<Place, Rectangle> entry: colonyRects.entrySet()){
+			
+			if(entry.getKey()!=null && pl!=null){
+				if(entry.getKey().left==pl.left && entry.getKey().tunnel==pl.tunnel){
+					
+					int x = entry.getValue().x + (int)(Math.random()*entry.getValue().width);
+					int y = entry.getValue().y + (int)(Math.random()*entry.getValue().height);
+					
+					int i = 0;
+					while(i<tombstone.length && tombstone[i]!=null){
+						i++;
+					}
+					if(i==tombstone.length){
+						i = (int)(Math.random()*tombstone.length);
+					}
+					
+										
+					tombstone[i] = new PointValue(x-20,y-20);
+					
+					return;
+				}
+			}
+			
+		}
+	}
+	
+	private void drawTomb(Graphics2D g2d){
+		
+		for(int i=0; i<tombstone.length; i++){
+			if(tombstone[i]!=null){
+				
+				g2d.drawImage(TOMB,tombstone[i].x,tombstone[i].y,null);
+				
+
+			}
+		}
 		
 	}
 
