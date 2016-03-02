@@ -126,7 +126,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static final Point MESSAGE_POS = new Point(120, 20);
 	public static final Dimension LEAF_START_OFFSET = new Dimension(30, 30);
 	public static final Dimension LEAF_END_OFFSET = new Dimension(50, 30);
-	public static final int LEAF_SIZE = 40;
+	public static final int LEAF_SIZE = 28;
+	public static final int LEAF_SIZE_BUFF = 50;
 	
 	//Sounds
 	public static Audio food_earn = new Audio("food_earn.wav");
@@ -192,7 +193,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 */
 	public AntGame (AntColony colony) {
 
-		
+				
 		
 		//Mise en place de la musique
 		title.play();
@@ -238,7 +239,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		
 		
 		//Get Bees
-		for(int i=0; i<BEE_IMAGE.length;i++){
+		for(int i=0; i<4;i++){
 			
 			BEE_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/bee_image.gif");
 			BEE_IMAGE2[i] = ImageUtils.loadImage("assets/imgs/bees/"+i+"/bee_image2.gif");
@@ -289,6 +290,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		frame = 0;
 		counter = 0;
 		turn = 0;
+		
+		//DEBUG
+		turn = 600;
+		minTunnel = 0;
+		maxTunnel = 4;
+		colony.increaseFood(200000);
+
 		clock = new Timer(1000 / FPS, this);
 
 		// member ant property storage variables
@@ -654,6 +662,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						//1 level = 50 tours
 						initializeAntSelector();
 					}
+					
+					//Ajouter une vie !
+					if(turn%100==0){
+						colony.life++;
+					}
 		
 					// ants take action!
 					for (Ant ant : colony.getAllAnts()) {
@@ -959,7 +972,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			if(turn<460 && turn>320){
 				
-				int nb = 2;
+				int nb = 1;
 				int max = 0;
 				
 				if(Math.random()>0.96){
@@ -972,7 +985,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 				
 				for(int i=0;i<nb;i++){
-					addBee(Math.max(5, (int)((9+max)*Math.random())),1);
+					addBee(Math.max(3, (int)((9+max)*Math.random())),1);
 				}
 				
 			}
@@ -981,20 +994,15 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			
 			if(turn<560 && turn>420){
 				
-				int nb = 2;
-				int max = 0;
+				int nb = 1;
 				
 				if(Math.random()>0.96){
 					nb = nb*2;
 				}
-				
-				if(turn>465){
-					nb = nb*2;
-					max = 5;
-				}
+
 				
 				for(int i=0;i<nb;i++){
-					addBee(Math.max(5, (int)((14+max)*Math.random())),1);
+					addBee(Math.max(10, (int)((20)*Math.random())),1);
 				}
 				
 			}
@@ -1267,6 +1275,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		int endY = beeRect.y + LEAF_END_OFFSET.height;
 		
 		AnimPosition leaf = new AnimPosition(startX, startY);
+		leaf.buff = source.buff;
 		leaf.animateTo(endX, endY, (int) (LEAF_SPEED * FPS));
 		leaf.color = LEAF_COLORS.get(source.getClass().getName());
 
@@ -1286,6 +1295,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 		AnimPosition leaf = new AnimPosition(startX, startY);
 		leaf.animateTo(endX, endY, (int) (LEAF_SPEED * FPS));
+		leaf.buff = source.buff;
 		leaf.color = LEAF_COLORS.get(source.getClass().getName());
 
 		leaves.add(leaf);
@@ -1529,7 +1539,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			int mx = (int)(Math.cos((float)counter/(20+bee.randomDecalage))*5);
 			int my = (int)(Math.cos((float)counter/(20+bee.randomDecalage))*10)+5;
 			
-			if(!bee.invisible){
+			if(!bee.invisible && image != null){
 				
 				if(flip){
 					g2d.drawImage(image,
@@ -1570,7 +1580,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private void drawLeaves (Graphics2D g2d) {
 		for (AnimPosition leafPos : leaves) {
 			double angle = leafPos.framesLeft * Math.PI / 8; // spin PI/8 per frame (magic variable)
-			Shape leaf = leafShape((int) leafPos.x, (int) leafPos.y, angle, LEAF_SIZE);
+			Shape leaf;
+			if(!leafPos.buff){
+				leaf = leafShape((int) leafPos.x, (int) leafPos.y, angle, LEAF_SIZE);
+			}else{
+				leaf = leafShape((int) leafPos.x, (int) leafPos.y, angle, LEAF_SIZE_BUFF);
+			}
 			g2d.setColor(leafPos.color);
 			g2d.fill(leaf);
 		}
@@ -1943,7 +1958,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		private double dx, dy; // amount to move each frame (double precision)
 		private int framesLeft; // frames left in animation
 		private Color color; // color of thing we're animating (if relevant)
-
+		public boolean buff = false;
 		/**
 		 * Creates a new AnimPosition at the given coordinates
 		 *

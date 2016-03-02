@@ -14,11 +14,11 @@ public class FireAnt extends Ant {
 	public FireAnt(){
 		super(1);
 		this.foodCost = 6;
-		this.damage = 6;
+		this.damage = 25;
 		level = 5; // Disponible au bout de 250 tours
 
 		this.name = "Fire Ant";
-		this.description = "This poor ant explode one dead.\n -6 to insects on the same place.\n(Let it alive ! It's too young to die !)";
+		this.description = "This poor ant explode one dead.\n -25 to insects on the same place.\n(Let it live ! It's too young to die !)";
 	}
 	@Override
 	public void action(AntColony colony) {

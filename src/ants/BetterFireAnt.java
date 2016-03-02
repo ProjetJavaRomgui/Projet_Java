@@ -46,7 +46,9 @@ public class BetterFireAnt extends Ant {
 			//Incects near loose 50% of their life
 			for(Ant ant: place.parent.getAllAnts()){
 				if(Math.abs(ant.getPlace().tunnel-place.tunnel)<=1 && Math.abs(ant.getPlace().left-place.left)<=1){
-					ant.armor += -ant.initArmor/2;
+					if(!(ant instanceof QueenAnt)){
+						ant.armor += -ant.initArmor/2;
+					}
 				}
 			}
 			for(Bee bee: place.parent.getAllBees()){
