@@ -54,20 +54,20 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	/**
 	 *
 	 */
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	private static final long serialVersionUID = 1L;
 	// game models
 	private AntColony colony;
 	private Hive hive;
-	private static final String ANT_FILE = "antlist.properties";
+	private static final String ANT_FILE = "assets/antlist.properties";
 	private static final String ANT_PKG = "ants";
 
 	// game clock & speed
 	public static final int FPS = 30; // target frames per second
 	public static final int TURN_SECONDS = 1; // seconds per turn
 	public static final double LEAF_SPEED = .3; // in seconds
-	private int turn; // current game turn
+	private static int turn; // current game turn
 	private int frame; // time elapsed since last turn
 	private int counter;
 	private int counterExt;
@@ -111,6 +111,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image BLOOD2 = ImageUtils.loadImage("assets/imgs/blood2.png");
 	private final Image BLOOD5 = ImageUtils.loadImage("assets/imgs/blood5.png");
 	private final Image TOMB = ImageUtils.loadImage("assets/imgs/tomb.png");
+	private final Image LASER_IMG = ImageUtils.loadImage("assets/imgs/laser.png");
 
 	private final Font TITLE = new Font("Helvetica", Font.BOLD, 20);
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
@@ -151,6 +152,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static Audio Sou_delete = new Audio("delete.wav");
 	public static Audio Sou_explosion = new Audio("explosion.wav");
 	public static Audio Sou_leaf = new Audio("throw.wav");
+	public static Audio Sou_nleaf = new Audio("laser.wav");
 	public static Audio Sou_slap = new Audio("slap.wav");
 	public static Audio[] add = new Audio[4];
 
@@ -239,7 +241,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 		// Get record
 		try {
-			Scanner sc = new Scanner(new File("stats.propert"));
+			Scanner sc = new Scanner(new File("assets/stats.propert"));
 			while (sc.hasNextLine()) {
 				String line = sc.nextLine();
 				XP_RECORD = (int) Float.parseFloat(line);
@@ -249,7 +251,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			System.out.println("No stat file, creating it...");
 			try {
 
-				File file = new File("stats.propert");
+				File file = new File("assets/stats.propert");
 
 				if (file.createNewFile()) {
 					System.out.println("File was created!");
@@ -315,10 +317,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		turn = 0;
 
 		// DEBUG
-		/*
-		 * turn = 600; minTunnel = 0; maxTunnel = 4;
-		 * colony.increaseFood(7328192);
-		 */
+		if(DEBUG){
+			turn = 600; minTunnel = 0; maxTunnel = 4;
+			colony.increaseFood(7328192);
+		}
 
 		clock = new Timer(1000 / FPS, this);
 
@@ -360,6 +362,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	}
 
+	/*
 	private void restartGame() {
 		colony = null;
 		colony = new AntColony(5, 8, 2, 20, 10, 1); // specify the colony
@@ -432,7 +435,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		initializeColony();
 
 	}
-
+	*/
+	
 	// Return smooth animation position a, position b, temps actuel, duree
 	public float smooth(int a, int t, int d) {
 		if (t < d / 2) {
@@ -556,12 +560,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		if (FIN) {
 			if ((int) (counterExt / FPS) % 2 == 0) {
 				g2d.setFont(TITLE);
-				if (counter / FPS < Integer.parseInt(stats[0]) + 5) {
+				//if (counter / FPS < Integer.parseInt(stats[0]) + 5) {
 					drawLongText("Game over !", FRAME_SIZE.width / 2 - 65, FRAME_SIZE.height / 2 - 90, g2d);
-				} else {
+				/*} else {
 					drawLongText("Click anywhere to play again !", FRAME_SIZE.width / 2 - 165,
 							FRAME_SIZE.height / 2 - 90, g2d);
-				}
+				}*/
 			}
 
 			if (counter / FPS > Integer.parseInt(stats[0]) + 1) {
@@ -634,7 +638,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	public static void addXP(int howmany) {
 		if (!FIN) {
-			XP += Math.max(0, howmany);
+			XP += Math.max(0, (int)(howmany*((float)turn/50+1)));
 		}
 	}
 
@@ -702,7 +706,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					}
 
 					// Ajouter une vie !
-					if (turn % 100 == 0) {
+					if (turn % 100 == 0 && turn>99) {
 						colony.life++;
 					}
 
@@ -884,12 +888,16 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 							}
 						}
 						if (ant instanceof NinjaThrowerAnt) {
-							createNinjaLeaf(ant);
-							addXP(2);
+							if(ant.getPlace().getClosestBee(0, 8) != null){
+								createNinjaLeaf(ant);
+								ant.lastAttack = 0;
+								addXP(2);
+							}
+						}else{
+							ant.lastAttack = 0;
 						}
 						ant.action(colony); // take the action (actually
 											// completes the throw now)
-						ant.lastAttack = 0;
 					}
 
 					ant.lastAttacked++;
@@ -941,7 +949,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 				// Ecrire le nouveau record si il y en a !
 				if (XP > XP_RECORD) {
-					File record = new File("stats.propert");
+					File record = new File("assets/stats.propert");
 					FileOutputStream fooStream;
 					try {
 						fooStream = new FileOutputStream(record, false);
@@ -1189,12 +1197,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private synchronized void handleClick(MouseEvent e) {
 		Point pt = e.getPoint();
 
-		if (FIN) {
+		/*if (FIN) {
 			if (counter / FPS > Integer.parseInt(stats[0]) + 2) {
 				restartGame();
 			}
 		}
-
+		*/
+		
 		if (pt.getX() < 100 && pt.getY() > FRAME_SIZE.getHeight() - 100) {
 			Sou_select.play();
 			PAUSE = !PAUSE;
@@ -1411,20 +1420,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	// Note that really only cares about the target's Place (Ant can target
 	// other Bees in same Place)
 	private void createNinjaLeaf(Ant source) {
-		Sou_leaf.play();
+		
+		Sou_nleaf.play();
 
-		Rectangle antRect = colonyRects.get(source.getPlace());
-		int startX = antRect.x + LEAF_START_OFFSET.width;
-		int startY = antRect.y + LEAF_START_OFFSET.height;
-		int endX = FRAME_SIZE.width + 200;
-		int endY = startY;
-
-		AnimPosition leaf = new AnimPosition(startX, startY);
-		leaf.animateTo(endX, endY, (int) (LEAF_SPEED * FPS));
-		leaf.buff = source.buff;
-		leaf.color = LEAF_COLORS.get(source.getClass().getName());
-
-		leaves.add(leaf);
 	}
 
 	private void drawLongText(String str, int x, int y, Graphics2D g2d) {
@@ -1561,6 +1559,17 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				int total_life_start = 0;
 				Ant ant = place.getAnt();
 				if (ant != null) { // draw the ant if we have one
+					
+					int h;
+					//Afficher le laser arrière
+					if(ant instanceof NinjaThrowerAnt){
+						if(ant.lastAttack<10){
+							h = (10-ant.lastAttack)*3;
+							g2d.drawImage(LASER_IMG,rect.x+55, rect.y+40-(int)(3*Math.cos((float) (counter + ant.randomDecalage * 10) * 4f / FPS))-h/2, 1000, h, getParent());
+						}
+					}
+					
+					
 					Image img;
 					if (ant.buff) {
 						img = ANT_IMAGES.get(ant.getClass().getName() + "buffed");
@@ -1587,6 +1596,16 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					if (ant.lastAttacked < FPS / 4) {
 						Sou_slap.play();
 					}
+					
+					
+					//Afficher le laser avant
+					if(ant instanceof NinjaThrowerAnt){
+						if(ant.lastAttack<10){
+							h = (10-ant.lastAttack)*3;
+							g2d.drawImage(LASER_IMG,rect.x+55, rect.y+48-(int)(3*Math.cos((float) (counter + ant.randomDecalage * 10) * 4f / FPS))-h/2, 1000, h, getParent());
+						}
+					}
+					
 				}
 
 				int barsize = Math.min(60, Math.max(total_life_start * 5, 15));
@@ -1916,7 +1935,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					entry.getKey().x += 80 - mini;
 				}
 
-			} else if (max <= 620) {
+			} else if (max <= 600) {
 
 				for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
 					entry.getKey().x += 620 - max;
@@ -2065,7 +2084,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 																				// selector
 			Ant ant = buildAnt(antType); // the ant that gets deployed from that
 											// selector
-			if (ant != null) {
+			if (ant != null && ant.level <= LEVEL || DEBUG) {
 				ANTSDISCOVERED++;
 			}
 			if (ant != null && !(ant instanceof QueenAnt && HASQUEEN)) {

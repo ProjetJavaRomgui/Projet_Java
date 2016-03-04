@@ -37,7 +37,7 @@ public class NinjaThrowerAnt extends Ant {
 	@Override
 	public void action (AntColony colony) {
 		for(Bee target: colony.getAllBees()){
-			if (target.getPlace().left>=place.left && target.getPlace().tunnel==place.tunnel &&  target != null) {
+			if (target.getPlace().left>=place.left && target.getPlace().tunnel==place.tunnel &&  target != null && target.getPlace() != null && target.getPlace().left < 8) {
 				target.reduceArmor(getDamage());
 			}
 		}
