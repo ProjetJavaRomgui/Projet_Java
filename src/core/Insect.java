@@ -17,7 +17,7 @@ public abstract class Insect {
 	public String name = "Thing";
 	public String description = "This is an insect, obvious.";
 	public boolean invisible = false;
-	public int damage = 1;
+	public int damage = 0;
 	int randomDecalage = (int)(10-Math.random()*20);
 
 	/**

@@ -484,6 +484,8 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			g2d.drawString("XP: " + String.format("%,d", XP), FRAME_SIZE.width - 160, 40);
 			g2d.drawString("Best: " + String.format("%,d", Math.max(XP, XP_RECORD)), FRAME_SIZE.width - 150, 69);
 
+			g2d.drawString("Time: " + String.format("%,d", turn), FRAME_SIZE.width - 80, 100);
+
 		} else {
 
 			g2d.drawImage(START, FRAME_SIZE.width / 2 - 300 + mov / 3, 100, null);
@@ -667,6 +669,10 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				music.gain(-40);
 				music.loop(true);
 			}
+			
+			try{
+				
+
 			if (STARTED == 0) {
 
 				// Fondu des musiques
@@ -975,10 +981,16 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					stats[3] = String.format("%,d", FOODCREATED) + "";
 					stats[4] = String.format("%,d", DEADANT) + " ant(s)";
 					stats[5] = String.format("%,d", DEADBEES) + " bee(s)";
-					stats[6] = "" + ANTSDISCOVERED + "/16";
+					stats[6] = "" + ANTSDISCOVERED + "/17";
 				}
 
 			}
+			
+			
+			}catch(Exception e){
+				System.out.println("ERREUR : "+e);
+			}
+			
 		}
 
 		this.repaint(); // request an update per frame!
@@ -1462,7 +1474,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			Rectangle rect = new Rectangle();
 			rect.setBounds((int) entry.getValue().x, (int) entry.getValue().y, 60, 60);
 
-			if (rect.contains(mouseX, mouseY)) {
+			if (rect.contains(mouseX, mouseY) && !found) {
 
 				g2d.setFont(FONT);
 				drawLongText(entry.getKey().name, mouseX + 3, mouseY + 3, g2d);
@@ -1493,8 +1505,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 								+ "\"", mouseX + 3, mouseY + 3, g2d);
 						g2d.setFont(LITTLE);
 						drawLongText("This ant have "
-								+ (entry.getValue().getAnt().armor * 100 / entry.getValue().getAnt().initArmor)
-								+ "% left", mouseX + 3, mouseY + 3 + 20, g2d);
+								+ (entry.getValue().getAnt().armor)
+								+ "pv", mouseX + 3, mouseY + 3 + 20, g2d);
+						if(entry.getValue().getAnt().damage>0){
+							drawLongText("It makes "
+								+ (entry.getValue().getAnt().damage)
+								+ " damages per attack", mouseX + 3, mouseY + 3 + 35, g2d);
+						}
 					}
 				}
 
@@ -1565,6 +1582,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					if(ant instanceof NinjaThrowerAnt){
 						if(ant.lastAttack<10){
 							h = (10-ant.lastAttack)*3;
+							if(ant.buff){
+								h = h*3;
+							}
 							g2d.drawImage(LASER_IMG,rect.x+55, rect.y+40-(int)(3*Math.cos((float) (counter + ant.randomDecalage * 10) * 4f / FPS))-h/2, 1000, h, getParent());
 						}
 					}
@@ -1602,6 +1622,9 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					if(ant instanceof NinjaThrowerAnt){
 						if(ant.lastAttack<10){
 							h = (10-ant.lastAttack)*3;
+							if(ant.buff){
+								h = h*3;
+							}
 							g2d.drawImage(LASER_IMG,rect.x+55, rect.y+48-(int)(3*Math.cos((float) (counter + ant.randomDecalage * 10) * 4f / FPS))-h/2, 1000, h, getParent());
 						}
 					}
@@ -1935,7 +1958,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					entry.getKey().x += 80 - mini;
 				}
 
-			} else if (max <= 600) {
+			} else if (max <= 620) {
 
 				for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
 					entry.getKey().x += 620 - max;

@@ -10,6 +10,7 @@ import core.AntColony;
  */
 public class WallAnt extends Ant {
 	
+	private boolean oldBuff = false;
 	/** 
 	 * Create a new WallAnt
 	 */
@@ -27,6 +28,14 @@ public class WallAnt extends Ant {
 	@Override
 	public void action(AntColony colony) {
 		// TODO Auto-generated method stub
-		
+		if(buff && !oldBuff){
+			this.armor = this.armor*3;
+			this.initArmor = this.initArmor*3;
+		}
+		if(!buff && oldBuff){
+			this.initArmor = this.initArmor/3;
+			this.armor = this.armor/3+1;
+		}
+		oldBuff = buff;
 	}
 }

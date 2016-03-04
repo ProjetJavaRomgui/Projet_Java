@@ -26,6 +26,16 @@ public class Bee extends Insect {
 		waterSafe = true ;
 		
 		this.level = armor/5;
+		
+		if(level==0){
+			this.name = "Basic Bee";
+		}else if(level==1){
+			this.name = "Normal Bee";
+		}else if(level == 2){
+			this.name = "Police Bee";
+		}else if(level == 3){
+			this.name = "Diabolic Bee";
+		}
 	}
 
 	/**
@@ -79,6 +89,9 @@ public class Bee extends Insect {
 	 */
 	@Override
 	public void action (AntColony colony) {
+		
+		this.description = "This bee has "+this.armor+"pv";
+		
 		if(stun <= 0){
 			if(slow > 0){
 				slowCount = (slowCount+1)%3;
