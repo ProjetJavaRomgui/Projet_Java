@@ -19,6 +19,7 @@ public class NinjaThrowerAnt extends Ant {
 	public NinjaThrowerAnt () {
 		super(1);
 		this.foodCost = 150;
+		this.damage = 5;
 		level = 8; // Disponible au bout de 400 tours
 		this.name = "TantK";
 		this.description = "This is a result of some colony's military experiments,\n this ant can target every bees in the same line of it.\n In the same time.";

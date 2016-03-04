@@ -7,7 +7,7 @@ public class ShortThrowerAnt extends ThrowerAnt {
 	public ShortThrowerAnt(){
 		super(1);
 		this.foodCost=10;
-		this.damage=2;
+		this.damage=3;
 		this.level=3; //disponible au bout de 150 tours
 		this.name = "Short Thrower Ant";
 		this.description = "Like the Thrower Ant.\nThis ant can only cover 2 places but make more damages.";

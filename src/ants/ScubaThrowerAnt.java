@@ -12,7 +12,7 @@ public class ScubaThrowerAnt extends ThrowerAnt {
 		waterSafe = true ;
 		level = 2; // Disponible au bout de 100 tours
 
-		
+		this.damage = 1;
 		this.name = "Scuba Thrower Ant";
 		this.description = "The first amphibious thrower ant !\nInvented by Jules VernAnt, a scientist of the colony.";
 	}

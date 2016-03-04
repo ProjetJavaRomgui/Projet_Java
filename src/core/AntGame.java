@@ -54,7 +54,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	/**
 	 *
 	 */
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	private static final long serialVersionUID = 1L;
 	// game models

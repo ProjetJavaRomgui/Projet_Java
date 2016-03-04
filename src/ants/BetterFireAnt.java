@@ -11,9 +11,9 @@ import core.Insect;
  * @author YOUR NAME HERE
  */
 public class BetterFireAnt extends Ant {
-	public int damage = 10;
 	public BetterFireAnt(){
 		super(1);
+		this.damage = 1000;
 		this.foodCost = 60;
 		level = 8; // Disponible au bout de 400 tours
 

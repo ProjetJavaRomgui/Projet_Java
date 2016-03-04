@@ -13,10 +13,10 @@ import core.Bee;
 public class NinjaAnt extends Ant {
 	public NinjaAnt() {
 		super(1);
-		this.foodCost = 5;
+		this.foodCost = 40;
 		this.blocking=false;
 		level = 4; // Disponible au bout de 200 tours
-
+		this.damage = 2;
 		this.name = "Ninja Ant";
 		this.description = "Bees are stupid,\nthey don't see Ninja ants because their have a ninja costume !";
 	}
