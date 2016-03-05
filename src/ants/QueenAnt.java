@@ -4,6 +4,7 @@ public class QueenAnt extends ScubaThrowerAnt {
 	
 	public QueenAnt() {
 		super(6);
+		this.landSafe = true;
 		this.armor = 10;
 		this.initArmor = 10;
 		this.damage = 5;

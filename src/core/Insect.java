@@ -5,7 +5,7 @@ package core;
  *
  */
 public abstract class Insect {
-
+	public boolean landSafe = true;
 	public int armor; // insect's current armor
 	public int initArmor;
 	protected Place place; // insect's current location

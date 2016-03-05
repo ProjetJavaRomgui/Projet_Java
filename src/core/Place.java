@@ -138,7 +138,11 @@ public class Place {
 			if(this instanceof Water && ant.getWaterSafe() == false){
 				System.out.println("Can't place this ant on Water"); // report error
 				return false;
-			} else {
+			} else if(this instanceof Water && ant.getWaterSafe()){
+				this.ant = ant;
+				ant.setPlace(this);
+				return true;
+			} else if(ant.getLandSafe()){
 				if(!ant.isContener()){
 					this.ant = ant;
 					ant.setPlace(this);
@@ -148,6 +152,9 @@ public class Place {
 					ant.setPlace(this);
 					return true;
 				}
+			} else {
+				System.out.println("Can't place this and on Land"); // report error
+				return false;
 			}
 		}
 		else if(ant.isContener() && Containing.canAddContener(this)){
