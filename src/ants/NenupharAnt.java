@@ -9,9 +9,9 @@ public class NenupharAnt extends Ant{
 		super(1);
 		waterSafe = true;
 		blocking = false;
-		level = 0;
+		level = 10;
 		damage = 0;
-		foodCost = 1;
+		foodCost = 200;
 		name = "Water Lily";
 		description = "A Water Lily, one ant should be light enough to stand on it";
 		landSafe = false;

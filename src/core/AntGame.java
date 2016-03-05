@@ -618,7 +618,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					stats[3] = String.format("%,d", FOODCREATED) + "";
 					stats[4] = String.format("%,d", DEADANT) + " ant(s)";
 					stats[5] = String.format("%,d", DEADBEES) + " bee(s)";
-					stats[6] = "" + ANTSDISCOVERED + "/17";
+					stats[6] = "" + ANTSDISCOVERED + "/18";
 				}
 
 			}
