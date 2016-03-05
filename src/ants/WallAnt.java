@@ -6,7 +6,6 @@ import core.AntColony;
 /**
  * An ant who block the way of the bees with his mighty body 
  *
- * @author YOUR NAME HERE
  */
 public class WallAnt extends Ant {
 	

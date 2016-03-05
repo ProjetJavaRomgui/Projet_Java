@@ -7,7 +7,6 @@ import core.Bee;
 /**
  * This ant is on fiiiiire
  *
- * @author YOUR NAME HERE
  */
 public class FireAnt extends Ant {
 	public FireAnt(){

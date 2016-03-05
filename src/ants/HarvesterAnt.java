@@ -8,7 +8,6 @@ import core.AntColony;
 /**
  * An Ant that harvests food
  *
- * @author YOUR NAME HERE
  */
 public class HarvesterAnt extends Ant {
 

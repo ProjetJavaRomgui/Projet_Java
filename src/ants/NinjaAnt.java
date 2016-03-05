@@ -7,7 +7,6 @@ import core.Bee;
 /**
  * An invisible ant, will you be able to see it ? 
  *
- * @author YOUR NAME HERE
  */
 
 public class NinjaAnt extends Ant {

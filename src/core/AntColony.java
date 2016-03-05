@@ -5,8 +5,6 @@ import java.util.ArrayList;
 /**
  * An entire colony of ants and their tunnels.
  *
- * @author Joel
- * @version Fall 2014
  */
 public class AntColony {
 
@@ -32,7 +30,7 @@ public class AntColony {
 	 * @param startingFood
 	 *            The starting food for this colony.
 	 */
-	public AntColony (int numTunnels, int tunnelLength, int moatFrequency, int startingFood, int life, int difficulty) {
+	public AntColony (int startingFood, int life, int difficulty) {
 		// simulation values
 		
 		int lineWater = 0;
@@ -43,20 +41,12 @@ public class AntColony {
 		places = new ArrayList<Place>();
 		beeEntrances = new ArrayList<Place>();
 		queenPlace = new QueenPlace(QUEEN_NAME, this); // magic variable namexw
-		tunnelLength = Math.min(tunnelLength, MAX_TUNNEL_LENGTH)+1; // don't go off the screen!
+		int tunnelLength = Math.min(8, MAX_TUNNEL_LENGTH)+1; // don't go off the screen!
 		// set up tunnels, as a kind of linked-list
 		Place curr, prev; // reference to current exit of the tunnel
-		for (int tunnel = 0; tunnel < numTunnels; tunnel++) {
+		for (int tunnel = 0; tunnel < 5; tunnel++) {
 			curr = queenPlace; // start the tunnel's at the queen
-			if (moatFrequency == 0){
-				for (int step = 0; step < tunnelLength; step++) {
-					prev = curr; // keep track of the previous guy (who we will exit to)
-					curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev, tunnel, step, this); // create new place with an exit that is the previous spot
-
-					prev.setEntrance(curr); // the previous person's entrance is the new spot
-					places.add(curr); // add new place to the list
-				}
-			} else {
+			
 				
 				lineWater = 0;
 
@@ -67,7 +57,7 @@ public class AntColony {
 				for (int step = 0; step < tunnelLength+1; step++) {
 					
 					prev = curr; // keep track of the previous guy (who we will exit to)
-					if (Math.random()<1-(float)difficulty/10 || lineWater>=tunnelLength*(float)difficulty/10+1 || step>=numTunnels-1){
+					if (Math.random()<1-(float)difficulty/10 || lineWater>=tunnelLength*(float)difficulty/10+1 || step>=5-1){
 						curr = new Place("tunnel[" + tunnel + "-" + step + "]", prev, tunnel, step, this); // create new place with an exit that is the previous spot
 					} else {
 						curr = new Water("water[" + tunnel + "-" + step + "]", prev, tunnel, step, this);
@@ -76,7 +66,7 @@ public class AntColony {
 					prev.setEntrance(curr); // the previous person's entrance is the new spot
 					places.add(curr); // add new place to the list
 				}
-			}
+			
 			beeEntrances.add(curr); // current place is last item in the tunnel, so mark that it is a bee entrance
 		} // loop to next tunnel
 

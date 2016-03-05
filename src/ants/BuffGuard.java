@@ -5,7 +5,7 @@ import core.AntColony;
 import core.Bee;
 
 /** 
-* An ant-shield for ant. So brave
+* An ant-shield-buff for ant. So brave
 *
 */
 

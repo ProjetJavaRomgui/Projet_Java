@@ -8,7 +8,6 @@ import core.Insect;
 /**
  * This ant is on fiiiiire
  *
- * @author YOUR NAME HERE
  */
 public class BetterFireAnt extends Ant {
 	public BetterFireAnt(){

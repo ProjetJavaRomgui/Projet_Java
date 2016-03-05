@@ -7,8 +7,6 @@ import java.util.Map;
 /**
  * Represents a hive--which contains the bees that will attack!
  *
- * @author Joel
- * @version Fall 2014
  */
 public class Hive extends Place {
 

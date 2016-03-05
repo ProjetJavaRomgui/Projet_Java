@@ -3,8 +3,6 @@ package core;
 /**
  * Represents an insect (e.g., an Ant or a Bee) in the game
  *
- * @author Joel
- * @version Fall 2014
  */
 public abstract class Insect {
 

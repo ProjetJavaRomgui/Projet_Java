@@ -3,7 +3,6 @@ package core;
 /**
  * A class representing a basic Ant
  *
- * @author YOUR NAME HERE
  */
 public abstract class Ant extends Insect {
 

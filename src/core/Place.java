@@ -3,10 +3,9 @@ package core;
 import java.util.ArrayList;
 import core.Containing;
 /**
- * Represents a location in the game
+ * Represents a location in the game with entrance
+ * left and tunnel for x,y position
  *
- * @author Joel
- * @version Fall 2014
  */
 public class Place {
 

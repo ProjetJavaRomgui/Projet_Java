@@ -7,7 +7,6 @@ import core.Bee;
 /**
  * An Ant that eat bees (it must stings :/ ) 
  *
- * @author YOUR NAME HERE
  */
 
 public class HungryAnt extends Ant {

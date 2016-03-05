@@ -2,6 +2,10 @@ package core;
 
 import java.util.Arrays;
 
+/**
+ * Special place for Queen
+ *
+ */
 public class QueenPlace extends Place {
 	public static Place queenPosition = null;
 	public QueenPlace(String name, Place exit, int tunnel, int left, AntColony parent) {

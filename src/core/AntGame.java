@@ -1,5 +1,6 @@
 package core;
 
+//Importations
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -39,23 +40,28 @@ import core.Ant;
 import ants.NinjaThrowerAnt;
 import ants.QueenAnt;
 import ants.ThrowerAnt;
+import system.AnimPosition;
 import system.Audio;
+import system.ImageUtils;
 
 /**
  * A class that controls the graphical game of Ants vs. Some-Bees. Game
  * simulation system and GUI interaction are intermixed.
  *
- * @author Joel
- * @version Fa2014
+ * @author Mollard Romaric & Ruchot Guillaume on the Joel work
+ * @version 2016
  */
 @SuppressWarnings("serial")
 public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	/**
 	 *
+	 *	Variables
+	 *
 	 */
-	private static final boolean DEBUG = false;
-
+	private static final boolean DEBUG = false; // True to activate DEBUG mode, with all ants and directly on turn 600
+	
+	
 	private static final long serialVersionUID = 1L;
 	// game models
 	private AntColony colony;
@@ -63,25 +69,22 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private static final String ANT_FILE = "assets/antlist.properties";
 	private static final String ANT_PKG = "ants";
 
-	// game clock & speed
+	// game clocks & speed
 	public static final int FPS = 30; // target frames per second
 	public static final int TURN_SECONDS = 1; // seconds per turn
 	public static final double LEAF_SPEED = .3; // in seconds
-	private static int turn; // current game turn
+	public static int turn; // current game turn
 	private int frame; // time elapsed since last turn
-	private int counter;
-	private int counterExt;
-	private Timer clock;
-	private int STARTTIME = 10; // Set to 10
+	private int counter; // Sum of all frame counts (never set to 0)
+	private int counterExt; // Same as counter but do not stop on pause
+	private Timer clock; // Game clock
+	private int STARTTIME = 10; // Set to 10, intro duration
 	private int STARTED = FPS * STARTTIME;
-	private boolean DEAD = false;
 
 	// ant properties (laoded from external files, stored as member variables)
 	private final ArrayList<String> ANT_TYPES;
-	private final Map<String, Image> ANT_IMAGES;// = new
-												// HashMap<String,Image>();
-	private final Map<String, Color> LEAF_COLORS;// = new HashMap<String,
-													// Color>();
+	private final Map<String, Image> ANT_IMAGES;// = new HashMap<String,Image>();
+	private final Map<String, Color> LEAF_COLORS;// = new HashMap<String, Color>();
 
 	// other images (stored as member variables)
 	private final Image TUNNEL_IMAGE = ImageUtils.loadImage("assets/imgs/tunnel.gif");
@@ -113,24 +116,19 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image TOMB = ImageUtils.loadImage("assets/imgs/tomb.png");
 	private final Image LASER_IMG = ImageUtils.loadImage("assets/imgs/laser.png");
 
+	//Fonts
 	private final Font TITLE = new Font("Helvetica", Font.BOLD, 20);
 	private final Font FONT = new Font("Helvetica", Font.BOLD, 15);
 	private final Font LITTLE = new Font("Helvetica", Font.ITALIC, 15);
 	private final Font LITTLEMAP = new Font("Helvetica", Font.ITALIC, 10);
 
-	public String[] randomText = "Hey !|Hello ?|I don't want to die !|Help me !|Who are you ?|Did you see the marvel ManAnt ?|I am the doctor !|Where is my TARDIS ?|Potatoes.|You're making a big mistake !|I'll kill you !|Who am I ?|Wow it's dirty !"
+	//Random ants text (| separated)
+	private final String[] randomText = "Hey !|Hello ?|I don't want to die !|Help me !|Who are you ?|Did you see the marvel ManAnt ?|I am the doctor !|Where is my TARDIS ?|Potatoes.|You're making a big mistake !|I'll kill you !|Who am I ?|Wow it's dirty !"
 			.split("\\|");
+	
 	// positioning constants
 	public static final Dimension FRAME_SIZE = new Dimension(1024, 700);
-	public static final Dimension ANT_IMAGE_SIZE = new Dimension(66, 71); // assumed
-																			// size;
-																			// may
-																			// be
-																			// greater
-																			// than
-																			// actual
-																			// image
-																			// size
+	public static final Dimension ANT_IMAGE_SIZE = new Dimension(66, 71); // avrage size;
 	public static final int BEE_IMAGE_WIDTH = 58;
 	public static final Point PANEL_POS = new Point(20, 40);
 	public static final Dimension PANEL_PADDING = new Dimension(2, 4);
@@ -146,58 +144,56 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	public static final int LEAF_SIZE_BUFF = 50;
 
 	// Sounds
-	public static Audio food_earn = new Audio("food_earn.wav");
-	public static Audio Sou_select = new Audio("select.wav");
-	public static Audio Sou_place = new Audio("place.wav");
-	public static Audio Sou_delete = new Audio("delete.wav");
-	public static Audio Sou_explosion = new Audio("explosion.wav");
-	public static Audio Sou_leaf = new Audio("throw.wav");
-	public static Audio Sou_nleaf = new Audio("laser.wav");
-	public static Audio Sou_slap = new Audio("slap.wav");
-	public static Audio[] add = new Audio[4];
-
-	public Point[] Food = new Point[100];
-	public int LEVEL = 0;
-	public boolean PAUSE = false;
-	public static boolean FIN = false;
-	public int DOCLICK = 0;
-	public String[] stats = new String[10];
+	private static final Audio food_earn = new Audio("food_earn.wav");
+	private static final Audio Sou_select = new Audio("select.wav");
+	private static final Audio Sou_place = new Audio("place.wav");
+	private static final Audio Sou_delete = new Audio("delete.wav");
+	private static final Audio Sou_explosion = new Audio("explosion.wav");
+	private static final Audio Sou_leaf = new Audio("throw.wav");
+	private static final Audio Sou_nleaf = new Audio("laser.wav");
+	private static final Audio Sou_slap = new Audio("slap.wav");
+	private static final Audio[] add = new Audio[4];
+	//Musics
+	private static final Audio gameover = new Audio("gameover.wav");
+	private static final Audio title = new Audio("title.wav");
+	private static final Audio music = new Audio("music.wav");
 
 	// areas that can be clicked
-	private Map<Rectangle, Place> colonyAreas; // maps from a clickable area to
-												// a Place
-	private static Map<Place, Rectangle> colonyRects; // maps from a Place to
-														// its clickable
-														// rectangle (reverse
-														// lookup!)
-	private Map<Rectangle, Ant> antSelectorAreas; // maps from a clickable area
-													// to an Ant that can be
-													// deployed
+	private Map<Rectangle, Place> colonyAreas; // maps from a clickable area to a Place
+	private static Map<Place, Rectangle> colonyRects; // maps from a Place to its clickable rectangle (reverse lookup!)
+	private Map<Rectangle, Ant> antSelectorAreas; // maps from a clickable area to an Ant that can be deployed
 	private Rectangle removerArea; // click to remove an ant
-	private Place tunnelEnd; // a Place representing the end of the tunnels (for
-								// drawing)
+	private Place tunnelEnd; // a Place representing the end of the tunnels (for drawing)
 	private Ant selectedAnt; // which ant is currently selected
-
-	// Start with only one tunel, center one
-	public static int minTunnel = 2;
-	public static int maxTunnel = 2;
-
-	// variables tracking animations
-	private Map<Bee, AnimPosition> allBeePositions; // maps from Bee to an
-													// object storing animation
-													// status
-	private Map<Bee, PointValue> futureBees; // maps from Bee to an object
-												// storing animation status
+	
+	// variables tracking and handling animations
+	private Map<Bee, AnimPosition> allBeePositions; // maps from Bee to an object storing animation status
+	private Map<Bee, PointValue> futureBees; // maps from Bee to an object storing animation status
 	private ArrayList<AnimPosition> leaves; // leaves we're animating
 	public static PointValue[] explosions = new PointValue[100];
 	public static PointValue[] tombstone = new PointValue[1000];
+	
+	//Game vars
+	private Point[] Food = new Point[100];
+	private int LEVEL = 0;
+	private boolean PAUSE = false;
+	public static boolean FIN = false;
+	private int DOCLICK = 0; //To make intro faster, its set to 10 if click on start
+	private boolean DEAD = false; // If the game is loose
 
+	// Start with only one tunel, the center one
+	public static int minTunnel = 2;
+	public static int maxTunnel = 2;
+	
+	//Mouse and scroll vars
 	private int mouseX = 0;
 	private int mouseY = 0;
 	private boolean mousePressed = false;
 	private Point dragStart = new Point(0, 0);
 	private Point scrollPos = new Point(0, 0);
 
+	//Staztistics
+	private String[] stats = new String[10]; // Contain stats
 	public static int XP = 0;
 	public int FOODCREATED = 0;
 	public static int DEADANT = 0;
@@ -207,10 +203,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private int LASTLEVELCHANGE = 1000;
 	private int ANTSDISCOVERED = 0;
 
-	Audio gameover = new Audio("gameover.wav");
-	Audio title = new Audio("title.wav");
-	Audio music = new Audio("music.wav");
+	
+	
 
+	
+	
+	
+	
 	/**
 	 * Creates a new game of Ants vs. Some-Bees, with the given colony and hive
 	 * setup
@@ -221,70 +220,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 *            The hive (and attack plan) for the game
 	 */
 	public AntGame(AntColony colony) {
+		
+		//Initialize image and sounds
+		initializeVars(colony);
 
-		// Mise en place de la musique
-		title.play();
-		title.gain(-3);
-		title.loop(true);
-
-		// Sons
-		add[0] = new Audio("add1.wav");
-		add[1] = new Audio("add2.wav");
-		add[2] = new Audio("add3.wav");
-		add[3] = new Audio("add4.wav");
-		add[0].megain = -15f;
-		add[1].megain = -15f;
-		add[2].megain = -15f;
-		add[3].megain = -15f;
-
-		food_earn.megain = -15f;
-
-		// Get record
-		try {
-			Scanner sc = new Scanner(new File("assets/stats.propert"));
-			while (sc.hasNextLine()) {
-				String line = sc.nextLine();
-				XP_RECORD = (int) Float.parseFloat(line);
-			}
-			sc.close();
-		} catch (IOException e) {
-			System.out.println("No stat file, creating it...");
-			try {
-
-				File file = new File("assets/stats.propert");
-
-				if (file.createNewFile()) {
-					System.out.println("File was created!");
-				}
-
-			} catch (IOException e1) {
-				System.out.println(" /!\\ File not created !");
-			}
-		}
-
-		// Get Bees
-		for (int i = 0; i < 4; i++) {
-
-			BEE_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/bee_image.gif");
-			BEE_IMAGE2[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/bee_image2.gif");
-			BEEBAD_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/beebad_image.gif");
-			BEEATTACK_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/beeattack_image.gif");
-			BEESTUN_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/beestun_image.png");
-			BEESLOW_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/beeslow_image.gif");
-
-		}
-
-		// Get Bang
-		for (int i = 0; i < BANG.length; i++) {
-
-			BANG[i] = ImageUtils.loadImage("assets/imgs/bang/" + i + ".png");
-
-		}
-
-		for (int i = 0; i < EXPLOSION.length; i++) {
-			EXPLOSION[i] = ImageUtils.loadImage("assets/imgs/explosion/" + i + ".png");
-		}
-
+		//Initialize mouse listener
 		addMouseMotionListener(new MouseAdapter() {
 			public void mouseMoved(MouseEvent me) {
 				if (STARTED == 0) {
@@ -306,23 +246,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				}
 			}
 		});
-		// game init stuff
-		this.colony = colony;
-
-		this.hive = new Hive();
-
-		// game clock tracking
-		frame = 0;
-		counter = 0;
-		turn = 0;
-
-		// DEBUG
-		if(DEBUG){
-			turn = 600; minTunnel = 0; maxTunnel = 4;
-			colony.increaseFood(7328192);
-		}
-
-		clock = new Timer(1000 / FPS, this);
+		
 
 		// member ant property storage variables
 		ANT_TYPES = new ArrayList<String>();
@@ -334,6 +258,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		allBeePositions = new HashMap<Bee, AnimPosition>();
 		futureBees = new HashMap<Bee, PointValue>();
 		initializeBees();
+
 		leaves = new ArrayList<AnimPosition>();
 
 		// map clickable areas to what they refer to. Might be more efficient to
@@ -347,302 +272,14 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		// adding interaction
 		addMouseListener(this);
 
-		// basic appearance
-		setPreferredSize(FRAME_SIZE);
-		setBackground(Color.WHITE);
-
-		// make and show the frame!
-		JFrame frame = new JFrame("Ants vs SomeBees");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setResizable(false);
-		frame.add(this);
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+		//Make Window
+		makeWindow();
 
 	}
 
-	/*
-	private void restartGame() {
-		colony = null;
-		colony = new AntColony(5, 8, 2, 20, 10, 1); // specify the colony
-													// ]tunnels, length, moats,
-													// food, life, difficulty
-													// (1-10)]
 
-		// Initialisation des variables statiques
-		minTunnel = 2;
-		maxTunnel = 2;
-		DEADBEES = 0;
-		DEADANT = 0;
-		XP = 0;
-		FOODCREATED = 0;
-		STARTED = FPS * STARTTIME;
-		HASQUEEN = false;
-		FIN = false;
-		PAUSE = false;
-		counterExt = 0;
-		counter = 0;
-		DEAD = false;
-		turn = 0;
-		LEVEL = 0;
-		clock.restart();
-		DOCLICK = 0;
-
-		XP = 0;
-		FOODCREATED = 0;
-		DEADANT = 0;
-		DEADBEES = 0;
-		XP_RECORD = 0;
-		HASQUEEN = false;
-		LASTLEVELCHANGE = 1000;
-		ANTSDISCOVERED = 0;
-
-		LEVEL = 0;
-		PAUSE = false;
-		FIN = false;
-		DOCLICK = 0;
-
-		this.hive = new Hive();
-		ANTSDISCOVERED = 0;
-		tombstone = new PointValue[1000];
-
-		DOCLICK = 0;
-		// game clock tracking
-		frame = 0;
-		counter = 0;
-		turn = 0;
-		clock = new Timer(1000 / FPS, this);
-
-		gameover.pause();
-		title.play();
-		title.gain(-3);
-		title.loop(true);
-
-		LASTLEVELCHANGE = 1000;
-
-		// tracking bee animations
-		allBeePositions = new HashMap<Bee, AnimPosition>();
-		futureBees = new HashMap<Bee, PointValue>();
-		leaves = new ArrayList<AnimPosition>();
-
-		// map clickable areas to what they refer to. Might be more efficient to
-		// use separate components, but this keeps everything together
-		antSelectorAreas = new HashMap<Rectangle, Ant>();
-		colonyAreas = new HashMap<Rectangle, Place>();
-		colonyRects = new HashMap<Place, Rectangle>();
-		initializeAntSelector();
-		initializeColony();
-
-	}
-	*/
 	
-	// Return smooth animation position a, position b, temps actuel, duree
-	public float smooth(int a, int t, int d) {
-		if (t < d / 2) {
-			return (float) (a * Math.pow(((float) t / d) * 2, 2) / 2);
-		} else {
-			return (float) (a * (2 - Math.pow(((float) t / d) * 2 - 2, 2)) / 2);
-		}
-	}
 
-	@Override
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g); // take care of anything else
-		Graphics2D g2d = (Graphics2D) g;
-		g2d.clearRect(0, 0, FRAME_SIZE.width, FRAME_SIZE.height); // clear to
-																	// background
-																	// color
-
-		g2d.setFont(FONT);
-
-		int mov = (int) smooth(-(BACK.getWidth(getParent()) - FRAME_SIZE.width), (FPS * STARTTIME - STARTED),
-				FPS * STARTTIME);
-		int decalage = (BACK.getWidth(getParent()) - FRAME_SIZE.width) + mov;
-
-		g2d.drawImage(BACK, mov, 0, null); // draw a bee at that position!
-
-		g2d.drawImage(MENU, 0, -decalage / 6, null); // draw a bee at that
-														// position!
-
-		drawAntSelector(g2d, decalage / 6);
-
-		if (STARTED == 0) {
-
-			// text displays
-			String antString = "none";
-			if (selectedAnt != null) {
-				antString = selectedAnt.getClass().getName();
-				antString = antString.substring(0, antString.length() - 3); // remove
-																			// the
-																			// word
-																			// "ant"
-			}
-
-			g2d.drawString("Life: " + Math.max(colony.life, 0) + " Food: " + colony.getFood(), 18, 140);
-
-			g2d.drawString("XP: " + String.format("%,d", XP), FRAME_SIZE.width - 160, 40);
-			g2d.drawString("Best: " + String.format("%,d", Math.max(XP, XP_RECORD)), FRAME_SIZE.width - 150, 69);
-
-			g2d.drawString("Time: " + String.format("%,d", turn), FRAME_SIZE.width - 80, 100);
-
-		} else {
-
-			g2d.drawImage(START, FRAME_SIZE.width / 2 - 300 + mov / 3, 100, null);
-
-		}
-
-		drawTomb(g2d);
-		drawColony(g2d, decalage);
-		drawBees(g2d);
-		drawLeaves(g2d);
-
-		float angle = 0;
-		// Afficher la nourriture
-		for (int i = 0; i < Food.length; i++) {
-			if (Food[i] != null) {
-
-				angle = 3.1415f + (float) Math.atan((float) (Food[i].y) / (float) (Food[i].x));
-				Food[i].x = Food[i].x + (int) (6 * Math.cos(angle));
-				Food[i].y = Food[i].y + (int) (6 * Math.sin(angle));
-
-				if (Food[i].y < 160 - Math.random() * 20) {
-					Food[i] = null;
-					colony.increaseFood(1);
-					FOODCREATED++;
-					addXP(1);
-					food_earn.play();
-				} else {
-					g2d.drawImage(FOOD, Food[i].x, Food[i].y, null);
-				}
-			}
-		}
-
-		doExplosion(g2d);
-		if (!PAUSE && !FIN) {
-			drawHoverText(g2d);
-		}
-		if (!clock.isRunning()) { // start text
-
-			if (counter % 2 == 0) {
-				g2d.drawImage(STARTCLICK, FRAME_SIZE.width / 2 - 150, FRAME_SIZE.height - 200, null);
-			}
-
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			this.nextFrame();
-		}
-
-		if (colony.life <= 5) {
-			g2d.drawImage(BLOOD5, 0, 0, getParent());
-		}
-		if (colony.life <= 2) {
-			g2d.drawImage(BLOOD2, 0, 0, getParent());
-		}
-		float size = 1;
-		if (colony.lastAttacked <= 10) {
-			size = (float) (1f + colony.lastAttacked * 0.05);
-			g2d.drawImage(BLOOD, 0 - (int) ((size - 1) * FRAME_SIZE.width) / 2,
-					0 - (int) ((size - 1) * FRAME_SIZE.height) / 2, (int) (size * FRAME_SIZE.width),
-					(int) (size * FRAME_SIZE.height), getParent());
-		}
-		if (colony.lastAttacked == 1 && !FIN) {
-			addBigExplosion(0, FRAME_SIZE.height / 2 + 50, 100, 10);
-		}
-
-		if (PAUSE || FIN) {
-			g2d.drawImage(HOVERBLACK, 0, 0, FRAME_SIZE.width, FRAME_SIZE.height, getParent());
-		}
-
-		if (FIN) {
-			if ((int) (counterExt / FPS) % 2 == 0) {
-				g2d.setFont(TITLE);
-				//if (counter / FPS < Integer.parseInt(stats[0]) + 5) {
-					drawLongText("Game over !", FRAME_SIZE.width / 2 - 65, FRAME_SIZE.height / 2 - 90, g2d);
-				/*} else {
-					drawLongText("Click anywhere to play again !", FRAME_SIZE.width / 2 - 165,
-							FRAME_SIZE.height / 2 - 90, g2d);
-				}*/
-			}
-
-			if (counter / FPS > Integer.parseInt(stats[0]) + 1) {
-				g2d.setFont(LITTLE);
-				drawLongText("XP :", FRAME_SIZE.width / 2 - 40, FRAME_SIZE.height / 2 - 40, g2d);
-				g2d.setFont(FONT);
-				drawLongText(stats[1], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 - 40, g2d);
-			}
-
-			if (counter / FPS > Integer.parseInt(stats[0]) + 1) {
-				g2d.setFont(LITTLE);
-				drawLongText("Best :", FRAME_SIZE.width / 2 - 50, FRAME_SIZE.height / 2 - 20, g2d);
-				g2d.setFont(FONT);
-				drawLongText("" + stats[2], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 - 20, g2d);
-			}
-
-			if (counter / FPS > Integer.parseInt(stats[0]) + 2) {
-				g2d.setFont(LITTLE);
-				drawLongText("Total food created :", FRAME_SIZE.width / 2 - 138, FRAME_SIZE.height / 2, g2d);
-				g2d.setFont(FONT);
-				drawLongText("" + stats[3], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2, g2d);
-			}
-
-			if (counter / FPS > Integer.parseInt(stats[0]) + 2) {
-				g2d.setFont(LITTLE);
-				drawLongText("Dead ants :", FRAME_SIZE.width / 2 - 88, FRAME_SIZE.height / 2 + 20, g2d);
-				g2d.setFont(FONT);
-				drawLongText("" + stats[4], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 + 20, g2d);
-			}
-
-			if (counter / FPS > Integer.parseInt(stats[0]) + 2) {
-				g2d.setFont(LITTLE);
-				drawLongText("Killed bees :", FRAME_SIZE.width / 2 - 93, FRAME_SIZE.height / 2 + 40, g2d);
-				g2d.setFont(FONT);
-				drawLongText("" + stats[5], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 + 40, g2d);
-			}
-
-			if (counter / FPS > Integer.parseInt(stats[0]) + 3) {
-				g2d.setFont(LITTLE);
-				drawLongText("Total time :", FRAME_SIZE.width / 2 - 85, FRAME_SIZE.height / 2 + 70, g2d);
-				g2d.setFont(FONT);
-				drawLongText(stats[0] + " s", FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 + 70, g2d);
-			}
-
-			if (counter / FPS > Integer.parseInt(stats[0]) + 4) {
-				g2d.setFont(LITTLE);
-				drawLongText("Ants discovered :", FRAME_SIZE.width / 2 - 128, FRAME_SIZE.height / 2 + 100, g2d);
-				g2d.setFont(FONT);
-				drawLongText("" + stats[6], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 + 100, g2d);
-			}
-
-		}
-
-		if (FIN) {
-			return;
-		}
-		if (PAUSE) {
-			g2d.drawImage(PLAY_IMG, 25, FRAME_SIZE.height - 75, 50, 50, getParent());
-
-			if ((int) (counterExt / FPS) % 2 == 0) {
-				g2d.setFont(TITLE);
-				drawLongText("Pause", FRAME_SIZE.width / 2 - 30, FRAME_SIZE.height / 2 - 20, g2d);
-			}
-
-		} else {
-			g2d.drawImage(PAUSE_IMG, 25, FRAME_SIZE.height - 75, 50, 50, getParent());
-		}
-
-	}
-
-	public static void addXP(int howmany) {
-		if (!FIN) {
-			XP += Math.max(0, (int)(howmany*((float)turn/50+1)));
-		}
-	}
 
 	/**
 	 * Runs the actual game, processing what occurs on every frame of the game
@@ -677,7 +314,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 				// Fondu des musiques
 				if (counter % 4 == 0) {
-					if (title.gain() > -40) {
+					if (title.gain() > -70) {
 						title.gain(title.gain() - 1);
 					}
 					if (title.gain() < -10) {
@@ -689,7 +326,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				{
 					System.out.println("TURN: " + turn);
 
-					addXP(10);
+					system.Utils.addXP(10);
 
 					///////////////////
 					// Generation du jeu
@@ -730,7 +367,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 							}
 						}
 
-						addXP(1);
+						system.Utils.addXP(1);
 					}
 
 					int pos = 0;
@@ -805,13 +442,13 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 																								// dead
 																								// bee
 							if (entry.getKey().place.toString() != "AntQueen") {
-								pos.animateTo((int) (FRAME_SIZE.getWidth() + 200), (int) pos.y, FPS * TURN_SECONDS);
+								pos.animateTo((int) (FRAME_SIZE.getWidth() + 200), (int) pos.getY(), FPS * TURN_SECONDS);
 							} else {
-								pos.animateTo((int) (-200), (int) pos.y, FPS * TURN_SECONDS);
+								pos.animateTo((int) (-200), (int) pos.getY(), FPS * TURN_SECONDS);
 							}
 						}
 						if (entry.getKey().place == null) {
-							pos.animateTo((int) (FRAME_SIZE.getWidth() + 200), (int) pos.y, FPS * TURN_SECONDS);
+							pos.animateTo((int) (FRAME_SIZE.getWidth() + 200), (int) pos.getY(), FPS * TURN_SECONDS);
 						}
 					}
 				}
@@ -824,7 +461,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 																						// the
 																						// bees
 				{
-					if (entry.getValue().framesLeft > 0) {
+					if (entry.getValue().getFramesLeft() > 0) {
 						entry.getValue().step();
 					}
 					entry.getKey().lastAttacked++;
@@ -871,7 +508,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						}
 					}
 
-					if (ant.lastAttack > FPS + (int) ((0.5 - Math.random()) * FPS * 0.2)) {
+					if (!PAUSE && ant.lastAttack > FPS + (int) ((0.5 - Math.random()) * FPS * 0.2)) {
 						if (ant instanceof ThrowerAnt) // if we're a thrower,
 														// might need to make a
 														// leaf!
@@ -890,14 +527,14 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 																			// same)
 							if (target != null) {
 								createLeaf(ant, target);
-								addXP(1);
+								system.Utils.addXP(1);
 							}
 						}
 						if (ant instanceof NinjaThrowerAnt) {
 							if(ant.getPlace().getClosestBee(0, 8) != null){
-								createNinjaLeaf(ant);
+								Sou_nleaf.play();
 								ant.lastAttack = 0;
-								addXP(2);
+								system.Utils.addXP(2);
 							}
 						}else{
 							ant.lastAttack = 0;
@@ -922,7 +559,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				while (iter.hasNext()) { // iterator so we can remove when
 											// finished
 					AnimPosition leaf = iter.next();
-					if (leaf.framesLeft > 0) {
+					if (leaf.getFramesLeft() > 0) {
 						leaf.step();
 					} else {
 						iter.remove(); // remove the leaf if done animating
@@ -963,7 +600,6 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						fooStream.write(myBytes);
 						fooStream.close();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -996,7 +632,14 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		this.repaint(); // request an update per frame!
 
 	}
+	
+	
 
+	/**
+	 * 
+	 * Make waves function of game state (arcade)
+	 * 
+	 */
 	private void gestionJeu() {
 
 		// Ajout des abeilles
@@ -1120,19 +763,42 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 
 		// Ajout des tunnels
-		if (turn == 100) {
-			minTunnel = 1;
+		if (turn >= 100) {
+			minTunnel = Math.min(1,minTunnel);
 		}
-		if (turn == 150) {
-			maxTunnel = 3;
+		if (turn >= 150) {
+			maxTunnel = Math.max(3,maxTunnel);
 		}
-		if (turn == 250) {
-			minTunnel = 0;
+		if (turn >= 250) {
+			minTunnel = Math.min(0,minTunnel);
 		}
-		if (turn == 300) {
-			maxTunnel = 4;
+		if (turn >= 300) {
+			maxTunnel = Math.max(4,maxTunnel);
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	///////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////
+	/////////                                      ////////
+	/////////            GAME METHODS              ////////
+	/////////                                      ////////
+	///////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////
+	
+	
+	
+	
+
+	///////////////////////
+	// elements managers //
+	///////////////////////
 
 	private void addBee(int armor, int degatColony) {
 
@@ -1197,89 +863,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	}
 
-	//
-	/**
-	 * Handles clicking on the screen (used for selecting and deploying ants).
-	 * Synchronized method so we don't create conflicts in amount of food
-	 * remaining.
-	 *
-	 * @param e
-	 *            The mouse event representing the click
-	 */
-	private synchronized void handleClick(MouseEvent e) {
-		Point pt = e.getPoint();
-
-		/*if (FIN) {
-			if (counter / FPS > Integer.parseInt(stats[0]) + 2) {
-				restartGame();
-			}
-		}
-		*/
-		
-		if (pt.getX() < 100 && pt.getY() > FRAME_SIZE.getHeight() - 100) {
-			Sou_select.play();
-			PAUSE = !PAUSE;
-			return;
-		}
-		if (PAUSE) {
-			return;
-		}
-		// check if deploying an ant
-		for (Rectangle rect : colonyAreas.keySet()) {
-			if (rect.contains(pt) && colonyAreas.get(rect).left < 8) {
-				if (selectedAnt == null) {
-					if (colonyAreas.get(rect).getAnt() != null
-							&& !(colonyAreas.get(rect).getAnt() instanceof QueenAnt)) {
-						Sou_delete.play();
-						colony.increaseFood((colonyAreas.get(rect).getAnt().foodCost + 1) / 2);
-					}
-					colony.removeAnt(colonyAreas.get(rect));
-					return; // stop searching
-				} else {
-					if (colonyAreas.get(rect).tunnel < minTunnel || colonyAreas.get(rect).tunnel > maxTunnel) {
-						return;
-					}
-					if (colonyAreas.get(rect).getAnt() == null) {
-						Sou_place.play();
-						add[(int) (Math.random() * 4)].play();
-					}
-					Ant deployable = buildAnt(selectedAnt.getClass().getName()); // make
-																					// a
-																					// new
-																					// ant
-																					// of
-																					// the
-																					// appropriate
-																					// type
-					colony.deployAnt(colonyAreas.get(rect), deployable);
-
-					if (deployable instanceof QueenAnt) {
-						HASQUEEN = true;
-						initializeAntSelector();
-					}
-
-					return; // stop searching
-				}
-			}
-		}
-
-		// check if remover
-		if (removerArea.contains(pt)) {
-			Sou_select.play();
-			selectedAnt = null; // mark as such
-			return; // stop searching
-		}
-
-		// check if selecting an ant
-		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
-			if (entry.getKey().contains(pt)) {
-				Sou_select.play();
-				selectedAnt = entry.getValue();
-				return; // stop searching
-			}
-		}
-
-	}
+	
 
 	private void doExplosion(Graphics2D g2d) {
 
@@ -1391,18 +975,6 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 	}
 
-	private void drawTomb(Graphics2D g2d) {
-
-		for (int i = 0; i < tombstone.length; i++) {
-			if (tombstone[i] != null) {
-
-				g2d.drawImage(TOMB, tombstone[i].x, tombstone[i].y, null);
-
-			}
-		}
-
-	}
-
 	// Creates a new leaf (animated) from the Ant source to the Bee target.
 	// Note that really only cares about the target's Place (Ant can target
 	// other Bees in same Place)
@@ -1423,46 +995,239 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		AnimPosition leaf = new AnimPosition(startX, startY);
 		leaf.buff = source.buff;
 		leaf.animateTo(endX, endY, (int) (LEAF_SPEED * FPS));
-		leaf.color = LEAF_COLORS.get(source.getClass().getName());
+		leaf.setColor(LEAF_COLORS.get(source.getClass().getName()));
 
 		leaves.add(leaf);
 	}
+	
+	
 
-	// Creates a new leaf (animated) from the Ant source to the Bee target.
-	// Note that really only cares about the target's Place (Ant can target
-	// other Bees in same Place)
-	private void createNinjaLeaf(Ant source) {
-		
-		Sou_nleaf.play();
 
-	}
+	////////////////
+	// Drawers    //
+	////////////////
+	
+	
+	/**
+	 * Main drawer, call other draw methods
+	 */
+	@Override
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g); // take care of anything else
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.clearRect(0, 0, FRAME_SIZE.width, FRAME_SIZE.height); // clear to
+																	// background
+																	// color
 
-	private void drawLongText(String str, int x, int y, Graphics2D g2d) {
+		g2d.setFont(FONT);
 
-		int espace = 0;
+		int mov = (int) system.Utils.smooth(-(BACK.getWidth(getParent()) - FRAME_SIZE.width), (FPS * STARTTIME - STARTED),
+				FPS * STARTTIME);
+		int decalage = (BACK.getWidth(getParent()) - FRAME_SIZE.width) + mov;
 
-		for (String s : str.split("\n")) {
+		g2d.drawImage(BACK, mov, 0, null); // draw a bee at that position!
 
-			espace += g2d.getFont().getSize();
+		g2d.drawImage(MENU, 0, -decalage / 6, null); // draw a bee at that
+														// position!
 
-			g2d.setColor(Color.BLACK);
-			g2d.drawString(s, x - 2, y - 2 + espace);
-			g2d.setColor(Color.WHITE);
-			g2d.drawString(s, x, y + espace);
+		drawAntSelector(g2d, decalage / 6);
+
+		if (STARTED == 0) {
+
+			// text displays
+			String antString = "none";
+			if (selectedAnt != null) {
+				antString = selectedAnt.getClass().getName();
+				antString = antString.substring(0, antString.length() - 3); // remove
+																			// the
+																			// word
+																			// "ant"
+			}
+
+			g2d.drawString("Life: " + Math.max(colony.life, 0) + " Food: " + colony.getFood(), 18, 140);
+
+			g2d.drawString("XP: " + String.format("%,d", XP), FRAME_SIZE.width - 160, 40);
+			g2d.drawString("Best: " + String.format("%,d", Math.max(XP, XP_RECORD)), FRAME_SIZE.width - 150, 69);
+
+			g2d.drawString("Time: " + String.format("%,d", turn), FRAME_SIZE.width - 80, 100);
+
+		} else {
+
+			g2d.drawImage(START, FRAME_SIZE.width / 2 - 300 + mov / 3, 100, null);
 
 		}
 
-	}
+		drawTomb(g2d);
+		drawColony(g2d, decalage);
+		drawBees(g2d);
+		drawLeaves(g2d);
 
+		float angle = 0;
+		// Afficher la nourriture
+		for (int i = 0; i < Food.length; i++) {
+			if (Food[i] != null) {
+
+				angle = 3.1415f + (float) Math.atan((float) (Food[i].y) / (float) (Food[i].x));
+				Food[i].x = Food[i].x + (int) (6 * Math.cos(angle));
+				Food[i].y = Food[i].y + (int) (6 * Math.sin(angle));
+
+				if (Food[i].y < 160 - Math.random() * 20) {
+					Food[i] = null;
+					colony.increaseFood(1);
+					FOODCREATED++;
+					system.Utils.addXP(1);
+					food_earn.play();
+				} else {
+					g2d.drawImage(FOOD, Food[i].x, Food[i].y, null);
+				}
+			}
+		}
+
+		doExplosion(g2d);
+		if (!PAUSE && !FIN) {
+			drawHoverText(g2d);
+		}
+		if (!clock.isRunning()) { // start text
+
+			if (counter % 2 == 0) {
+				g2d.drawImage(STARTCLICK, FRAME_SIZE.width / 2 - 150, FRAME_SIZE.height - 200, null);
+			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			this.nextFrame();
+		}
+
+		if (colony.life <= 5) {
+			g2d.drawImage(BLOOD5, 0, 0, getParent());
+		}
+		if (colony.life <= 2) {
+			g2d.drawImage(BLOOD2, 0, 0, getParent());
+		}
+		float size = 1;
+		if (colony.lastAttacked <= 10) {
+			size = (float) (1f + colony.lastAttacked * 0.05);
+			g2d.drawImage(BLOOD, 0 - (int) ((size - 1) * FRAME_SIZE.width) / 2,
+					0 - (int) ((size - 1) * FRAME_SIZE.height) / 2, (int) (size * FRAME_SIZE.width),
+					(int) (size * FRAME_SIZE.height), getParent());
+		}
+		if (colony.lastAttacked == 1 && !FIN) {
+			addBigExplosion(0, FRAME_SIZE.height / 2 + 50, 100, 10);
+		}
+
+		if (PAUSE || FIN) {
+			g2d.drawImage(HOVERBLACK, 0, 0, FRAME_SIZE.width, FRAME_SIZE.height, getParent());
+		}
+
+		if (FIN) {
+			if ((int) (counterExt / FPS) % 2 == 0) {
+				g2d.setFont(TITLE);
+				//if (counter / FPS < Integer.parseInt(stats[0]) + 5) {
+					system.Utils.drawLongText("Game over !", FRAME_SIZE.width / 2 - 65, FRAME_SIZE.height / 2 - 90, g2d);
+				/*} else {
+					system.Utils.drawLongText("Click anywhere to play again !", FRAME_SIZE.width / 2 - 165,
+							FRAME_SIZE.height / 2 - 90, g2d);
+				}*/
+			}
+
+			if (counter / FPS > Integer.parseInt(stats[0]) + 1) {
+				g2d.setFont(LITTLE);
+				system.Utils.drawLongText("XP :", FRAME_SIZE.width / 2 - 40, FRAME_SIZE.height / 2 - 40, g2d);
+				g2d.setFont(FONT);
+				system.Utils.drawLongText(stats[1], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 - 40, g2d);
+			}
+
+			if (counter / FPS > Integer.parseInt(stats[0]) + 1) {
+				g2d.setFont(LITTLE);
+				system.Utils.drawLongText("Best :", FRAME_SIZE.width / 2 - 50, FRAME_SIZE.height / 2 - 20, g2d);
+				g2d.setFont(FONT);
+				system.Utils.drawLongText("" + stats[2], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 - 20, g2d);
+			}
+
+			if (counter / FPS > Integer.parseInt(stats[0]) + 2) {
+				g2d.setFont(LITTLE);
+				system.Utils.drawLongText("Total food created :", FRAME_SIZE.width / 2 - 138, FRAME_SIZE.height / 2, g2d);
+				g2d.setFont(FONT);
+				system.Utils.drawLongText("" + stats[3], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2, g2d);
+			}
+
+			if (counter / FPS > Integer.parseInt(stats[0]) + 2) {
+				g2d.setFont(LITTLE);
+				system.Utils.drawLongText("Dead ants :", FRAME_SIZE.width / 2 - 88, FRAME_SIZE.height / 2 + 20, g2d);
+				g2d.setFont(FONT);
+				system.Utils.drawLongText("" + stats[4], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 + 20, g2d);
+			}
+
+			if (counter / FPS > Integer.parseInt(stats[0]) + 2) {
+				g2d.setFont(LITTLE);
+				system.Utils.drawLongText("Killed bees :", FRAME_SIZE.width / 2 - 93, FRAME_SIZE.height / 2 + 40, g2d);
+				g2d.setFont(FONT);
+				system.Utils.drawLongText("" + stats[5], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 + 40, g2d);
+			}
+
+			if (counter / FPS > Integer.parseInt(stats[0]) + 3) {
+				g2d.setFont(LITTLE);
+				system.Utils.drawLongText("Total time :", FRAME_SIZE.width / 2 - 85, FRAME_SIZE.height / 2 + 70, g2d);
+				g2d.setFont(FONT);
+				system.Utils.drawLongText(stats[0] + " s", FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 + 70, g2d);
+			}
+
+			if (counter / FPS > Integer.parseInt(stats[0]) + 4) {
+				g2d.setFont(LITTLE);
+				system.Utils.drawLongText("Ants discovered :", FRAME_SIZE.width / 2 - 128, FRAME_SIZE.height / 2 + 100, g2d);
+				g2d.setFont(FONT);
+				system.Utils.drawLongText("" + stats[6], FRAME_SIZE.width / 2, FRAME_SIZE.height / 2 + 100, g2d);
+			}
+
+		}
+
+		if (FIN) {
+			return;
+		}
+		if (PAUSE) {
+			g2d.drawImage(PLAY_IMG, 25, FRAME_SIZE.height - 75, 50, 50, getParent());
+
+			if ((int) (counterExt / FPS) % 2 == 0) {
+				g2d.setFont(TITLE);
+				system.Utils.drawLongText("Pause", FRAME_SIZE.width / 2 - 30, FRAME_SIZE.height / 2 - 20, g2d);
+			}
+
+		} else {
+			g2d.drawImage(PAUSE_IMG, 25, FRAME_SIZE.height - 75, 50, 50, getParent());
+		}
+
+	}
+	
+	
+	
+	
+	//Draw tombstones
+	private void drawTomb(Graphics2D g2d) {
+
+		for (int i = 0; i < tombstone.length; i++) {
+			if (tombstone[i] != null) {
+
+				g2d.drawImage(TOMB, tombstone[i].x, tombstone[i].y, null);
+
+			}
+		}
+
+	}
+	
+	//Drawing text on mouse over
 	private void drawHoverText(Graphics2D g2d) {
 		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
 
 			if (entry.getKey().contains(mouseX, mouseY)) {
 
 				g2d.setFont(FONT);
-				drawLongText(entry.getValue().name, mouseX + 3, mouseY + 3, g2d);
+				system.Utils.drawLongText(entry.getValue().name, mouseX + 3, mouseY + 3, g2d);
 				g2d.setFont(LITTLE);
-				drawLongText(entry.getValue().description, mouseX + 3, mouseY + 3 + 20, g2d);
+				system.Utils.drawLongText(entry.getValue().description, mouseX + 3, mouseY + 3 + 20, g2d);
 			}
 
 		}
@@ -1472,14 +1237,14 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		for (Map.Entry<Bee, AnimPosition> entry : allBeePositions.entrySet()) {
 
 			Rectangle rect = new Rectangle();
-			rect.setBounds((int) entry.getValue().x, (int) entry.getValue().y, 60, 60);
+			rect.setBounds((int) entry.getValue().getX(), (int) entry.getValue().getY(), 60, 60);
 
 			if (rect.contains(mouseX, mouseY) && !found) {
 
 				g2d.setFont(FONT);
-				drawLongText(entry.getKey().name, mouseX + 3, mouseY + 3, g2d);
+				system.Utils.drawLongText(entry.getKey().name, mouseX + 3, mouseY + 3, g2d);
 				g2d.setFont(LITTLE);
-				drawLongText(entry.getKey().description, mouseX + 3, mouseY + 3 + 20, g2d);
+				system.Utils.drawLongText(entry.getKey().description, mouseX + 3, mouseY + 3 + 20, g2d);
 				found = true;
 			}
 
@@ -1493,22 +1258,22 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						&& entry.getValue().tunnel >= minTunnel && entry.getValue().tunnel <= maxTunnel) {
 					if (entry.getValue().getAnt() == null) {
 						g2d.setFont(FONT);
-						drawLongText(entry.getValue().name, mouseX + 3, mouseY + 3, g2d);
+						system.Utils.drawLongText(entry.getValue().name, mouseX + 3, mouseY + 3, g2d);
 						g2d.setFont(LITTLE);
-						drawLongText(entry.getValue().description, mouseX + 3, mouseY + 3 + 20, g2d);
+						system.Utils.drawLongText(entry.getValue().description, mouseX + 3, mouseY + 3 + 20, g2d);
 					} else {
 						g2d.setFont(FONT);
-						drawLongText("\""
+						system.Utils.drawLongText("\""
 								+ randomText[(int) ((Math.pow((int) (turn / 4 + entry.getValue().left
 										+ entry.getValue().tunnel + entry.getValue().getAnt().armor
 										+ entry.getValue().getAnt().description.length()), 2)) % randomText.length)]
 								+ "\"", mouseX + 3, mouseY + 3, g2d);
 						g2d.setFont(LITTLE);
-						drawLongText("This ant have "
+						system.Utils.drawLongText("This ant have "
 								+ (entry.getValue().getAnt().armor)
 								+ "pv", mouseX + 3, mouseY + 3 + 20, g2d);
 						if(entry.getValue().getAnt().damage>0){
-							drawLongText("It makes "
+							system.Utils.drawLongText("It makes "
 								+ (entry.getValue().getAnt().damage)
 								+ " damages per attack", mouseX + 3, mouseY + 3 + 35, g2d);
 						}
@@ -1705,7 +1470,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			if (entry.getKey().place != null) {
 
 				if (bee.lastAttacked == 1) {
-					addXP(bee.initArmor - bee.armor);
+					system.Utils.addXP(bee.initArmor - bee.armor);
 				}
 
 				if (bee.lastAttacked < FPS / 4) { // Change l'image pour un
@@ -1742,7 +1507,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 			if (!bee.invisible && image != null) {
 
 				if (flip) {
-					g2d.drawImage(image, (int) pos.x + mx + image.getWidth(getParent()), (int) pos.y + my,
+					g2d.drawImage(image, (int) pos.getX() + mx + image.getWidth(getParent()), (int) pos.getY() + my,
 							-image.getWidth(getParent()), image.getHeight(getParent()), null); // draw
 																								// a
 																								// bee
@@ -1750,7 +1515,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 																								// that
 																								// position!
 				} else {
-					g2d.drawImage(image, (int) pos.x + mx, (int) pos.y + my, null); // draw
+					g2d.drawImage(image, (int) pos.getX() + mx, (int) pos.getY() + my, null); // draw
 																					// a
 																					// bee
 																					// at
@@ -1762,12 +1527,12 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 				if (bee.armor > 0) {
 					g2d.setColor(Color.GRAY);
-					g2d.fillRect((int) (pos.x + PLACE_PADDING.width + 30 - barsize / 2 + mx),
-							(int) (pos.y + PLACE_PADDING.height + 10 + my), barsize, 5);
+					g2d.fillRect((int) (pos.getX() + PLACE_PADDING.width + 30 - barsize / 2 + mx),
+							(int) (pos.getY() + PLACE_PADDING.height + 10 + my), barsize, 5);
 
 					g2d.setColor(Color.RED);
-					g2d.fillRect((int) (pos.x + PLACE_PADDING.width + 30 - barsize / 2 + mx + 1),
-							(int) (pos.y + PLACE_PADDING.height + 10 + my + 1),
+					g2d.fillRect((int) (pos.getX() + PLACE_PADDING.width + 30 - barsize / 2 + mx + 1),
+							(int) (pos.getY() + PLACE_PADDING.height + 10 + my + 1),
 							(int) ((barsize - 2) * ((float) bee.armor / bee.initArmor)), 3);
 
 				}
@@ -1780,66 +1545,20 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	// Draws all the leaves (animation elements) at their current location
 	private void drawLeaves(Graphics2D g2d) {
 		for (AnimPosition leafPos : leaves) {
-			double angle = leafPos.framesLeft * Math.PI / 8; // spin PI/8 per
+			double angle = leafPos.getFramesLeft() * Math.PI / 8; // spin PI/8 per
 																// frame (magic
 																// variable)
 			Shape leaf;
 			if (!leafPos.buff) {
-				leaf = leafShape((int) leafPos.x, (int) leafPos.y, angle, LEAF_SIZE);
+				leaf = system.Utils.leafShape((int) leafPos.getX(), (int) leafPos.getY(), angle, LEAF_SIZE);
 			} else {
-				leaf = leafShape((int) leafPos.x, (int) leafPos.y, angle, LEAF_SIZE_BUFF);
+				leaf = system.Utils.leafShape((int) leafPos.getX(), (int) leafPos.getY(), angle, LEAF_SIZE_BUFF);
 			}
-			g2d.setColor(leafPos.color);
+			g2d.setColor(leafPos.getColor());
 			g2d.fill(leaf);
 		}
 	}
 
-	/**
-	 * Generates the geometric shape to draw for a leaf
-	 *
-	 * @param x
-	 *            starting point (center) x
-	 * @param y
-	 *            starting point (center) y
-	 * @param angle
-	 *            current angle the leaf is pointing
-	 * @param length
-	 *            length of the leaf
-	 * @return a new leaf shape
-	 */
-	private Shape leafShape(int x, int y, double angle, int length) {
-		// calculate angles and distances to move
-		double[] a = { angle - Math.PI, angle - 3 * Math.PI / 4, angle - Math.PI / 2, angle - Math.PI / 4, angle,
-				angle + Math.PI / 4, angle + Math.PI / 2, angle + 3 * Math.PI / 4 };
-		double[] d = { length / 3, length / 2.5, length / 2, length / 1.5, length, length / 1.5, length / 2,
-				length / 2.5 };
-
-		// build a shape that is vaguely leaf-like
-		Path2D.Double curve = new Path2D.Double();
-		curve.moveTo(x + Math.cos(a[0]) * d[0], y + Math.sin(a[0]) * d[0]); // mathematical
-																			// magic
-																			// (just
-																			// moving
-																			// from
-																			// start
-																			// by
-																			// given
-																			// angle
-																			// and
-																			// distance,
-																			// in
-																			// order)
-		curve.quadTo(x + Math.cos(a[1]) * d[1], y + Math.sin(a[1]) * d[1], x + Math.cos(a[2]) * d[2],
-				y + Math.sin(a[2]) * d[2]);
-		curve.quadTo(x + Math.cos(a[3]) * d[3], y + Math.sin(a[3]) * d[3], x + Math.cos(a[4]) * d[4],
-				y + Math.sin(a[4]) * d[4]);
-		curve.quadTo(x + Math.cos(a[5]) * d[5], y + Math.sin(a[5]) * d[5], x + Math.cos(a[6]) * d[6],
-				y + Math.sin(a[6]) * d[6]);
-		curve.quadTo(x + Math.cos(a[7]) * d[7], y + Math.sin(a[7]) * d[7], x + Math.cos(a[0]) * d[0],
-				y + Math.sin(a[0]) * d[0]);
-
-		return curve;
-	}
 
 	// Afficher les vagues d'ennemis en cours d'arrivee
 	private void drawIncomingWaves(Graphics2D g2d, int decalageY) {
@@ -1864,7 +1583,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 			g2d.drawImage(img, x - 10, y - 10 + (int) (5 * Math.cos((float) (3 * counter + add) / FPS)), 20, 20, this);
 			g2d.setFont(LITTLEMAP);
-			drawLongText("lv." + (level + 1), x - 10, y + 10 + (int) (5 * Math.cos((float) (3 * counter + add) / FPS)),
+			system.Utils.drawLongText("lv." + (level + 1), x - 10, y + 10 + (int) (5 * Math.cos((float) (3 * counter + add) / FPS)),
 					g2d);
 			g2d.setFont(FONT);
 
@@ -1875,7 +1594,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	// Draws the ant selector area
 	private void drawAntSelector(Graphics2D g2d, int decalageY) {
 
-		scrollSelector(g2d);
+		drawScrollSelector(g2d);
 
 		if (STARTED <= 0 && (counter * 6 / FPS) % 2 == 0 && LASTLEVELCHANGE < FPS) {
 			g2d.setColor(Color.WHITE);
@@ -1932,7 +1651,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 
 	}
 
-	private void scrollSelector(Graphics2D g2d) {
+	private void drawScrollSelector(Graphics2D g2d) {
 
 		if (dragStart.y < 140 && mousePressed && antSelectorAreas.size() > 9) {
 
@@ -1971,6 +1690,15 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 
 	}
+	
+	
+	
+	
+	
+	//////////////////
+	// Initializers //
+	//////////////////
+	
 
 	/**
 	 * Initializes the Ant graphics for the game. This method loads Ant details
@@ -2105,7 +1833,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 																				// put
 																				// the
 																				// selector
-			Ant ant = buildAnt(antType); // the ant that gets deployed from that
+			Ant ant = system.Utils.buildAnt(antType); // the ant that gets deployed from that
 											// selector
 			if (ant != null && ant.level <= LEVEL || DEBUG) {
 				ANTSDISCOVERED++;
@@ -2124,32 +1852,141 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		}
 	}
 
-	/**
-	 * Returns a new instance of an Ant object of the given subclass
-	 *
-	 * @param antType
-	 *            The name of an Ant subclass (e.g., "HarvesterAnt")
-	 * @return An instance of that subclass, created using the default
-	 *         constructor
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Ant buildAnt(String antType) {
-		Ant ant = null;
+	
+	
+	////////////////////
+	// Initialization //
+	////////////////////
+	
+
+	
+	public void initializeVars(AntColony colony){
+
+		// Mise en place de la musique
+		title.play();
+		title.gain(-3);
+		title.loop(true);
+
+		// Sons
+		add[0] = new Audio("add1.wav");
+		add[1] = new Audio("add2.wav");
+		add[2] = new Audio("add3.wav");
+		add[3] = new Audio("add4.wav");
+		add[0].megain = -15f;
+		add[1].megain = -15f;
+		add[2].megain = -15f;
+		add[3].megain = -15f;
+
+		food_earn.megain = -15f;
+
+		// Get best game
 		try {
-			Class antClass = Class.forName(antType); // what class is this type
-			Constructor constructor = antClass.getConstructor(); // find the
-																	// default
-																	// constructor
-																	// (using
-																	// reflection)
-			ant = (Ant) constructor.newInstance(); // call the default
-													// constructor to make a new
-													// ant
-		} catch (Exception e) {
+			Scanner sc = new Scanner(new File("assets/stats.propert"));
+			while (sc.hasNextLine()) {
+				String line = sc.nextLine();
+				XP_RECORD = (int) Float.parseFloat(line);
+			}
+			sc.close();
+		} catch (IOException e) {
+			System.out.println("No stat file, creating it...");
+			try {
+
+				File file = new File("assets/stats.propert");
+
+				if (file.createNewFile()) {
+					System.out.println("File was created!");
+				}
+
+			} catch (IOException e1) {
+				System.out.println(" /!\\ File not created !");
+			}
 		}
 
-		return ant; // return the new ant
+		// Get Bees
+		for (int i = 0; i < 4; i++) {
+
+			BEE_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/bee_image.gif");
+			BEE_IMAGE2[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/bee_image2.gif");
+			BEEBAD_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/beebad_image.gif");
+			BEEATTACK_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/beeattack_image.gif");
+			BEESTUN_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/beestun_image.png");
+			BEESLOW_IMAGE[i] = ImageUtils.loadImage("assets/imgs/bees/" + i + "/beeslow_image.gif");
+
+		}
+
+		// Get Bang
+		for (int i = 0; i < BANG.length; i++) {
+
+			BANG[i] = ImageUtils.loadImage("assets/imgs/bang/" + i + ".png");
+
+		}
+
+		for (int i = 0; i < EXPLOSION.length; i++) {
+			EXPLOSION[i] = ImageUtils.loadImage("assets/imgs/explosion/" + i + ".png");
+		}
+		
+		// game init stuff
+		this.colony = colony;
+		this.hive = new Hive();
+
+		// game clock tracking
+		frame = 0;
+		counter = 0;
+		turn = 0;
+
+		// DEBUG
+		if(DEBUG){
+			turn = 600; minTunnel = 0; maxTunnel = 4;
+			colony.increaseFood(7328192);
+		}
+
+		clock = new Timer(1000 / FPS, this);
 	}
+	
+	public void makeWindow(){
+		// basic appearance
+		setPreferredSize(FRAME_SIZE);
+		setBackground(Color.WHITE);
+
+		// make and show the frame!
+		JFrame frame = new JFrame("Ants vs SomeBees");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setResizable(false);
+		frame.add(this);
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+	}
+	
+	
+	
+	
+	
+	
+	
+	////////////////////
+	// Animations     //
+	////////////////////
+	
+	// Specifies and starts an animation for a Bee (moving to a particular
+	// place)
+	private void startAnimation(Bee b) {
+
+		AnimPosition anim = allBeePositions.get(b);
+		if (anim.getFramesLeft() == 0 && b.damageDone == false) // if not already
+															// animating
+		{
+			Rectangle rect = colonyRects.get(b.getPlace()); // where we want to
+															// go to
+			if (rect != null && !rect.contains(anim.getX(), anim.getY())) {
+				anim.animateTo(rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, FPS * TURN_SECONDS);
+			}
+		}
+	}
+	
+	
+	
+	
 
 	////////////////////
 	// Event Handlers //
@@ -2183,120 +2020,102 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {
-	}
-
-	@Override
 	public void mouseReleased(MouseEvent e) {
 		mousePressed = false;
 		dragStart.setLocation(-1, -1);
 	}
+	
+	//
+	/**
+	 * Handles clicking on the screen (used for selecting and deploying ants).
+	 * Synchronized method so we don't create conflicts in amount of food
+	 * remaining.
+	 *
+	 * @param e
+	 *            The mouse event representing the click
+	 */
+	private synchronized void handleClick(MouseEvent e) {
+		Point pt = e.getPoint();
 
-	// Specifies and starts an animation for a Bee (moving to a particular
-	// place)
-	private void startAnimation(Bee b) {
-
-		AnimPosition anim = allBeePositions.get(b);
-		if (anim.framesLeft == 0 && b.damageDone == false) // if not already
-															// animating
-		{
-			Rectangle rect = colonyRects.get(b.getPlace()); // where we want to
-															// go to
-			if (rect != null && !rect.contains(anim.x, anim.y)) {
-				anim.animateTo(rect.x + PLACE_PADDING.width, rect.y + PLACE_PADDING.height, FPS * TURN_SECONDS);
+		/*if (FIN) {
+			if (counter / FPS > Integer.parseInt(stats[0]) + 2) {
+				restartGame();
 			}
 		}
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-	}
-
-	/**
-	 * An inner class that encapsulates location information for animation
-	 */
-	private static class AnimPosition {
-
-		private double x, y; // current position
-		private double dx, dy; // amount to move each frame (double precision)
-		private int framesLeft; // frames left in animation
-		private Color color; // color of thing we're animating (if relevant)
-		public boolean buff = false;
-
-		/**
-		 * Creates a new AnimPosition at the given coordinates
-		 *
-		 * @param x
-		 * @param y
-		 */
-		public AnimPosition(int x, int y) {
-			this.x = x;
-			this.y = y;
+		*/
+		
+		if (pt.getX() < 100 && pt.getY() > FRAME_SIZE.getHeight() - 100) {
+			Sou_select.play();
+			PAUSE = !PAUSE;
+			return;
 		}
-
-		/**
-		 * Moves (translates) the animation position by a single frame
-		 */
-		public void step() {
-			x += dx;
-			y += dy;
-			framesLeft--;
+		if (PAUSE) {
+			return;
 		}
+		// check if deploying an ant
+		for (Rectangle rect : colonyAreas.keySet()) {
+			if (rect.contains(pt) && colonyAreas.get(rect).left < 8) {
+				if (selectedAnt == null) {
+					if (colonyAreas.get(rect).getAnt() != null
+							&& !(colonyAreas.get(rect).getAnt() instanceof QueenAnt)) {
+						Sou_delete.play();
+						colony.increaseFood((colonyAreas.get(rect).getAnt().foodCost + 1) / 2);
+					}
+					colony.removeAnt(colonyAreas.get(rect));
+					return; // stop searching
+				} else {
+					if (colonyAreas.get(rect).tunnel < minTunnel || colonyAreas.get(rect).tunnel > maxTunnel) {
+						return;
+					}
+					if (colonyAreas.get(rect).getAnt() == null) {
+						Sou_place.play();
+						add[(int) (Math.random() * 4)].play();
+					}
+					Ant deployable = system.Utils.buildAnt(selectedAnt.getClass().getName()); // make
+																					// a
+																					// new
+																					// ant
+																					// of
+																					// the
+																					// appropriate
+																					// type
+					colony.deployAnt(colonyAreas.get(rect), deployable);
 
-		/**
-		 * Calculates the animation movements to get to the given position from
-		 * the current position in the specified number of frames
-		 *
-		 * @param nx
-		 *            Target x
-		 * @param ny
-		 *            Target y
-		 * @param frames
-		 *            Number of frames to move in
-		 */
-		public void animateTo(int nx, int ny, int frames) {
-			framesLeft = frames; // reset number of frames to move
-			dx = (nx - x) / framesLeft; // delta is distance between divided by
-										// num frames
-			dy = (ny - y) / framesLeft;
-		}
+					if (deployable instanceof QueenAnt) {
+						HASQUEEN = true;
+						initializeAntSelector();
+					}
 
-		@Override
-		public String toString() {
-			return "AnimPosition[x=" + x + ",y=" + y + ",dx=" + dx + ",dy=" + dy + ",framesLeft=" + framesLeft + "]";
-		}
-	}
-
-	/**
-	 * A utility class for working with external images (placed as inner class
-	 * so less overwhelming)
-	 */
-	public static class ImageUtils {
-
-		/**
-		 * Loads an image object with the given filename.
-		 *
-		 * @param filename
-		 *            The path and filename of the image to load
-		 * @return An Image object representing that image.
-		 */
-		public static Image loadImage(String filename) {
-			Image img = null;
-
-			try {
-				img = ImageIO.read(new File(filename)); // read the image from a
-														// file
-			} catch (IOException e) {
-				System.err.println("Error loading \'" + filename + "\': " + e.getMessage());
+					return; // stop searching
+				}
 			}
-			return img; // return the image
 		}
-	}
 
+		// check if remover
+		if (removerArea.contains(pt)) {
+			Sou_select.play();
+			selectedAnt = null; // mark as such
+			return; // stop searching
+		}
+
+		// check if selecting an ant
+		for (Map.Entry<Rectangle, Ant> entry : antSelectorAreas.entrySet()) {
+			if (entry.getKey().contains(pt)) {
+				Sou_select.play();
+				selectedAnt = entry.getValue();
+				return; // stop searching
+			}
+		}
+
+	}
+	
+	//Auto implemented but unused
 	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
+	public void mouseClicked(MouseEvent e) { }
+	@Override
+	public void mouseEntered(MouseEvent e) { }
+	@Override
+	public void mouseExited(MouseEvent e) { }
 
-	}
 
 }
