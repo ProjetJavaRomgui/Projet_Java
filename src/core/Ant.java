@@ -64,4 +64,5 @@ public abstract class Ant extends Insect {
 	public boolean getLandSafe() {
 		return landSafe;
 	}
+
 }

@@ -1,5 +1,7 @@
 package core;
 
+import ants.NenupharAnt;
+
 /**
  * Represents an insect (e.g., an Ant or a Bee) in the game
  *
@@ -86,7 +88,9 @@ public abstract class Insect {
 			leavePlace();
 			
 		}
-		lastAttacked = 0;
+		if (!(this instanceof NenupharAnt)){
+			lastAttacked = 0;
+		}
 	}
 
 	/**

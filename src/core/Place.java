@@ -8,7 +8,7 @@ import core.Containing;
  *
  */
 public class Place {
-
+	public boolean hasNenuphar = false;
 	private String debugName; // a name we can use for debugging
 	private Place exit; // where you leave this place to
 	private Place entrance; // where you enter this place from
@@ -135,10 +135,10 @@ public class Place {
 	 */
 	public boolean addInsect (Ant ant) {
 		if (this.ant == null) {
-			if(this instanceof Water && ant.getWaterSafe() == false){
+			if(this instanceof Water && ant.getWaterSafe() == false && !this.hasNenuphar){
 				System.out.println("Can't place this ant on Water"); // report error
 				return false;
-			} else if(this instanceof Water && ant.getWaterSafe()){
+			} else if(this instanceof Water && ant.getWaterSafe() && !this.hasNenuphar){
 				this.ant = ant;
 				ant.setPlace(this);
 				return true;
@@ -157,7 +157,7 @@ public class Place {
 				return false;
 			}
 		}
-		else if(ant.isContener() && Containing.canAddContener(this)){
+		else if(ant.isContener() && Containing.canAddContener(this) && (!(this instanceof Water) || this.hasNenuphar) ){
 			this.containingAnt = ant;
 			ant.setPlace(this);
 			return true;
