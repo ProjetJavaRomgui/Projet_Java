@@ -90,6 +90,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	private final Image TUNNEL_IMAGE = ImageUtils.loadImage("assets/imgs/tunnel.gif");
 	private final Image TUNNEL_CLOSED_IMAGE = ImageUtils.loadImage("assets/imgs/tunnelclosed.gif");
 	private final Image WATER_IMAGE = ImageUtils.loadImage("assets/imgs/water.png");
+	private final Image WATERNOT_IMAGE = ImageUtils.loadImage("assets/imgs/water_not.png");
 	private final Image TUNNEL_SELECT_IMAGE = ImageUtils.loadImage("assets/imgs/tun_select.png");
 	private final Image TUNNEL_SELECTED_IMAGE = ImageUtils.loadImage("assets/imgs/tun_selected.png");
 	private final Image FOOD = ImageUtils.loadImage("assets/imgs/food.png");
@@ -1301,9 +1302,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 				g2d.setColor(Color.BLACK);
 				// g2d.draw(rect); // border box (where to click)
 
-				if (place != tunnelEnd && place instanceof Water) {
+				if (place != tunnelEnd && place instanceof Water && !place.hasNenuphar) {
 					g2d.drawImage(WATER_IMAGE, rect.x + decalage, rect.y, null); // decorative
 																					// image
+				} else if (place != tunnelEnd && place instanceof Water){
+					g2d.drawImage(WATERNOT_IMAGE, rect.x + decalage, rect.y, null); //nénufar !
 				} else if (place != tunnelEnd) {
 					g2d.drawImage(TUNNEL_IMAGE, rect.x + decalage, rect.y, null); // water
 																					// image

@@ -12,8 +12,8 @@ public class NenupharAnt extends Ant{
 		level = 0;
 		damage = 0;
 		foodCost = 1;
-		name = "Nenuphar";
-		description = "A Lily flower, one ant should be light enough to stand on it";
+		name = "Water Lily";
+		description = "A Water Lily, one ant should be light enough to stand on it";
 		landSafe = false;
 		
 	}
