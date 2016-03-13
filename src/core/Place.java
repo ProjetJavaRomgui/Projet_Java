@@ -1,6 +1,8 @@
 package core;
 
 import java.util.ArrayList;
+
+import ants.BuffGuard;
 import core.Containing;
 /**
  * Represents a location in the game with entrance
@@ -134,7 +136,11 @@ public class Place {
 	 *            The ant to add to the place.
 	 */
 	public boolean addInsect (Ant ant) {
-		if (this.ant == null) {
+		if (this.ant == null && this.containingAnt == null) {
+			if(ant instanceof BuffGuard && this.getAnt() == null){
+				System.out.println("Can't buff the air");
+				return false;
+			}
 			if(this instanceof Water && ant.getWaterSafe() == false && !this.hasNenuphar){
 				System.out.println("Can't place this ant on Water"); // report error
 				return false;

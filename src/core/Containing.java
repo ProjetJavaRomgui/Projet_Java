@@ -1,5 +1,7 @@
 package core;
 
+import ants.QueenAnt;
+
 /**
 * Interface pour les fourmis contenantes (like Body Guard or Buff Guard)
 *
@@ -9,6 +11,10 @@ public class Containing {
 	public static boolean canAddContener(Place place) {
 		if(place.getContainingAnt() != null){
 			System.out.println("erreur : on ne peut mettre deux fourmis contenantes sur la m�me case");
+			return false;
+		}
+		if(place.getAnt() instanceof QueenAnt){
+			System.out.println("erreur: la reine a besoin d'un grand espace vital");
 			return false;
 		}
 		return true;
