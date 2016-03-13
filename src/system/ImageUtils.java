@@ -8,8 +8,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 /**
- * A utility class for working with external images (placed as inner class
- * so less overwhelming)
+ * A utility class for working with external images (placed as inner class so
+ * less overwhelming)
  */
 public class ImageUtils {
 

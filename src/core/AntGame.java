@@ -255,6 +255,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		ANT_IMAGES = new HashMap<String, Image>();
 		LEAF_COLORS = new HashMap<String, Color>();
 		initializeAnts();
+		
 
 		// tracking bee animations
 		allBeePositions = new HashMap<Bee, AnimPosition>();
@@ -1364,17 +1365,18 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 						img = ANT_IMAGES.get(ant.getClass().getName() + "buffed");
 						if(ant instanceof HungryAnt){
 							if(((HungryAnt) ant).Cooldown!=0){
-							img = ANT_IMAGES.get("HungryAntFoodbuffed");
+							img = ANT_IMAGES.get("ants.HungryAntFoodbuffed");
 							}
 						}
 					} else {
 						img = ANT_IMAGES.get(ant.getClass().getName());
 						if(ant instanceof HungryAnt){
 							if(((HungryAnt) ant).Cooldown!=0){
-							img = ANT_IMAGES.get("HungryAntFood");
+							img = ANT_IMAGES.get("ants.HungryAntFood");
 							}
 						}
 					}
+					
 					float respiration = (float) (1
 							+ 0.05 * Math.cos((float) (counter + ant.randomDecalage * 10) * 4f / FPS));
 					g2d.drawImage(img, rect.x + PLACE_PADDING.width,
