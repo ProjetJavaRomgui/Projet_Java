@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import core.Ant;
+import ants.HungryAnt;
 import ants.NinjaThrowerAnt;
 import ants.QueenAnt;
 import ants.ThrowerAnt;
@@ -59,7 +60,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 	 *	Variables
 	 *
 	 */
-	private static final boolean DEBUG = false; // True to activate DEBUG mode, with all ants and directly on turn 600
+	private static final boolean DEBUG = true; // True to activate DEBUG mode, with all ants and directly on turn 600
 	
 	
 	private static final long serialVersionUID = 1L;
@@ -1361,13 +1362,24 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 					Image img;
 					if (ant.buff) {
 						img = ANT_IMAGES.get(ant.getClass().getName() + "buffed");
+						if(ant instanceof HungryAnt){
+							if(((HungryAnt) ant).Cooldown!=0){
+							img = ANT_IMAGES.get("HungryAntFoodbuffed");
+							}
+						}
 					} else {
 						img = ANT_IMAGES.get(ant.getClass().getName());
+						if(ant instanceof HungryAnt){
+							if(((HungryAnt) ant).Cooldown!=0){
+							img = ANT_IMAGES.get("HungryAntFood");
+							}
+						}
 					}
 					float respiration = (float) (1
 							+ 0.05 * Math.cos((float) (counter + ant.randomDecalage * 10) * 4f / FPS));
 					g2d.drawImage(img, rect.x + PLACE_PADDING.width,
-							rect.y + PLACE_PADDING.height + (int) ((1 - respiration) * img.getHeight(getParent()))
+							rect.y + PLACE_PADDING.height + (int) ((1 - respiration) 
+									* img.getHeight(getParent()))
 									- (int) (respiration * 10) + 10,
 							img.getWidth(getParent()), (int) (respiration * img.getHeight(getParent())), null);
 
