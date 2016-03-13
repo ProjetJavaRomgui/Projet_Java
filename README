@@ -1,0 +1,26 @@
+////////////////////////////////
+// Game created by            //
+
+Guillaume RUCHOT ruchot1u
+Romaric MOLLARD mollard2u
+
+
+////////////////////////////////
+// Run                        //
+
+If you want to use the complete game on first start, set the DEBUG static variable to True in core.AntsVsSomeBees
+
+
+////////////////////////////////
+// Main file for compilation  //
+
+core.AntsVsSomeBees
+
+
+////////////////////////////////
+// Credit                     //
+
+*Title* and *Gameover* music from Parachute Panic
+http://www.fdg-entertainment.com/en/iphone-games/parachute-panic.html
+
+*inGame* music from Romaric Mollard

@@ -55,13 +55,13 @@ import system.ImageUtils;
 @SuppressWarnings("serial")
 public class AntGame extends JPanel implements ActionListener, MouseListener {
 
+	
+	
 	/**
 	 *
 	 *	Variables
 	 *
 	 */
-	private static final boolean DEBUG = true; // True to activate DEBUG mode, with all ants and directly on turn 600
-	
 	
 	private static final long serialVersionUID = 1L;
 	// game models
@@ -1852,11 +1852,11 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 																				// selector
 			Ant ant = system.Utils.buildAnt(antType); // the ant that gets deployed from that
 											// selector
-			if (ant != null && ant.level <= LEVEL || DEBUG) {
+			if (ant != null && ant.level <= LEVEL || AntsVsSomeBees.DEBUG) {
 				ANTSDISCOVERED++;
 			}
 			if (ant != null && !(ant instanceof QueenAnt && HASQUEEN)) {
-				if (ant.level <= LEVEL || DEBUG) { // Only our level of ants
+				if (ant.level <= LEVEL || AntsVsSomeBees.DEBUG) { // Only our level of ants
 
 					antSelectorAreas.put(clickable, ant); // register the
 															// deployable ant so
@@ -1952,7 +1952,7 @@ public class AntGame extends JPanel implements ActionListener, MouseListener {
 		turn = 0;
 
 		// DEBUG
-		if(DEBUG){
+		if(AntsVsSomeBees.DEBUG){
 			turn = 600; minTunnel = 0; maxTunnel = 4;
 			colony.increaseFood(7328192);
 		}

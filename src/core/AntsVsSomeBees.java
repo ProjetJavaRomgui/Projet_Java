@@ -4,6 +4,10 @@ package core;
  *
  */
 public class AntsVsSomeBees {
+
+	
+	static final boolean DEBUG = false; // True to activate DEBUG mode, with all ants and directly on turn 600
+	
 	
 	public static void main (String[] args) {
 		
